@@ -217,7 +217,7 @@ const ApiConnectionTab = () => {
           </div>
 
           {/* Save Settings */}
-          <div className="border-t pt-6 space-y-4">
+          <div className="border-t pt-6">
             <Button 
               size="lg" 
               className="w-full md:w-auto"
@@ -230,24 +230,26 @@ const ApiConnectionTab = () => {
             >
               Saglabāt Iestatījumus
             </Button>
-
-            {/* Add API Connector Button */}
-            <Button 
-              size="lg"
-              className="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white"
-              onClick={() => {
-                toast({
-                  title: "Jauns API Savienojums",
-                  description: "Pievienojiet jaunu API savienojuma formu.",
-                });
-              }}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Pievienot API Savienojumu
-            </Button>
           </div>
         </CardContent>
       </Card>
+
+      {/* Add API Connector Button - Centered below the card */}
+      <div className="flex justify-center">
+        <Button 
+          size="lg"
+          className="bg-green-600 hover:bg-green-700 text-white"
+          onClick={() => {
+            toast({
+              title: "Jauns API Savienojums",
+              description: "Pievienojiet jaunu API savienojuma formu.",
+            });
+          }}
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Pievienot API Savienojumu
+        </Button>
+      </div>
     </div>
   );
 };
