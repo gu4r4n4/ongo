@@ -12,7 +12,7 @@ const Index = () => {
       <div className="container mx-auto p-6 max-w-7xl">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin</h1>
-          <p className="text-gray-600">Pārvaldiet rēķinus, sekojiet veiktspējai un konfigurējiet API savienojumus</p>
+          <p className="text-gray-600">Pārvaldiet rēķinus un konfigurējiet API savienojumus</p>
         </div>
 
         <Tabs defaultValue="dashboard" className="w-full">
