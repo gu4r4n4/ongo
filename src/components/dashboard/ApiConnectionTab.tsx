@@ -39,8 +39,8 @@ const ApiConnectionTab = () => {
   const handleTestConnection = async () => {
     if (!formData.companyName || !formData.apiKey || !formData.username || !formData.password) {
       toast({
-        title: "Missing Information",
-        description: "Please fill in all fields before testing the connection.",
+        title: "Trūkst Informācijas",
+        description: "Lūdzu aizpildiet visus laukus pirms savienojuma testēšanas.",
         variant: "destructive"
       });
       return;
@@ -56,14 +56,14 @@ const ApiConnectionTab = () => {
       if (isSuccess) {
         setConnectionStatus('success');
         toast({
-          title: "Connection Successful",
-          description: "API connection has been established successfully.",
+          title: "Savienojums Veiksmīgs",
+          description: "API savienojums ir veiksmīgi izveidots.",
         });
       } else {
         setConnectionStatus('error');
         toast({
-          title: "Connection Failed",
-          description: "Unable to establish API connection. Please check your credentials.",
+          title: "Savienojums Neizdevās",
+          description: "Neizdevās izveidot API savienojumu. Lūdzu pārbaudiet savus akreditācijas datus.",
           variant: "destructive"
         });
       }
@@ -75,11 +75,11 @@ const ApiConnectionTab = () => {
   const getConnectionStatusBadge = () => {
     switch (connectionStatus) {
       case 'success':
-        return <Badge className="bg-green-100 text-green-800 border-green-200"><CheckCircle className="w-3 h-3 mr-1" />Connected</Badge>;
+        return <Badge className="bg-green-100 text-green-800 border-green-200"><CheckCircle className="w-3 h-3 mr-1" />Savienots</Badge>;
       case 'error':
-        return <Badge className="bg-red-100 text-red-800 border-red-200"><XCircle className="w-3 h-3 mr-1" />Failed</Badge>;
+        return <Badge className="bg-red-100 text-red-800 border-red-200"><XCircle className="w-3 h-3 mr-1" />Neizdevās</Badge>;
       default:
-        return <Badge variant="secondary">Not Connected</Badge>;
+        return <Badge variant="secondary">Nav Savienots</Badge>;
     }
   };
 
@@ -89,8 +89,8 @@ const ApiConnectionTab = () => {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>API Connection Settings</CardTitle>
-              <CardDescription>Configure your API connection and company details</CardDescription>
+              <CardTitle>API Savienojuma Iestatījumi</CardTitle>
+              <CardDescription>Konfigurējiet savu API savienojumu un uzņēmuma detaļas</CardDescription>
             </div>
             {getConnectionStatusBadge()}
           </div>
@@ -98,34 +98,34 @@ const ApiConnectionTab = () => {
         <CardContent className="space-y-6">
           {/* Company Section */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Company Information</h3>
+            <h3 className="text-lg font-semibold">Uzņēmuma Informācija</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
               <div className="space-y-2">
-                <Label htmlFor="companyName">Company Name</Label>
+                <Label htmlFor="companyName">Uzņēmuma Nosaukums</Label>
                 <Input
                   id="companyName"
-                  placeholder="Enter your company name"
+                  placeholder="Ievadiet sava uzņēmuma nosaukumu"
                   value={formData.companyName}
                   onChange={(e) => handleInputChange('companyName', e.target.value)}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="logo">Company Logo</Label>
+                <Label htmlFor="logo">Uzņēmuma Logo</Label>
                 <div className="flex items-center space-x-4">
                   <div className="w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-gray-50">
                     {logoPreview ? (
                       <img 
                         src={logoPreview} 
-                        alt="Company logo preview" 
+                        alt="Uzņēmuma logo priekšskatījums" 
                         className="w-full h-full object-cover rounded-lg"
                       />
                     ) : (
                       <div className="text-center">
                         <img 
                           src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=400&h=400&fit=crop&crop=center" 
-                          alt="Default company placeholder" 
+                          alt="Noklusējuma uzņēmuma vietturis" 
                           className="w-full h-full object-cover rounded-lg opacity-50"
                         />
                       </div>
@@ -145,9 +145,9 @@ const ApiConnectionTab = () => {
                       onClick={() => document.getElementById('logo-upload')?.click()}
                     >
                       <Upload className="w-4 h-4 mr-2" />
-                      Upload Logo
+                      Augšupielādēt Logo
                     </Button>
-                    <p className="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 2MB</p>
+                    <p className="text-xs text-gray-500 mt-1">PNG, JPG, GIF līdz 2MB</p>
                   </div>
                 </div>
               </div>
@@ -156,36 +156,36 @@ const ApiConnectionTab = () => {
 
           {/* API Credentials Section */}
           <div className="space-y-4 border-t pt-6">
-            <h3 className="text-lg font-semibold">API Credentials</h3>
+            <h3 className="text-lg font-semibold">API Akreditācijas Dati</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="apiKey">API Key</Label>
+                <Label htmlFor="apiKey">API Atslēga</Label>
                 <Input
                   id="apiKey"
                   type="password"
-                  placeholder="Enter your API key"
+                  placeholder="Ievadiet savu API atslēgu"
                   value={formData.apiKey}
                   onChange={(e) => handleInputChange('apiKey', e.target.value)}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
+                <Label htmlFor="username">Lietotājvārds</Label>
                 <Input
                   id="username"
-                  placeholder="Enter your username"
+                  placeholder="Ievadiet savu lietotājvārdu"
                   value={formData.username}
                   onChange={(e) => handleInputChange('username', e.target.value)}
                 />
               </div>
 
               <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Parole</Label>
                 <Input
                   id="password"
                   type="password"
-                  placeholder="Enter your password"
+                  placeholder="Ievadiet savu paroli"
                   value={formData.password}
                   onChange={(e) => handleInputChange('password', e.target.value)}
                 />
@@ -197,8 +197,8 @@ const ApiConnectionTab = () => {
           <div className="border-t pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-semibold">Connection Test</h3>
-                <p className="text-sm text-gray-600">Test your API connection to ensure everything is working correctly</p>
+                <h3 className="text-lg font-semibold">Savienojuma Tests</h3>
+                <p className="text-sm text-gray-600">Testējiet savu API savienojumu, lai pārliecinātos, ka viss darbojas pareizi</p>
               </div>
               <Button 
                 onClick={handleTestConnection}
@@ -208,10 +208,10 @@ const ApiConnectionTab = () => {
                 {isConnecting ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Testing...
+                    Testē...
                   </>
                 ) : (
-                  'Test Connection'
+                  'Testēt Savienojumu'
                 )}
               </Button>
             </div>
@@ -224,12 +224,12 @@ const ApiConnectionTab = () => {
               className="w-full md:w-auto"
               onClick={() => {
                 toast({
-                  title: "Settings Saved",
-                  description: "Your API connection settings have been saved successfully.",
+                  title: "Iestatījumi Saglabāti",
+                  description: "Jūsu API savienojuma iestatījumi ir veiksmīgi saglabāti.",
                 });
               }}
             >
-              Save Settings
+              Saglabāt Iestatījumus
             </Button>
           </div>
         </CardContent>

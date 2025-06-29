@@ -30,45 +30,45 @@ const DashboardTab = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-blue-800">Total Income This Month</CardTitle>
+            <CardTitle className="text-sm font-medium text-blue-800">Kopējie Ienākumi Šomēnes</CardTitle>
             <Euro className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-900">€21,700</div>
-            <p className="text-xs text-blue-600">+12% from last month</p>
+            <p className="text-xs text-blue-600">+12% no iepriekšējā mēneša</p>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-green-800">Total Invoices</CardTitle>
+            <CardTitle className="text-sm font-medium text-green-800">Kopējie Rēķini</CardTitle>
             <FileText className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-900">47</div>
-            <p className="text-xs text-green-600">+3 new this week</p>
+            <p className="text-xs text-green-600">+3 jauni šonedēļ</p>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-purple-800">Total Inquiries</CardTitle>
+            <CardTitle className="text-sm font-medium text-purple-800">Kopējie Pieprasījumi</CardTitle>
             <MessageSquare className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-purple-900">61</div>
-            <p className="text-xs text-purple-600">+8% from last week</p>
+            <p className="text-xs text-purple-600">+8% no iepriekšējās nedēļas</p>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-red-800">Unpaid Invoices</CardTitle>
+            <CardTitle className="text-sm font-medium text-red-800">Neapmaksātie Rēķini</CardTitle>
             <AlertCircle className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-900">7</div>
-            <p className="text-xs text-red-600">€4,320 outstanding</p>
+            <p className="text-xs text-red-600">€4,320 neapmaksāts</p>
           </CardContent>
         </Card>
       </div>
@@ -78,8 +78,8 @@ const DashboardTab = () => {
         {/* Income Chart */}
         <Card>
           <CardHeader>
-            <CardTitle>Total Income Over Time</CardTitle>
-            <CardDescription>Daily income from invoices in EUR</CardDescription>
+            <CardTitle>Kopējie Ienākumi Laika Gaitā</CardTitle>
+            <CardDescription>Ikdienas ienākumi no rēķiniem EUR</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-80">
@@ -89,12 +89,12 @@ const DashboardTab = () => {
                   <XAxis 
                     dataKey="date" 
                     className="text-sm text-gray-600"
-                    tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    tickFormatter={(value) => new Date(value).toLocaleDateString('lv-LV', { month: 'short', day: 'numeric' })}
                   />
                   <YAxis className="text-sm text-gray-600" />
                   <Tooltip 
-                    formatter={(value) => [`€${value}`, 'Income']}
-                    labelFormatter={(value) => new Date(value).toLocaleDateString()}
+                    formatter={(value) => [`€${value}`, 'Ienākumi']}
+                    labelFormatter={(value) => new Date(value).toLocaleDateString('lv-LV')}
                   />
                   <Line 
                     type="monotone" 
@@ -112,8 +112,8 @@ const DashboardTab = () => {
         {/* Inquiries Chart */}
         <Card>
           <CardHeader>
-            <CardTitle>Insurance Inquiries</CardTitle>
-            <CardDescription>Number of inquiries received per day</CardDescription>
+            <CardTitle>Apdrošināšanas Pieprasījumi</CardTitle>
+            <CardDescription>Dienas laikā saņemto pieprasījumu skaits</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-80">
@@ -123,12 +123,12 @@ const DashboardTab = () => {
                   <XAxis 
                     dataKey="date" 
                     className="text-sm text-gray-600"
-                    tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    tickFormatter={(value) => new Date(value).toLocaleDateString('lv-LV', { month: 'short', day: 'numeric' })}
                   />
                   <YAxis className="text-sm text-gray-600" />
                   <Tooltip 
-                    formatter={(value) => [`${value}`, 'Inquiries']}
-                    labelFormatter={(value) => new Date(value).toLocaleDateString()}
+                    formatter={(value) => [`${value}`, 'Pieprasījumi']}
+                    labelFormatter={(value) => new Date(value).toLocaleDateString('lv-LV')}
                   />
                   <Bar 
                     dataKey="inquiries" 
