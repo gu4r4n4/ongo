@@ -140,7 +140,7 @@ const DashboardTab = () => {
         {/* Income Chart */}
         <Card>
           <CardHeader>
-            <CardTitle>Kopējie Ienākumi Laika Gaitā</CardTitle>
+            <CardTitle>Kopējie Ienākumi</CardTitle>
             <CardDescription>Dienas ienākumi no apmaksātajiem rēķiniem EUR</CardDescription>
           </CardHeader>
           <CardContent>
