@@ -156,7 +156,7 @@ const ApiConnectionTab = () => {
 
           {/* API Credentials Section */}
           <div className="space-y-4 border-t pt-6">
-            <h3 className="text-lg font-semibold">API Akreditācijas Dati</h3>
+            <h3 className="text-lg font-semibold">API Dati</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -164,7 +164,7 @@ const ApiConnectionTab = () => {
                 <Input
                   id="apiKey"
                   type="password"
-                  placeholder="Ievadiet savu API atslēgu"
+                  placeholder="Ievadiet apdrošinātāja API atslēgu"
                   value={formData.apiKey}
                   onChange={(e) => handleInputChange('apiKey', e.target.value)}
                 />
@@ -174,7 +174,7 @@ const ApiConnectionTab = () => {
                 <Label htmlFor="username">Lietotājvārds</Label>
                 <Input
                   id="username"
-                  placeholder="Ievadiet savu lietotājvārdu"
+                  placeholder="Ievadiet lietotājvārdu"
                   value={formData.username}
                   onChange={(e) => handleInputChange('username', e.target.value)}
                 />
@@ -185,7 +185,7 @@ const ApiConnectionTab = () => {
                 <Input
                   id="password"
                   type="password"
-                  placeholder="Ievadiet savu paroli"
+                  placeholder="Ievadiet paroli"
                   value={formData.password}
                   onChange={(e) => handleInputChange('password', e.target.value)}
                 />
@@ -198,7 +198,7 @@ const ApiConnectionTab = () => {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-semibold">Savienojuma Tests</h3>
-                <p className="text-sm text-gray-600">Pārbaudiet savu API savienojumu, lai pārliecinātos, ka viss darbojas pareizi</p>
+                <p className="text-sm text-gray-600">Pārbaudiet API savienojumu, lai pārliecinātos, ka viss darbojas pareizi</p>
               </div>
               <Button 
                 onClick={handleTestConnection}
