@@ -22,7 +22,9 @@ const InquiriesTab = () => {
       'new': 'bg-blue-100 text-blue-800 border-blue-200',
       'processed': 'bg-yellow-100 text-yellow-800 border-yellow-200',
       'completed': 'bg-green-100 text-green-800 border-green-200',
-      'cancelled': 'bg-red-100 text-red-800 border-red-200'
+      'cancelled': 'bg-red-100 text-red-800 border-red-200',
+      'notified': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+      'invoiced': 'bg-green-100 text-green-800 border-green-200'
     };
     return variants[status as keyof typeof variants] || 'bg-gray-100 text-gray-800';
   };
@@ -32,7 +34,9 @@ const InquiriesTab = () => {
       'new': 'Jauns',
       'processed': 'Apstrādāts',
       'completed': 'Pabeigts',
-      'cancelled': 'Atcelts'
+      'cancelled': 'Atcelts',
+      'notified': 'Paziņots',
+      'invoiced': 'Rēķins'
     };
     return labels[status as keyof typeof labels] || status || 'Jauns';
   };
@@ -58,7 +62,9 @@ const InquiriesTab = () => {
         (statusFilter === 'jauns' && (inquiry.status === 'new' || !inquiry.status)) ||
         (statusFilter === 'apstrādāts' && inquiry.status === 'processed') ||
         (statusFilter === 'pabeigts' && inquiry.status === 'completed') ||
-        (statusFilter === 'atcelts' && inquiry.status === 'cancelled');
+        (statusFilter === 'atcelts' && inquiry.status === 'cancelled') ||
+        (statusFilter === 'paziņots' && inquiry.status === 'notified') ||
+        (statusFilter === 'rēķins' && inquiry.status === 'invoiced');
       return matchesSearch && matchesStatus;
     })
     .sort((a, b) => {
@@ -139,6 +145,8 @@ const InquiriesTab = () => {
                 <SelectItem value="apstrādāts">Apstrādāts</SelectItem>
                 <SelectItem value="pabeigts">Pabeigts</SelectItem>
                 <SelectItem value="atcelts">Atcelts</SelectItem>
+                <SelectItem value="paziņots">Paziņots</SelectItem>
+                <SelectItem value="rēķins">Rēķins</SelectItem>
               </SelectContent>
             </Select>
           </div>
