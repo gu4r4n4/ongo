@@ -124,7 +124,7 @@ const ApiConnectionTab = () => {
                     ) : (
                       <div className="text-center">
                         <img 
-                          src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=400&h=400&fit=crop&crop=center" 
+                          src="https://bot.ongo.lv/wp-content/uploads/2025/06/letas-octas-logo-icona-black-256x256.png" 
                           alt="Noklusējuma uzņēmuma vietturis" 
                           className="w-full h-full object-cover rounded-lg opacity-50"
                         />
