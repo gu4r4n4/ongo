@@ -90,7 +90,7 @@ const ApiConnectionTab = () => {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>API Savienojuma Iestatījumi</CardTitle>
-              <CardDescription>Konfigurējiet savu API savienojumu un uzņēmuma detaļas</CardDescription>
+              <CardDescription>Konfigurējiet API savienojumu ar apdrošinātāju</CardDescription>
             </div>
             {getConnectionStatusBadge()}
           </div>
@@ -98,11 +98,11 @@ const ApiConnectionTab = () => {
         <CardContent className="space-y-6">
           {/* Company Section */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Uzņēmuma Informācija</h3>
+            <h3 className="text-lg font-semibold">Informācija par apdrošinātāju</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
               <div className="space-y-2">
-                <Label htmlFor="companyName">Uzņēmuma Nosaukums</Label>
+                <Label htmlFor="companyName">Apdrošinātāja nosaukums</Label>
                 <Input
                   id="companyName"
                   placeholder="Ievadiet sava uzņēmuma nosaukumu"
@@ -112,7 +112,7 @@ const ApiConnectionTab = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="logo">Uzņēmuma Logo</Label>
+                <Label htmlFor="logo">Apdrošinātāja Logo</Label>
                 <div className="flex items-center space-x-4">
                   <div className="w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-gray-50">
                     {logoPreview ? (
@@ -198,7 +198,7 @@ const ApiConnectionTab = () => {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-semibold">Savienojuma Tests</h3>
-                <p className="text-sm text-gray-600">Testējiet savu API savienojumu, lai pārliecinātos, ka viss darbojas pareizi</p>
+                <p className="text-sm text-gray-600">Pārbaudiet savu API savienojumu, lai pārliecinātos, ka viss darbojas pareizi</p>
               </div>
               <Button 
                 onClick={handleTestConnection}
@@ -248,7 +248,7 @@ const ApiConnectionTab = () => {
           }}
         >
           <Plus className="w-4 h-4 mr-2" />
-          Pievienot API Savienojumu
+          Pievienot Jaunu Apdrošinātāja API
         </Button>
       </div>
     </div>
