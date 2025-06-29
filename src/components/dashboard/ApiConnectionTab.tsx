@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { Upload, CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { Upload, CheckCircle, XCircle, Loader2, Plus } from "lucide-react";
 
 const ApiConnectionTab = () => {
   const [formData, setFormData] = useState({
@@ -218,7 +217,7 @@ const ApiConnectionTab = () => {
           </div>
 
           {/* Save Settings */}
-          <div className="border-t pt-6">
+          <div className="border-t pt-6 space-y-4">
             <Button 
               size="lg" 
               className="w-full md:w-auto"
@@ -230,6 +229,21 @@ const ApiConnectionTab = () => {
               }}
             >
               Saglabāt Iestatījumus
+            </Button>
+
+            {/* Add API Connector Button */}
+            <Button 
+              size="lg"
+              className="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white"
+              onClick={() => {
+                toast({
+                  title: "Jauns API Savienojums",
+                  description: "Pievienojiet jaunu API savienojuma formu.",
+                });
+              }}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Pievienot API Savienojumu
             </Button>
           </div>
         </CardContent>
