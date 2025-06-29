@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -7,9 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { Search, ArrowUpDown } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Search, ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { usePagination } from "@/hooks/usePagination";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/sonner";
 
 const InvoicesTab = () => {
   const { invoices, isLoading } = useDashboardData();
@@ -22,7 +24,8 @@ const InvoicesTab = () => {
     const variants = {
       'paid': 'bg-green-100 text-green-800 border-green-200',
       'pending': 'bg-yellow-100 text-yellow-800 border-yellow-200',
-      'overdue': 'bg-red-100 text-red-800 border-red-200'
+      'overdue': 'bg-red-100 text-red-800 border-red-200',
+      'cancelled': 'bg-gray-100 text-gray-800 border-gray-200'
     };
     return variants[status as keyof typeof variants] || 'bg-gray-100 text-gray-800';
   };
@@ -31,9 +34,34 @@ const InvoicesTab = () => {
     const labels = {
       'paid': 'Apmaksāts',
       'pending': 'Neapmaksāts',
-      'overdue': 'Nokavēts'
+      'overdue': 'Nokavēts',
+      'cancelled': 'Atcelts'
     };
     return labels[status as keyof typeof labels] || status;
+  };
+
+  const handleStatusChange = async (invoiceId: number, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from('invoices')
+        .update({ 
+          status: newStatus,
+          paid_at: newStatus === 'paid' ? new Date().toISOString() : null
+        })
+        .eq('id', invoiceId);
+
+      if (error) {
+        toast.error('Kļūda mainot statusu');
+        console.error('Error updating invoice status:', error);
+        return;
+      }
+
+      toast.success(`Rēķina statuss nomainīts uz "${getStatusLabel(newStatus)}"`);
+      // The data will automatically refresh due to React Query
+    } catch (error) {
+      toast.error('Kļūda mainot statusu');
+      console.error('Error updating invoice status:', error);
+    }
   };
 
   const filteredAndSortedInvoices = invoices
@@ -42,7 +70,8 @@ const InvoicesTab = () => {
       const matchesStatus = statusFilter === 'all' || 
         (statusFilter === 'apmaksāts' && invoice.status === 'paid') ||
         (statusFilter === 'neapmaksāts' && invoice.status === 'pending') ||
-        (statusFilter === 'nokavēts' && invoice.status === 'overdue');
+        (statusFilter === 'nokavēts' && invoice.status === 'overdue') ||
+        (statusFilter === 'atcelts' && invoice.status === 'cancelled');
       return matchesSearch && matchesStatus;
     })
     .sort((a, b) => {
@@ -125,6 +154,7 @@ const InvoicesTab = () => {
                 <SelectItem value="apmaksāts">Apmaksāts</SelectItem>
                 <SelectItem value="neapmaksāts">Neapmaksāts</SelectItem>
                 <SelectItem value="nokavēts">Nokavēts</SelectItem>
+                <SelectItem value="atcelts">Atcelts</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -155,12 +185,13 @@ const InvoicesTab = () => {
                     </Button>
                   </TableHead>
                   <TableHead>Statuss</TableHead>
+                  <TableHead className="w-12"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {paginatedData.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                    <TableCell colSpan={6} className="text-center py-8 text-gray-500">
                       Nav atrasti rēķini, kas atbilst jūsu kritērijiem
                     </TableCell>
                   </TableRow>
@@ -175,6 +206,29 @@ const InvoicesTab = () => {
                         <Badge className={getStatusBadge(invoice.status || 'pending')}>
                           {getStatusLabel(invoice.status || 'pending')}
                         </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="bg-white">
+                            <DropdownMenuItem 
+                              onClick={() => handleStatusChange(invoice.id, 'paid')}
+                              disabled={invoice.status === 'paid'}
+                            >
+                              Atzīmēt kā Apmaksāts
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleStatusChange(invoice.id, 'cancelled')}
+                              disabled={invoice.status === 'cancelled'}
+                            >
+                              Atzīmēt kā Atcelts
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     </TableRow>
                   ))
