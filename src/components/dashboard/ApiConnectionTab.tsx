@@ -105,7 +105,7 @@ const ApiConnectionTab = () => {
                 <Label htmlFor="companyName">Apdrošinātāja nosaukums</Label>
                 <Input
                   id="companyName"
-                  placeholder="Ievadiet sava uzņēmuma nosaukumu"
+                  placeholder="Ievadiet apdrošinātāja nosaukumu"
                   value={formData.companyName}
                   onChange={(e) => handleInputChange('companyName', e.target.value)}
                 />
@@ -125,7 +125,7 @@ const ApiConnectionTab = () => {
                       <div className="text-center">
                         <img 
                           src="https://bot.ongo.lv/wp-content/uploads/2025/06/letas-octas-logo-icona-black-256x256.png" 
-                          alt="Noklusējuma uzņēmuma vietturis" 
+                          alt="Noklusējuma logo" 
                           className="w-full h-full object-cover rounded-lg opacity-50"
                         />
                       </div>
