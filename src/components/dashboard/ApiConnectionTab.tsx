@@ -211,7 +211,7 @@ const ApiConnectionTab = () => {
                     Testē...
                   </>
                 ) : (
-                  'Testēt Savienojumu'
+                  'Testēt Savienojumu ar Apdrošinātāju'
                 )}
               </Button>
             </div>
