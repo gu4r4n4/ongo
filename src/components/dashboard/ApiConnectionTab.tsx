@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -202,7 +203,7 @@ const ApiConnectionTab = () => {
               <Button 
                 onClick={handleTestConnection}
                 disabled={isConnecting}
-                className="min-w-32"
+                className="min-w-32 bg-black text-white hover:bg-[#81D8D0] hover:text-black transition-colors"
               >
                 {isConnecting ? (
                   <>
@@ -220,7 +221,7 @@ const ApiConnectionTab = () => {
           <div className="border-t pt-6">
             <Button 
               size="lg" 
-              className="w-full md:w-auto"
+              className="w-full md:w-auto bg-black text-white hover:bg-[#81D8D0] hover:text-black transition-colors"
               onClick={() => {
                 toast({
                   title: "Iestatījumi Saglabāti",
