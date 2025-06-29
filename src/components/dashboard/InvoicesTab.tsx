@@ -7,57 +7,54 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Search, ArrowUpDown } from "lucide-react";
-
-// Mock invoice data
-const mockInvoices = [
-  { id: 'INV-001', clientName: 'Acme Corp', date: '2024-06-25', amount: 1250, status: 'Apmaksāts' },
-  { id: 'INV-002', clientName: 'TechStart Ltd', date: '2024-06-24', amount: 890, status: 'Neapmaksāts' },
-  { id: 'INV-003', clientName: 'Global Solutions', date: '2024-06-23', amount: 2100, status: 'Apmaksāts' },
-  { id: 'INV-004', clientName: 'Innovation Hub', date: '2024-06-22', amount: 750, status: 'Nokavēts' },
-  { id: 'INV-005', clientName: 'Digital Agency', date: '2024-06-21', amount: 1680, status: 'Apmaksāts' },
-  { id: 'INV-006', clientName: 'StartUp Venture', date: '2024-06-20', amount: 920, status: 'Neapmaksāts' },
-  { id: 'INV-007', clientName: 'Enterprise Inc', date: '2024-06-19', amount: 3200, status: 'Apmaksāts' },
-  { id: 'INV-008', clientName: 'Creative Studio', date: '2024-06-18', amount: 1150, status: 'Nokavēts' },
-  { id: 'INV-009', clientName: 'Tech Innovators', date: '2024-06-17', amount: 2750, status: 'Apmaksāts' },
-  { id: 'INV-010', clientName: 'Business Partners', date: '2024-06-16', amount: 540, status: 'Neapmaksāts' },
-];
+import { useDashboardData } from "@/hooks/useDashboardData";
 
 const InvoicesTab = () => {
+  const { invoices, isLoading } = useDashboardData();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [sortField, setSortField] = useState('date');
+  const [sortField, setSortField] = useState('created_at');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
   const getStatusBadge = (status: string) => {
     const variants = {
-      'Apmaksāts': 'bg-green-100 text-green-800 border-green-200',
-      'Neapmaksāts': 'bg-yellow-100 text-yellow-800 border-yellow-200',
-      'Nokavēts': 'bg-red-100 text-red-800 border-red-200'
+      'paid': 'bg-green-100 text-green-800 border-green-200',
+      'pending': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+      'overdue': 'bg-red-100 text-red-800 border-red-200'
     };
     return variants[status as keyof typeof variants] || 'bg-gray-100 text-gray-800';
   };
 
-  const filteredAndSortedInvoices = mockInvoices
+  const getStatusLabel = (status: string) => {
+    const labels = {
+      'paid': 'Apmaksāts',
+      'pending': 'Neapmaksāts',
+      'overdue': 'Nokavēts'
+    };
+    return labels[status as keyof typeof labels] || status;
+  };
+
+  const filteredAndSortedInvoices = invoices
     .filter(invoice => {
-      const matchesSearch = invoice.clientName.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch = invoice.invoice_number?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
       const matchesStatus = statusFilter === 'all' || 
-        (statusFilter === 'apmaksāts' && invoice.status === 'Apmaksāts') ||
-        (statusFilter === 'neapmaksāts' && invoice.status === 'Neapmaksāts') ||
-        (statusFilter === 'nokavēts' && invoice.status === 'Nokavēts');
+        (statusFilter === 'apmaksāts' && invoice.status === 'paid') ||
+        (statusFilter === 'neapmaksāts' && invoice.status === 'pending') ||
+        (statusFilter === 'nokavēts' && invoice.status === 'overdue');
       return matchesSearch && matchesStatus;
     })
     .sort((a, b) => {
       let aValue, bValue;
       
-      if (sortField === 'date') {
-        aValue = new Date(a.date).getTime();
-        bValue = new Date(b.date).getTime();
+      if (sortField === 'created_at') {
+        aValue = new Date(a.created_at || '').getTime();
+        bValue = new Date(b.created_at || '').getTime();
       } else if (sortField === 'amount') {
-        aValue = a.amount;
-        bValue = b.amount;
+        aValue = Number(a.amount || 0);
+        bValue = Number(b.amount || 0);
       } else {
-        aValue = a[sortField as keyof typeof a];
-        bValue = b[sortField as keyof typeof b];
+        aValue = a[sortField as keyof typeof a] || '';
+        bValue = b[sortField as keyof typeof b] || '';
       }
       
       if (sortDirection === 'asc') {
@@ -76,6 +73,14 @@ const InvoicesTab = () => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-lg text-gray-600">Ielādē rēķinus...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <Card>
@@ -89,7 +94,7 @@ const InvoicesTab = () => {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
-                placeholder="Meklēt pēc klienta nosaukuma..."
+                placeholder="Meklēt pēc rēķina numura..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -113,12 +118,12 @@ const InvoicesTab = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Rēķina ID</TableHead>
-                  <TableHead>Klienta Nosaukums</TableHead>
+                  <TableHead>Rēķina Numurs</TableHead>
+                  <TableHead>Pieprasījuma ID</TableHead>
                   <TableHead>
                     <Button 
                       variant="ghost" 
-                      onClick={() => handleSort('date')}
+                      onClick={() => handleSort('created_at')}
                       className="h-auto p-0 font-medium hover:bg-transparent"
                     >
                       Datums <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -146,13 +151,13 @@ const InvoicesTab = () => {
                 ) : (
                   filteredAndSortedInvoices.map((invoice) => (
                     <TableRow key={invoice.id} className="hover:bg-gray-50">
-                      <TableCell className="font-medium">{invoice.id}</TableCell>
-                      <TableCell>{invoice.clientName}</TableCell>
-                      <TableCell>{new Date(invoice.date).toLocaleDateString('lv-LV')}</TableCell>
-                      <TableCell className="font-medium">€{invoice.amount.toLocaleString()}</TableCell>
+                      <TableCell className="font-medium">{invoice.invoice_number || `INV-${invoice.id}`}</TableCell>
+                      <TableCell>{invoice.inquiry_id ? `INQ-${invoice.inquiry_id}` : 'N/A'}</TableCell>
+                      <TableCell>{new Date(invoice.created_at || '').toLocaleDateString('lv-LV')}</TableCell>
+                      <TableCell className="font-medium">€{Number(invoice.amount || 0).toLocaleString()}</TableCell>
                       <TableCell>
-                        <Badge className={getStatusBadge(invoice.status)}>
-                          {invoice.status}
+                        <Badge className={getStatusBadge(invoice.status || 'pending')}>
+                          {getStatusLabel(invoice.status || 'pending')}
                         </Badge>
                       </TableCell>
                     </TableRow>
@@ -163,7 +168,7 @@ const InvoicesTab = () => {
           </div>
 
           <div className="mt-4 text-sm text-gray-600">
-            Rāda {filteredAndSortedInvoices.length} no {mockInvoices.length} rēķiniem
+            Rāda {filteredAndSortedInvoices.length} no {invoices.length} rēķiniem
           </div>
         </CardContent>
       </Card>

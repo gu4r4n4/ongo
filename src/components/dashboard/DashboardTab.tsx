@@ -2,40 +2,102 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { Euro, FileText, MessageSquare, AlertCircle } from "lucide-react";
-
-// Mock data for charts
-const incomeData = [
-  { date: '2024-06-01', income: 2400 },
-  { date: '2024-06-05', income: 1800 },
-  { date: '2024-06-10', income: 3200 },
-  { date: '2024-06-15', income: 2800 },
-  { date: '2024-06-20', income: 4100 },
-  { date: '2024-06-25', income: 3500 },
-  { date: '2024-06-29', income: 2900 },
-];
-
-const inquiriesData = [
-  { date: '2024-06-24', inquiries: 12 },
-  { date: '2024-06-25', inquiries: 8 },
-  { date: '2024-06-26', inquiries: 15 },
-  { date: '2024-06-27', inquiries: 6 },
-  { date: '2024-06-28', inquiries: 11 },
-  { date: '2024-06-29', inquiries: 9 },
-];
+import { useDashboardData } from "@/hooks/useDashboardData";
+import { useMemo } from "react";
 
 const DashboardTab = () => {
+  const { inquiries, invoices, isLoading } = useDashboardData();
+
+  const dashboardStats = useMemo(() => {
+    const totalIncome = invoices
+      .filter(invoice => invoice.status === 'paid')
+      .reduce((sum, invoice) => sum + Number(invoice.amount || 0), 0);
+    
+    const unpaidInvoices = invoices.filter(invoice => invoice.status === 'pending');
+    const unpaidAmount = unpaidInvoices.reduce((sum, invoice) => sum + Number(invoice.amount || 0), 0);
+    
+    const thisMonthInquiries = inquiries.filter(inquiry => {
+      const inquiryDate = new Date(inquiry.received_at || '');
+      const now = new Date();
+      return inquiryDate.getMonth() === now.getMonth() && 
+             inquiryDate.getFullYear() === now.getFullYear();
+    });
+
+    return {
+      totalIncome,
+      totalInvoices: invoices.length,
+      totalInquiries: inquiries.length,
+      unpaidInvoicesCount: unpaidInvoices.length,
+      unpaidAmount,
+      thisMonthInquiries: thisMonthInquiries.length
+    };
+  }, [inquiries, invoices]);
+
+  const incomeData = useMemo(() => {
+    // Group paid invoices by date for the last 30 days
+    const last30Days = Array.from({ length: 30 }, (_, i) => {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      return date.toISOString().split('T')[0];
+    }).reverse();
+
+    return last30Days.map(date => {
+      const dayInvoices = invoices.filter(invoice => 
+        invoice.paid_at && 
+        invoice.status === 'paid' &&
+        invoice.paid_at.split('T')[0] === date
+      );
+      
+      const dailyIncome = dayInvoices.reduce((sum, invoice) => sum + Number(invoice.amount || 0), 0);
+      
+      return {
+        date,
+        income: dailyIncome
+      };
+    }).filter(item => item.income > 0);
+  }, [invoices]);
+
+  const inquiriesData = useMemo(() => {
+    // Group inquiries by date for the last 7 days
+    const last7Days = Array.from({ length: 7 }, (_, i) => {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      return date.toISOString().split('T')[0];
+    }).reverse();
+
+    return last7Days.map(date => {
+      const dayInquiries = inquiries.filter(inquiry => 
+        inquiry.received_at && 
+        inquiry.received_at.split('T')[0] === date
+      );
+      
+      return {
+        date,
+        inquiries: dayInquiries.length
+      };
+    });
+  }, [inquiries]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-lg text-gray-600">Ielādē datus...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-blue-800">Kopējie Ienākumi Šomēnes</CardTitle>
+            <CardTitle className="text-sm font-medium text-blue-800">Kopējie Ienākumi</CardTitle>
             <Euro className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-900">€21,700</div>
-            <p className="text-xs text-blue-600">+12% no iepriekšējā mēneša</p>
+            <div className="text-2xl font-bold text-blue-900">€{dashboardStats.totalIncome.toLocaleString()}</div>
+            <p className="text-xs text-blue-600">No apmaksātajiem rēķiniem</p>
           </CardContent>
         </Card>
 
@@ -45,8 +107,8 @@ const DashboardTab = () => {
             <FileText className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-900">47</div>
-            <p className="text-xs text-green-600">+3 jauni šonedēļ</p>
+            <div className="text-2xl font-bold text-green-900">{dashboardStats.totalInvoices}</div>
+            <p className="text-xs text-green-600">Visi izrakstītie rēķini</p>
           </CardContent>
         </Card>
 
@@ -56,8 +118,8 @@ const DashboardTab = () => {
             <MessageSquare className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-purple-900">61</div>
-            <p className="text-xs text-purple-600">+8% no iepriekšējās nedēļas</p>
+            <div className="text-2xl font-bold text-purple-900">{dashboardStats.totalInquiries}</div>
+            <p className="text-xs text-purple-600">{dashboardStats.thisMonthInquiries} šomēnes</p>
           </CardContent>
         </Card>
 
@@ -67,8 +129,8 @@ const DashboardTab = () => {
             <AlertCircle className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-900">7</div>
-            <p className="text-xs text-red-600">€4,320 neapmaksāts</p>
+            <div className="text-2xl font-bold text-red-900">{dashboardStats.unpaidInvoicesCount}</div>
+            <p className="text-xs text-red-600">€{dashboardStats.unpaidAmount.toLocaleString()} neapmaksāts</p>
           </CardContent>
         </Card>
       </div>
@@ -79,7 +141,7 @@ const DashboardTab = () => {
         <Card>
           <CardHeader>
             <CardTitle>Kopējie Ienākumi Laika Gaitā</CardTitle>
-            <CardDescription>Ikdienas ienākumi no rēķiniem EUR</CardDescription>
+            <CardDescription>Dienas ienākumi no apmaksātajiem rēķiniem EUR</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-80">

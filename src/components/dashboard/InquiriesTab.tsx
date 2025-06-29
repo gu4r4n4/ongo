@@ -7,54 +7,65 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Search, ArrowUpDown } from "lucide-react";
-
-// Mock inquiry data
-const mockInquiries = [
-  { id: 'INQ-001', clientName: 'Jānis Bērziņš', date: '2024-06-29', type: 'Dzīvības apdrošināšana', status: 'Jauns' },
-  { id: 'INQ-002', clientName: 'Anna Kalniņa', date: '2024-06-28', type: 'Auto apdrošināšana', status: 'Apstrādāts' },
-  { id: 'INQ-003', clientName: 'Pēteris Ozols', date: '2024-06-27', type: 'Mājas apdrošināšana', status: 'Pabeigts' },
-  { id: 'INQ-004', clientName: 'Līga Liepa', date: '2024-06-26', type: 'Ceļojumu apdrošināšana', status: 'Jauns' },
-  { id: 'INQ-005', clientName: 'Māris Krūmiņš', date: '2024-06-25', type: 'Dzīvības apdrošināšana', status: 'Apstrādāts' },
-  { id: 'INQ-006', clientName: 'Dace Priede', date: '2024-06-24', type: 'Auto apdrošināšana', status: 'Pabeigts' },
-  { id: 'INQ-007', clientName: 'Andris Siliņš', date: '2024-06-23', type: 'Mājas apdrošināšana', status: 'Jauns' },
-  { id: 'INQ-008', clientName: 'Ilze Kļava', date: '2024-06-22', type: 'Ceļojumu apdrošināšana', status: 'Apstrādāts' },
-  { id: 'INQ-009', clientName: 'Raimonds Strazds', date: '2024-06-21', type: 'Dzīvības apdrošināšana', status: 'Pabeigts' },
-  { id: 'INQ-010', clientName: 'Sanita Vītola', date: '2024-06-20', type: 'Auto apdrošināšana', status: 'Jauns' },
-];
+import { useDashboardData } from "@/hooks/useDashboardData";
 
 const InquiriesTab = () => {
+  const { inquiries, isLoading } = useDashboardData();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [sortField, setSortField] = useState('date');
+  const [sortField, setSortField] = useState('received_at');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
   const getStatusBadge = (status: string) => {
     const variants = {
-      'Jauns': 'bg-blue-100 text-blue-800 border-blue-200',
-      'Apstrādāts': 'bg-yellow-100 text-yellow-800 border-yellow-200',
-      'Pabeigts': 'bg-green-100 text-green-800 border-green-200'
+      'new': 'bg-blue-100 text-blue-800 border-blue-200',
+      'processed': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+      'completed': 'bg-green-100 text-green-800 border-green-200'
     };
     return variants[status as keyof typeof variants] || 'bg-gray-100 text-gray-800';
   };
 
-  const filteredAndSortedInquiries = mockInquiries
+  const getStatusLabel = (status: string) => {
+    const labels = {
+      'new': 'Jauns',
+      'processed': 'Apstrādāts',
+      'completed': 'Pabeigts'
+    };
+    return labels[status as keyof typeof labels] || status || 'Jauns';
+  };
+
+  const getProductTypeLabel = (productType: string) => {
+    const labels = {
+      'life': 'Dzīvības apdrošināšana',
+      'auto': 'Auto apdrošināšana', 
+      'property': 'Mājas apdrošināšana',
+      'travel': 'Ceļojumu apdrošināšana',
+      'cargo': 'Kravas apdrošināšana',
+      'crop': 'Lauksaimniecības apdrošināšana',
+      'livestock': 'Lopkopības apdrošināšana',
+      'equipment': 'Tehnikas apdrošināšana'
+    };
+    return labels[productType as keyof typeof labels] || productType || 'Nav norādīts';
+  };
+
+  const filteredAndSortedInquiries = inquiries
     .filter(inquiry => {
-      const matchesSearch = inquiry.clientName.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch = inquiry.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
       const matchesStatus = statusFilter === 'all' || 
-        (statusFilter === 'jauns' && inquiry.status === 'Jauns') ||
-        (statusFilter === 'apstrādāts' && inquiry.status === 'Apstrādāts') ||
-        (statusFilter === 'pabeigts' && inquiry.status === 'Pabeigts');
+        (statusFilter === 'jauns' && (inquiry.status === 'new' || !inquiry.status)) ||
+        (statusFilter === 'apstrādāts' && inquiry.status === 'processed') ||
+        (statusFilter === 'pabeigts' && inquiry.status === 'completed');
       return matchesSearch && matchesStatus;
     })
     .sort((a, b) => {
       let aValue, bValue;
       
-      if (sortField === 'date') {
-        aValue = new Date(a.date).getTime();
-        bValue = new Date(b.date).getTime();
+      if (sortField === 'received_at') {
+        aValue = new Date(a.received_at || '').getTime();
+        bValue = new Date(b.received_at || '').getTime();
       } else {
-        aValue = a[sortField as keyof typeof a];
-        bValue = b[sortField as keyof typeof b];
+        aValue = a[sortField as keyof typeof a] || '';
+        bValue = b[sortField as keyof typeof b] || '';
       }
       
       if (sortDirection === 'asc') {
@@ -72,6 +83,14 @@ const InquiriesTab = () => {
       setSortDirection('desc');
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-lg text-gray-600">Ielādē pieteikumus...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -115,7 +134,7 @@ const InquiriesTab = () => {
                   <TableHead>
                     <Button 
                       variant="ghost" 
-                      onClick={() => handleSort('date')}
+                      onClick={() => handleSort('received_at')}
                       className="h-auto p-0 font-medium hover:bg-transparent"
                     >
                       Datums <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -135,13 +154,13 @@ const InquiriesTab = () => {
                 ) : (
                   filteredAndSortedInquiries.map((inquiry) => (
                     <TableRow key={inquiry.id} className="hover:bg-gray-50">
-                      <TableCell className="font-medium">{inquiry.id}</TableCell>
-                      <TableCell>{inquiry.clientName}</TableCell>
-                      <TableCell>{new Date(inquiry.date).toLocaleDateString('lv-LV')}</TableCell>
-                      <TableCell>{inquiry.type}</TableCell>
+                      <TableCell className="font-medium">INQ-{inquiry.id}</TableCell>
+                      <TableCell>{inquiry.full_name}</TableCell>
+                      <TableCell>{new Date(inquiry.received_at || '').toLocaleDateString('lv-LV')}</TableCell>
+                      <TableCell>{getProductTypeLabel(inquiry.product_type || '')}</TableCell>
                       <TableCell>
-                        <Badge className={getStatusBadge(inquiry.status)}>
-                          {inquiry.status}
+                        <Badge className={getStatusBadge(inquiry.status || 'new')}>
+                          {getStatusLabel(inquiry.status || 'new')}
                         </Badge>
                       </TableCell>
                     </TableRow>
@@ -152,7 +171,7 @@ const InquiriesTab = () => {
           </div>
 
           <div className="mt-4 text-sm text-gray-600">
-            Rāda {filteredAndSortedInquiries.length} no {mockInquiries.length} pieteikumiem
+            Rāda {filteredAndSortedInquiries.length} no {inquiries.length} pieteikumiem
           </div>
         </CardContent>
       </Card>
