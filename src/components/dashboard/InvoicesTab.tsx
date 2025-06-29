@@ -6,8 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { Search, ArrowUpDown } from "lucide-react";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { usePagination } from "@/hooks/usePagination";
 
 const InvoicesTab = () => {
   const { invoices, isLoading } = useDashboardData();
@@ -63,6 +65,20 @@ const InvoicesTab = () => {
         return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
       }
     });
+
+  const {
+    currentPage,
+    totalPages,
+    paginatedData,
+    goToPage,
+    goToNextPage,
+    goToPreviousPage,
+    startIndex,
+    endIndex,
+    totalItems,
+    hasNextPage,
+    hasPreviousPage
+  } = usePagination({ data: filteredAndSortedInvoices, itemsPerPage: 10 });
 
   const handleSort = (field: string) => {
     if (sortField === field) {
@@ -142,14 +158,14 @@ const InvoicesTab = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredAndSortedInvoices.length === 0 ? (
+                {paginatedData.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={5} className="text-center py-8 text-gray-500">
                       Nav atrasti rēķini, kas atbilst jūsu kritērijiem
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredAndSortedInvoices.map((invoice) => (
+                  paginatedData.map((invoice) => (
                     <TableRow key={invoice.id} className="hover:bg-gray-50">
                       <TableCell className="font-medium">{invoice.invoice_number || `INV-${invoice.id}`}</TableCell>
                       <TableCell>{invoice.inquiry_id ? `INQ-${invoice.inquiry_id}` : 'N/A'}</TableCell>
@@ -167,8 +183,64 @@ const InvoicesTab = () => {
             </Table>
           </div>
 
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between mt-4">
+              <div className="text-sm text-gray-600">
+                Rāda {startIndex} līdz {endIndex} no {totalItems} rēķiniem
+              </div>
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious 
+                      onClick={goToPreviousPage}
+                      className={!hasPreviousPage ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
+                  
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                    if (
+                      page === 1 ||
+                      page === totalPages ||
+                      (page >= currentPage - 1 && page <= currentPage + 1)
+                    ) {
+                      return (
+                        <PaginationItem key={page}>
+                          <PaginationLink
+                            onClick={() => goToPage(page)}
+                            isActive={currentPage === page}
+                            className="cursor-pointer"
+                          >
+                            {page}
+                          </PaginationLink>
+                        </PaginationItem>
+                      );
+                    } else if (
+                      page === currentPage - 2 ||
+                      page === currentPage + 2
+                    ) {
+                      return (
+                        <PaginationItem key={page}>
+                          <PaginationEllipsis />
+                        </PaginationItem>
+                      );
+                    }
+                    return null;
+                  })}
+                  
+                  <PaginationItem>
+                    <PaginationNext 
+                      onClick={goToNextPage}
+                      className={!hasNextPage ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          )}
+
           <div className="mt-4 text-sm text-gray-600">
-            Rāda {filteredAndSortedInvoices.length} no {invoices.length} rēķiniem
+            Kopā {filteredAndSortedInvoices.length} no {invoices.length} rēķiniem
           </div>
         </CardContent>
       </Card>
