@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -22,7 +21,8 @@ const InquiriesTab = () => {
     const variants = {
       'new': 'bg-blue-100 text-blue-800 border-blue-200',
       'processed': 'bg-yellow-100 text-yellow-800 border-yellow-200',
-      'completed': 'bg-green-100 text-green-800 border-green-200'
+      'completed': 'bg-green-100 text-green-800 border-green-200',
+      'cancelled': 'bg-red-100 text-red-800 border-red-200'
     };
     return variants[status as keyof typeof variants] || 'bg-gray-100 text-gray-800';
   };
@@ -31,7 +31,8 @@ const InquiriesTab = () => {
     const labels = {
       'new': 'Jauns',
       'processed': 'Apstrādāts',
-      'completed': 'Pabeigts'
+      'completed': 'Pabeigts',
+      'cancelled': 'Atcelts'
     };
     return labels[status as keyof typeof labels] || status || 'Jauns';
   };
@@ -56,7 +57,8 @@ const InquiriesTab = () => {
       const matchesStatus = statusFilter === 'all' || 
         (statusFilter === 'jauns' && (inquiry.status === 'new' || !inquiry.status)) ||
         (statusFilter === 'apstrādāts' && inquiry.status === 'processed') ||
-        (statusFilter === 'pabeigts' && inquiry.status === 'completed');
+        (statusFilter === 'pabeigts' && inquiry.status === 'completed') ||
+        (statusFilter === 'atcelts' && inquiry.status === 'cancelled');
       return matchesSearch && matchesStatus;
     })
     .sort((a, b) => {
@@ -136,6 +138,7 @@ const InquiriesTab = () => {
                 <SelectItem value="jauns">Jauns</SelectItem>
                 <SelectItem value="apstrādāts">Apstrādāts</SelectItem>
                 <SelectItem value="pabeigts">Pabeigts</SelectItem>
+                <SelectItem value="atcelts">Atcelts</SelectItem>
               </SelectContent>
             </Select>
           </div>
