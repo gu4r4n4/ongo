@@ -25,7 +25,9 @@ const InvoicesTab = () => {
       'paid': 'bg-green-100 text-green-800 border-green-200',
       'pending': 'bg-yellow-100 text-yellow-800 border-yellow-200',
       'overdue': 'bg-red-100 text-red-800 border-red-200',
-      'cancelled': 'bg-gray-100 text-gray-800 border-gray-200'
+      'cancelled': 'bg-gray-100 text-gray-800 border-gray-200',
+      'notified': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+      'invoiced': 'bg-green-100 text-green-800 border-green-200'
     };
     return variants[status as keyof typeof variants] || 'bg-gray-100 text-gray-800';
   };
@@ -35,7 +37,9 @@ const InvoicesTab = () => {
       'paid': 'Apmaksāts',
       'pending': 'Neapmaksāts',
       'overdue': 'Nokavēts',
-      'cancelled': 'Atcelts'
+      'cancelled': 'Atcelts',
+      'notified': 'Paziņots',
+      'invoiced': 'Rēķins'
     };
     return labels[status as keyof typeof labels] || status;
   };
@@ -71,7 +75,9 @@ const InvoicesTab = () => {
         (statusFilter === 'apmaksāts' && invoice.status === 'paid') ||
         (statusFilter === 'neapmaksāts' && invoice.status === 'pending') ||
         (statusFilter === 'nokavēts' && invoice.status === 'overdue') ||
-        (statusFilter === 'atcelts' && invoice.status === 'cancelled');
+        (statusFilter === 'atcelts' && invoice.status === 'cancelled') ||
+        (statusFilter === 'paziņots' && invoice.status === 'notified') ||
+        (statusFilter === 'rēķins' && invoice.status === 'invoiced');
       return matchesSearch && matchesStatus;
     })
     .sort((a, b) => {
@@ -155,6 +161,8 @@ const InvoicesTab = () => {
                 <SelectItem value="neapmaksāts">Neapmaksāts</SelectItem>
                 <SelectItem value="nokavēts">Nokavēts</SelectItem>
                 <SelectItem value="atcelts">Atcelts</SelectItem>
+                <SelectItem value="paziņots">Paziņots</SelectItem>
+                <SelectItem value="rēķins">Rēķins</SelectItem>
               </SelectContent>
             </Select>
           </div>
