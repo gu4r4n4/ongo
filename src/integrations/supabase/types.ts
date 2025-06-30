@@ -182,6 +182,33 @@ export type Database = {
           },
         ]
       }
+      leads: {
+        Row: {
+          category_name: string | null
+          city: string | null
+          id: number
+          phone: string | null
+          title: string
+          website: string | null
+        }
+        Insert: {
+          category_name?: string | null
+          city?: string | null
+          id?: number
+          phone?: string | null
+          title: string
+          website?: string | null
+        }
+        Update: {
+          category_name?: string | null
+          city?: string | null
+          id?: number
+          phone?: string | null
+          title?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

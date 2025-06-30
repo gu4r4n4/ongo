@@ -1,10 +1,11 @@
 
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, BarChart3, FileText, MessageSquare, Plug } from "lucide-react";
+import { LogOut, BarChart3, FileText, MessageSquare, Plug, Users } from "lucide-react";
 import DashboardTab from "@/components/dashboard/DashboardTab";
 import InvoicesTab from "@/components/dashboard/InvoicesTab";
 import InquiriesTab from "@/components/dashboard/InquiriesTab";
+import LeadsTab from "@/components/dashboard/LeadsTab";
 import ApiConnectionTab from "@/components/dashboard/ApiConnectionTab";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { Language, useTranslation } from "@/utils/translations";
@@ -35,7 +36,7 @@ const Index = () => {
         </div>
 
         <Tabs defaultValue="dashboard" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-8">
+          <TabsList className="grid w-full grid-cols-5 mb-8">
             <TabsTrigger value="dashboard" className="text-lg py-3">
               <BarChart3 className="h-5 w-5 md:hidden" />
               <span className="hidden md:inline">{t('dashboard')}</span>
@@ -47,6 +48,10 @@ const Index = () => {
             <TabsTrigger value="inquiries" className="text-lg py-3">
               <MessageSquare className="h-5 w-5 md:hidden" />
               <span className="hidden md:inline">{t('inquiries')}</span>
+            </TabsTrigger>
+            <TabsTrigger value="leads" className="text-lg py-3">
+              <Users className="h-5 w-5 md:hidden" />
+              <span className="hidden md:inline">Leads</span>
             </TabsTrigger>
             <TabsTrigger value="api-connection" className="text-lg py-3">
               <Plug className="h-5 w-5 md:hidden" />
@@ -64,6 +69,10 @@ const Index = () => {
 
           <TabsContent value="inquiries">
             <InquiriesTab currentLanguage={currentLanguage} />
+          </TabsContent>
+
+          <TabsContent value="leads">
+            <LeadsTab currentLanguage={currentLanguage} />
           </TabsContent>
 
           <TabsContent value="api-connection">
