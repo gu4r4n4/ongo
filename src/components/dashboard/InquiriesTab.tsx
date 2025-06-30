@@ -36,30 +36,39 @@ const InquiriesTab = ({ currentLanguage }: InquiriesTabProps) => {
   };
 
   const getStatusLabel = (status: string) => {
-    const statusMap: Record<string, keyof ReturnType<typeof useTranslation>['t']> = {
-      'new': 'new',
-      'processed': 'processed',
-      'completed': 'completed',
-      'cancelled': 'cancelled',
-      'notified': 'notified',
-      'invoiced': 'invoiced'
-    };
-    
-    const translationKey = statusMap[status];
-    return translationKey ? t(translationKey) : status || t('new');
+    switch (status) {
+      case 'new':
+        return t('new');
+      case 'processed':
+        return t('processed');
+      case 'completed':
+        return t('completed');
+      case 'cancelled':
+        return t('cancelled');
+      case 'notified':
+        return t('notified');
+      case 'invoiced':
+        return t('invoiced');
+      default:
+        return status || t('new');
+    }
   };
 
   const getProductTypeLabel = (productType: string) => {
-    const productTypeMap: Record<string, keyof ReturnType<typeof useTranslation>['t']> = {
-      'auto': 'auto',
-      'health': 'health',
-      'home': 'home',
-      'life': 'life',
-      'travel': 'travel'
-    };
-    
-    const translationKey = productTypeMap[productType];
-    return translationKey ? t(translationKey) : productType || t('notSpecified');
+    switch (productType) {
+      case 'auto':
+        return t('auto');
+      case 'health':
+        return t('health');
+      case 'home':
+        return t('home');
+      case 'life':
+        return t('life');
+      case 'travel':
+        return t('travel');
+      default:
+        return productType || t('notSpecified');
+    }
   };
 
   const filteredAndSortedInquiries = inquiries

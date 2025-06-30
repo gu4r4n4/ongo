@@ -39,17 +39,22 @@ const InvoicesTab = ({ currentLanguage }: InvoicesTabProps) => {
   };
 
   const getStatusLabel = (status: string) => {
-    const statusMap: Record<string, keyof ReturnType<typeof useTranslation>['t']> = {
-      'paid': 'paid',
-      'pending': 'pending',
-      'overdue': 'overdue',
-      'cancelled': 'cancelled',
-      'notified': 'notified',
-      'invoiced': 'invoiced'
-    };
-    
-    const translationKey = statusMap[status];
-    return translationKey ? t(translationKey) : status;
+    switch (status) {
+      case 'paid':
+        return t('paid');
+      case 'pending':
+        return t('pending');
+      case 'overdue':
+        return t('overdue');
+      case 'cancelled':
+        return t('cancelled');
+      case 'notified':
+        return t('notified');
+      case 'invoiced':
+        return t('invoiced');
+      default:
+        return status;
+    }
   };
 
   const handleStatusChange = async (invoiceId: number, newStatus: string) => {
