@@ -135,7 +135,7 @@ const LeadsTab = ({ currentLanguage }: LeadsTabProps) => {
     }
 
     const csvContent = [
-      ['ID', 'Title', 'Category', 'City', 'Phone', 'Website'],
+      ['ID', t('title'), t('category'), t('city'), t('phone'), t('website')],
       ...leadsToExport.map(lead => [
         lead.id,
         lead.title,
@@ -229,11 +229,11 @@ const LeadsTab = ({ currentLanguage }: LeadsTabProps) => {
                         />
                       </TableHead>
                       <TableHead>ID</TableHead>
-                      <TableHead>Title</TableHead>
-                      <TableHead>Category</TableHead>
-                      <TableHead>City</TableHead>
-                      <TableHead>Phone</TableHead>
-                      <TableHead>Website</TableHead>
+                      <TableHead>{t('title')}</TableHead>
+                      <TableHead>{t('category')}</TableHead>
+                      <TableHead>{t('city')}</TableHead>
+                      <TableHead>{t('phone')}</TableHead>
+                      <TableHead>{t('website')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>

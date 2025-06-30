@@ -1,4 +1,3 @@
-
 export type Language = 'lv' | 'en' | 'ru' | 'et' | 'lt' | 'no' | 'sv' | 'da' | 'fr' | 'de' | 'es';
 
 export const languages: { code: Language; name: string; flag: string }[] = [
@@ -94,6 +93,13 @@ export const translations = {
     livestock: 'Lopkopības apdrošināšana',
     equipment: 'Tehnikas apdrošināšana',
     notSpecified: 'Nav norādīts',
+    
+    // Leads table headers
+    title: 'Nosaukums',
+    category: 'Kategorija',
+    city: 'Pilsēta',
+    phone: 'Telefons',
+    website: 'Mājaslapa',
     
     // API Connection
     apiConnectionSettings: 'API Savienojuma Iestatījumi',
@@ -214,6 +220,13 @@ export const translations = {
     equipment: 'Equipment Insurance',
     notSpecified: 'Not specified',
     
+    // Leads table headers
+    title: 'Title',
+    category: 'Category',
+    city: 'City',
+    phone: 'Phone',
+    website: 'Website',
+    
     // API Connection
     apiConnectionSettings: 'API Connection Settings',
     apiConnectionDesc: 'Configure API connection with insurer',
@@ -332,6 +345,13 @@ export const translations = {
     livestock: 'Страхование скота',
     equipment: 'Страхование оборудования',
     notSpecified: 'Не указано',
+    
+    // Leads table headers
+    title: 'Название',
+    category: 'Категория',
+    city: 'Город',
+    phone: 'Телефон',
+    website: 'Веб-сайт',
     
     // API Connection
     apiConnectionSettings: 'Настройки API Соединения',
@@ -452,6 +472,13 @@ export const translations = {
     equipment: 'Seadmete kindlustus',
     notSpecified: 'Määramata',
     
+    // Leads table headers
+    title: 'Pealkiri',
+    category: 'Kategooria',
+    city: 'Linn',
+    phone: 'Telefon',
+    website: 'Veebisait',
+    
     // API Connection
     apiConnectionSettings: 'API Ühenduse Seaded',
     apiConnectionDesc: 'Konfigureerige API ühendus kindlustusandjaga',
@@ -570,6 +597,13 @@ export const translations = {
     livestock: 'Gyvulių draudimas',
     equipment: 'Įrangos draudimas',
     notSpecified: 'Nenurodyta',
+    
+    // Leads table headers
+    title: 'Pavadinimas',
+    category: 'Kategorija',
+    city: 'Miestas',
+    phone: 'Telefonas',
+    website: 'Svetainė',
     
     // API Connection
     apiConnectionSettings: 'API Ryšio Nustatymai',
@@ -690,6 +724,13 @@ export const translations = {
     equipment: 'Utstyrsforsikring',
     notSpecified: 'Ikke spesifisert',
     
+    // Leads table headers
+    title: 'Tittel',
+    category: 'Kategori',
+    city: 'By',
+    phone: 'Telefon',
+    website: 'Nettside',
+    
     // API Connection
     apiConnectionSettings: 'API Tilkoblingsinnstillinger',
     apiConnectionDesc: 'Konfigurer API-tilkobling med forsikringsselskap',
@@ -808,6 +849,13 @@ export const translations = {
     livestock: 'Boskapsförsäkring',
     equipment: 'Utrustningsförsäkring',
     notSpecified: 'Ej specificerad',
+    
+    // Leads table headers
+    title: 'Titel',
+    category: 'Kategori',
+    city: 'Stad',
+    phone: 'Telefon',
+    website: 'Webbplats',
     
     // API Connection
     apiConnectionSettings: 'API Anslutningsinställningar',
@@ -928,6 +976,13 @@ export const translations = {
     equipment: 'Udstyrsforsikring',
     notSpecified: 'Ikke specificeret',
     
+    // Leads table headers
+    title: 'Titel',
+    category: 'Kategori',
+    city: 'By',
+    phone: 'Telefon',
+    website: 'Hjemmeside',
+    
     // API Connection
     apiConnectionSettings: 'API Forbindelsesindstillinger',
     apiConnectionDesc: 'Konfigurer API-forbindelse med forsikringsselskab',
@@ -1046,6 +1101,13 @@ export const translations = {
     livestock: 'Assurance bétail',
     equipment: 'Assurance équipement',
     notSpecified: 'Non spécifié',
+    
+    // Leads table headers
+    title: 'Titre',
+    category: 'Catégorie',
+    city: 'Ville',
+    phone: 'Téléphone',
+    website: 'Site Web',
     
     // API Connection
     apiConnectionSettings: 'Paramètres de Connexion API',
@@ -1166,6 +1228,13 @@ export const translations = {
     equipment: 'Geräteversicherung',
     notSpecified: 'Nicht angegeben',
     
+    // Leads table headers
+    title: 'Titel',
+    category: 'Kategorie',
+    city: 'Stadt',
+    phone: 'Telefon',
+    website: 'Webseite',
+    
     // API Connection
     apiConnectionSettings: 'API Verbindungseinstellungen',
     apiConnectionDesc: 'API-Verbindung mit Versicherer konfigurieren',
@@ -1284,6 +1353,13 @@ export const translations = {
     livestock: 'Seguro de ganado',
     equipment: 'Seguro de equipos',
     notSpecified: 'No especificado',
+    
+    // Leads table headers
+    title: 'Título',
+    category: 'Categoría',
+    city: 'Ciudad',
+    phone: 'Teléfono',
+    website: 'Sitio Web',
     
     // API Connection
     apiConnectionSettings: 'Configuración de Conexión API',
