@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -59,9 +60,9 @@ const InquiriesTab = ({ currentLanguage }: InquiriesTabProps) => {
       case 'auto':
         return t('auto');
       case 'health':
-        return t('health');
+        return currentLanguage === 'lv' ? 'Veselības' : currentLanguage === 'ru' ? 'Здоровье' : 'Health';
       case 'home':
-        return t('home');
+        return currentLanguage === 'lv' ? 'Mājas' : currentLanguage === 'ru' ? 'Дом' : 'Home';
       case 'life':
         return t('life');
       case 'travel':
