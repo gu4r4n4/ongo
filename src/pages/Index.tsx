@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut } from "lucide-react";
+import { LogOut, BarChart3, FileText, MessageSquare, Plug } from "lucide-react";
 import DashboardTab from "@/components/dashboard/DashboardTab";
 import InvoicesTab from "@/components/dashboard/InvoicesTab";
 import InquiriesTab from "@/components/dashboard/InquiriesTab";
@@ -36,10 +36,22 @@ const Index = () => {
 
         <Tabs defaultValue="dashboard" className="w-full">
           <TabsList className="grid w-full grid-cols-4 mb-8">
-            <TabsTrigger value="dashboard" className="text-lg py-3">{t('dashboard')}</TabsTrigger>
-            <TabsTrigger value="invoices" className="text-lg py-3">{t('invoices')}</TabsTrigger>
-            <TabsTrigger value="inquiries" className="text-lg py-3">{t('inquiries')}</TabsTrigger>
-            <TabsTrigger value="api-connection" className="text-lg py-3">{t('apiConnection')}</TabsTrigger>
+            <TabsTrigger value="dashboard" className="text-lg py-3">
+              <BarChart3 className="h-5 w-5 md:hidden" />
+              <span className="hidden md:inline">{t('dashboard')}</span>
+            </TabsTrigger>
+            <TabsTrigger value="invoices" className="text-lg py-3">
+              <FileText className="h-5 w-5 md:hidden" />
+              <span className="hidden md:inline">{t('invoices')}</span>
+            </TabsTrigger>
+            <TabsTrigger value="inquiries" className="text-lg py-3">
+              <MessageSquare className="h-5 w-5 md:hidden" />
+              <span className="hidden md:inline">{t('inquiries')}</span>
+            </TabsTrigger>
+            <TabsTrigger value="api-connection" className="text-lg py-3">
+              <Plug className="h-5 w-5 md:hidden" />
+              <span className="hidden md:inline">{t('apiConnection')}</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard">
