@@ -9,8 +9,14 @@ import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, Pagi
 import { Search, ArrowUpDown } from "lucide-react";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { usePagination } from "@/hooks/usePagination";
+import { Language, useTranslation } from "@/utils/translations";
 
-const InquiriesTab = () => {
+interface InquiriesTabProps {
+  currentLanguage: Language;
+}
+
+const InquiriesTab = ({ currentLanguage }: InquiriesTabProps) => {
+  const { t } = useTranslation(currentLanguage);
   const { inquiries, isLoading } = useDashboardData();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -30,29 +36,11 @@ const InquiriesTab = () => {
   };
 
   const getStatusLabel = (status: string) => {
-    const labels = {
-      'new': 'Jauns',
-      'processed': 'Apstrādāts',
-      'completed': 'Pabeigts',
-      'cancelled': 'Atcelts',
-      'notified': 'Paziņots',
-      'invoiced': 'Rēķins'
-    };
-    return labels[status as keyof typeof labels] || status || 'Jauns';
+    return t(status as keyof typeof translations.lv) || status || t('new');
   };
 
   const getProductTypeLabel = (productType: string) => {
-    const labels = {
-      'life': 'Dzīvības apdrošināšana',
-      'auto': 'Auto apdrošināšana', 
-      'property': 'Mājas apdrošināšana',
-      'travel': 'Ceļojumu apdrošināšana',
-      'cargo': 'Kravas apdrošināšana',
-      'crop': 'Lauksaimniecības apdrošināšana',
-      'livestock': 'Lopkopības apdrošināšana',
-      'equipment': 'Tehnikas apdrošināšana'
-    };
-    return labels[productType as keyof typeof labels] || productType || 'Nav norādīts';
+    return t(productType as keyof typeof translations.lv) || productType || t('notSpecified');
   };
 
   const filteredAndSortedInquiries = inquiries
@@ -111,7 +99,7 @@ const InquiriesTab = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-lg text-gray-600">Ielādē pieteikumus...</div>
+        <div className="text-lg text-gray-600">{t('loadingInquiries')}</div>
       </div>
     );
   }
@@ -119,9 +107,9 @@ const InquiriesTab = () => {
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader>
-          <CardTitle>Pieteikumu Pārvaldība</CardTitle>
-          <CardDescription>Skatiet un pārvaldiet visus apdrošināšanas pieteikumus</CardDescription>
+        <CardHeader> 
+          <CardTitle>{t('inquiryManagement')}</CardTitle>
+          <CardDescription>{t('inquiryManagementDesc')}</CardDescription>
         </CardHeader>
         <CardContent>
           {/* Filters */}
@@ -129,7 +117,7 @@ const InquiriesTab = () => {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
-                placeholder="Meklēt pēc klienta vārda..."
+                placeholder={t('searchByClientName')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -137,16 +125,16 @@ const InquiriesTab = () => {
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-full sm:w-48">
-                <SelectValue placeholder="Filtrēt pēc statusa" />
+                <SelectValue placeholder={t('filterByStatus')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Visi Statusi</SelectItem>
-                <SelectItem value="jauns">Jauns</SelectItem>
-                <SelectItem value="apstrādāts">Apstrādāts</SelectItem>
-                <SelectItem value="pabeigts">Pabeigts</SelectItem>
-                <SelectItem value="atcelts">Atcelts</SelectItem>
-                <SelectItem value="paziņots">Paziņots</SelectItem>
-                <SelectItem value="rēķins">Rēķins</SelectItem>
+                <SelectItem value="all">{t('allStatuses')}</SelectItem>
+                <SelectItem value="jauns">{t('new')}</SelectItem>
+                <SelectItem value="apstrādāts">{t('processed')}</SelectItem>
+                <SelectItem value="pabeigts">{t('completed')}</SelectItem>
+                <SelectItem value="atcelts">{t('cancelled')}</SelectItem>
+                <SelectItem value="paziņots">{t('notified')}</SelectItem>
+                <SelectItem value="rēķins">{t('invoiced')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -156,26 +144,26 @@ const InquiriesTab = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Pieteikuma ID</TableHead>
-                  <TableHead>Klienta Vārds</TableHead>
+                  <TableHead>{t('inquiryIdShort')}</TableHead>
+                  <TableHead>{t('clientName')}</TableHead>
                   <TableHead>
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort('received_at')}
                       className="h-auto p-0 font-medium hover:bg-transparent"
                     >
-                      Datums <ArrowUpDown className="ml-2 h-4 w-4" />
+                      {t('date')} <ArrowUpDown className="ml-2 h-4 w-4" />
                     </Button>
                   </TableHead>
-                  <TableHead>Apdrošināšanas Veids</TableHead>
-                  <TableHead>Statuss</TableHead>
+                  <TableHead>{t('insuranceType')}</TableHead>
+                  <TableHead>{t('status')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {paginatedData.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={5} className="text-center py-8 text-gray-500">
-                      Nav atrasti pieteikumi, kas atbilst jūsu kritērijiem
+                      {t('noInquiriesFound')}
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -183,7 +171,7 @@ const InquiriesTab = () => {
                     <TableRow key={inquiry.id} className="hover:bg-gray-50">
                       <TableCell className="font-medium">INQ-{inquiry.id}</TableCell>
                       <TableCell>{inquiry.full_name}</TableCell>
-                      <TableCell>{new Date(inquiry.received_at || '').toLocaleDateString('lv-LV')}</TableCell>
+                      <TableCell>{new Date(inquiry.received_at || '').toLocaleDateString(currentLanguage === 'lv' ? 'lv-LV' : currentLanguage === 'en' ? 'en-US' : `${currentLanguage}-${currentLanguage.toUpperCase()}`)}</TableCell>
                       <TableCell>{getProductTypeLabel(inquiry.product_type || '')}</TableCell>
                       <TableCell>
                         <Badge className={getStatusBadge(inquiry.status || 'new')}>
@@ -201,7 +189,7 @@ const InquiriesTab = () => {
           {totalPages > 1 && (
             <div className="flex items-center justify-between mt-4">
               <div className="text-sm text-gray-600">
-                Rāda {startIndex} līdz {endIndex} no {totalItems} pieteikumiem
+                {t('showing')} {startIndex} {t('to')} {endIndex} {t('of')} {totalItems} {t('inquiriesTotal')}
               </div>
               <Pagination>
                 <PaginationContent>
@@ -254,7 +242,7 @@ const InquiriesTab = () => {
           )}
 
           <div className="mt-4 text-sm text-gray-600">
-            Kopā {filteredAndSortedInquiries.length} no {inquiries.length} pieteikumiem
+            {t('totalOf')} {filteredAndSortedInquiries.length} {t('of')} {inquiries.length} {t('inquiriesTotal')}
           </div>
         </CardContent>
       </Card>

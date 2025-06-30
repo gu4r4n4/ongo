@@ -12,8 +12,14 @@ import { useDashboardData } from "@/hooks/useDashboardData";
 import { usePagination } from "@/hooks/usePagination";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/sonner";
+import { Language, useTranslation } from "@/utils/translations";
 
-const InvoicesTab = () => {
+interface InvoicesTabProps {
+  currentLanguage: Language;
+}
+
+const InvoicesTab = ({ currentLanguage }: InvoicesTabProps) => {
+  const { t } = useTranslation(currentLanguage);
   const { invoices, isLoading } = useDashboardData();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -33,15 +39,7 @@ const InvoicesTab = () => {
   };
 
   const getStatusLabel = (status: string) => {
-    const labels = {
-      'paid': 'Apmaksāts',
-      'pending': 'Neapmaksāts',
-      'overdue': 'Nokavēts',
-      'cancelled': 'Atcelts',
-      'notified': 'Paziņots',
-      'invoiced': 'Rēķins'
-    };
-    return labels[status as keyof typeof labels] || status;
+    return t(status as keyof typeof translations.lv) || status;
   };
 
   const handleStatusChange = async (invoiceId: number, newStatus: string) => {
@@ -55,15 +53,14 @@ const InvoicesTab = () => {
         .eq('id', invoiceId);
 
       if (error) {
-        toast.error('Kļūda mainot statusu');
+        toast.error(t('errorChangingStatus'));
         console.error('Error updating invoice status:', error);
         return;
       }
 
-      toast.success(`Rēķina statuss nomainīts uz "${getStatusLabel(newStatus)}"`);
-      // The data will automatically refresh due to React Query
+      toast.success(`${t('statusChanged')} "${getStatusLabel(newStatus)}"`);
     } catch (error) {
-      toast.error('Kļūda mainot statusu');
+      toast.error(t('errorChangingStatus'));
       console.error('Error updating invoice status:', error);
     }
   };
@@ -127,7 +124,7 @@ const InvoicesTab = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-lg text-gray-600">Ielādē rēķinus...</div>
+        <div className="text-lg text-gray-600">{t('loadingInvoices')}</div>
       </div>
     );
   }
@@ -136,8 +133,8 @@ const InvoicesTab = () => {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Rēķinu Pārvaldība</CardTitle>
-          <CardDescription>Skatiet un pārvaldiet visus savus rēķinus</CardDescription>
+          <CardTitle>{t('invoiceManagement')}</CardTitle>
+          <CardDescription>{t('invoiceManagementDesc')}</CardDescription>
         </CardHeader>
         <CardContent>
           {/* Filters */}
@@ -145,7 +142,7 @@ const InvoicesTab = () => {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
-                placeholder="Meklēt pēc rēķina numura..."
+                placeholder={t('searchByInvoiceNumber')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -153,16 +150,16 @@ const InvoicesTab = () => {
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-full sm:w-48">
-                <SelectValue placeholder="Filtrēt pēc statusa" />
+                <SelectValue placeholder={t('filterByStatus')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Visi Statusi</SelectItem>
-                <SelectItem value="apmaksāts">Apmaksāts</SelectItem>
-                <SelectItem value="neapmaksāts">Neapmaksāts</SelectItem>
-                <SelectItem value="nokavēts">Nokavēts</SelectItem>
-                <SelectItem value="atcelts">Atcelts</SelectItem>
-                <SelectItem value="paziņots">Paziņots</SelectItem>
-                <SelectItem value="rēķins">Rēķins</SelectItem>
+                <SelectItem value="all">{t('allStatuses')}</SelectItem>
+                <SelectItem value="apmaksāts">{t('paid')}</SelectItem>
+                <SelectItem value="neapmaksāts">{t('pending')}</SelectItem>
+                <SelectItem value="nokavēts">{t('overdue')}</SelectItem>
+                <SelectItem value="atcelts">{t('cancelled')}</SelectItem>
+                <SelectItem value="paziņots">{t('notified')}</SelectItem>
+                <SelectItem value="rēķins">{t('invoiced')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -172,15 +169,15 @@ const InvoicesTab = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Rēķina Numurs</TableHead>
-                  <TableHead>Pieprasījuma ID</TableHead>
+                  <TableHead>{t('invoiceNumber')}</TableHead>
+                  <TableHead>{t('inquiryId')}</TableHead>
                   <TableHead>
                     <Button 
                       variant="ghost" 
                       onClick={() => handleSort('created_at')}
                       className="h-auto p-0 font-medium hover:bg-transparent"
                     >
-                      Datums <ArrowUpDown className="ml-2 h-4 w-4" />
+                      {t('date')} <ArrowUpDown className="ml-2 h-4 w-4" />
                     </Button>
                   </TableHead>
                   <TableHead>
@@ -189,10 +186,10 @@ const InvoicesTab = () => {
                       onClick={() => handleSort('amount')}
                       className="h-auto p-0 font-medium hover:bg-transparent"
                     >
-                      Summa <ArrowUpDown className="ml-2 h-4 w-4" />
+                      {t('amount')} <ArrowUpDown className="ml-2 h-4 w-4" />
                     </Button>
                   </TableHead>
-                  <TableHead>Statuss</TableHead>
+                  <TableHead>{t('status')}</TableHead>
                   <TableHead className="w-12"></TableHead>
                 </TableRow>
               </TableHeader>
@@ -200,7 +197,7 @@ const InvoicesTab = () => {
                 {paginatedData.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} className="text-center py-8 text-gray-500">
-                      Nav atrasti rēķini, kas atbilst jūsu kritērijiem
+                      {t('noInvoicesFound')}
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -208,7 +205,7 @@ const InvoicesTab = () => {
                     <TableRow key={invoice.id} className="hover:bg-gray-50">
                       <TableCell className="font-medium">{invoice.invoice_number || `INV-${invoice.id}`}</TableCell>
                       <TableCell>{invoice.inquiry_id ? `INQ-${invoice.inquiry_id}` : 'N/A'}</TableCell>
-                      <TableCell>{new Date(invoice.created_at || '').toLocaleDateString('lv-LV')}</TableCell>
+                      <TableCell>{new Date(invoice.created_at || '').toLocaleDateString(currentLanguage === 'lv' ? 'lv-LV' : currentLanguage === 'en' ? 'en-US' : `${currentLanguage}-${currentLanguage.toUpperCase()}`)}</TableCell>
                       <TableCell className="font-medium">€{Number(invoice.amount || 0).toLocaleString()}</TableCell>
                       <TableCell>
                         <Badge className={getStatusBadge(invoice.status || 'pending')}>
@@ -227,13 +224,13 @@ const InvoicesTab = () => {
                               onClick={() => handleStatusChange(invoice.id, 'paid')}
                               disabled={invoice.status === 'paid'}
                             >
-                              Atzīmēt kā Apmaksāts
+                              {t('markAsPaid')}
                             </DropdownMenuItem>
                             <DropdownMenuItem 
                               onClick={() => handleStatusChange(invoice.id, 'cancelled')}
                               disabled={invoice.status === 'cancelled'}
                             >
-                              Atzīmēt kā Atcelts
+                              {t('markAsCancelled')}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -249,7 +246,7 @@ const InvoicesTab = () => {
           {totalPages > 1 && (
             <div className="flex items-center justify-between mt-4">
               <div className="text-sm text-gray-600">
-                Rāda {startIndex} līdz {endIndex} no {totalItems} rēķiniem
+                {t('showing')} {startIndex} {t('to')} {endIndex} {t('of')} {totalItems} {t('invoicesTotal')}
               </div>
               <Pagination>
                 <PaginationContent>
@@ -302,7 +299,7 @@ const InvoicesTab = () => {
           )}
 
           <div className="mt-4 text-sm text-gray-600">
-            Kopā {filteredAndSortedInvoices.length} no {invoices.length} rēķiniem
+            {t('totalOf')} {filteredAndSortedInvoices.length} {t('of')} {invoices.length} {t('invoicesText')}
           </div>
         </CardContent>
       </Card>

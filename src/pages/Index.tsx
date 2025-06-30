@@ -43,19 +43,19 @@ const Index = () => {
           </TabsList>
 
           <TabsContent value="dashboard">
-            <DashboardTab />
+            <DashboardTab currentLanguage={currentLanguage} />
           </TabsContent>
 
           <TabsContent value="invoices">
-            <InvoicesTab />
+            <InvoicesTab currentLanguage={currentLanguage} />
           </TabsContent>
 
           <TabsContent value="inquiries">
-            <InquiriesTab />
+            <InquiriesTab currentLanguage={currentLanguage} />
           </TabsContent>
 
           <TabsContent value="api-connection">
-            <ApiConnectionTab />
+            <ApiConnectionTab currentLanguage={currentLanguage} />
           </TabsContent>
         </Tabs>
       </div>

@@ -4,8 +4,14 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { Euro, FileText, MessageSquare, AlertCircle } from "lucide-react";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useMemo } from "react";
+import { Language, useTranslation } from "@/utils/translations";
 
-const DashboardTab = () => {
+interface DashboardTabProps {
+  currentLanguage: Language;
+}
+
+const DashboardTab = ({ currentLanguage }: DashboardTabProps) => {
+  const { t } = useTranslation(currentLanguage);
   const { inquiries, invoices, isLoading } = useDashboardData();
 
   const dashboardStats = useMemo(() => {
@@ -81,7 +87,7 @@ const DashboardTab = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-lg text-gray-600">Ielādē datus...</div>
+        <div className="text-lg text-gray-600">{t('loadingData')}</div>
       </div>
     );
   }
@@ -92,45 +98,45 @@ const DashboardTab = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-blue-800">Kopējie Ienākumi</CardTitle>
+            <CardTitle className="text-sm font-medium text-blue-800">{t('totalIncome')}</CardTitle>
             <Euro className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-900">€{dashboardStats.totalIncome.toLocaleString()}</div>
-            <p className="text-xs text-blue-600">No apmaksātajiem rēķiniem</p>
+            <p className="text-xs text-blue-600">{t('fromPaidInvoices')}</p>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-green-800">Kopējie Rēķini</CardTitle>
+            <CardTitle className="text-sm font-medium text-green-800">{t('totalInvoices')}</CardTitle>
             <FileText className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-900">{dashboardStats.totalInvoices}</div>
-            <p className="text-xs text-green-600">Visi izrakstītie rēķini</p>
+            <p className="text-xs text-green-600">{t('allIssuedInvoices')}</p>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-purple-800">Kopējie Pieprasījumi</CardTitle>
+            <CardTitle className="text-sm font-medium text-purple-800">{t('totalInquiries')}</CardTitle>
             <MessageSquare className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-purple-900">{dashboardStats.totalInquiries}</div>
-            <p className="text-xs text-purple-600">{dashboardStats.thisMonthInquiries} šomēnes</p>
+            <p className="text-xs text-purple-600">{dashboardStats.thisMonthInquiries} {t('thisMonth')}</p>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-red-800">Neapmaksātie Rēķini</CardTitle>
+            <CardTitle className="text-sm font-medium text-red-800">{t('unpaidInvoices')}</CardTitle>
             <AlertCircle className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-900">{dashboardStats.unpaidInvoicesCount}</div>
-            <p className="text-xs text-red-600">€{dashboardStats.unpaidAmount.toLocaleString()} neapmaksāts</p>
+            <p className="text-xs text-red-600">€{dashboardStats.unpaidAmount.toLocaleString()} {t('unpaid')}</p>
           </CardContent>
         </Card>
       </div>
@@ -140,8 +146,8 @@ const DashboardTab = () => {
         {/* Income Chart */}
         <Card>
           <CardHeader>
-            <CardTitle>Kopējie Ienākumi</CardTitle>
-            <CardDescription>Dienas ienākumi no apmaksātajiem rēķiniem EUR</CardDescription>
+            <CardTitle>{t('dailyIncomeChart')}</CardTitle>
+            <CardDescription>{t('dailyIncomeDesc')}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-80">
@@ -151,12 +157,12 @@ const DashboardTab = () => {
                   <XAxis 
                     dataKey="date" 
                     className="text-sm text-gray-600"
-                    tickFormatter={(value) => new Date(value).toLocaleDateString('lv-LV', { month: 'short', day: 'numeric' })}
+                    tickFormatter={(value) => new Date(value).toLocaleDateString(currentLanguage === 'lv' ? 'lv-LV' : currentLanguage === 'en' ? 'en-US' : `${currentLanguage}-${currentLanguage.toUpperCase()}`, { month: 'short', day: 'numeric' })}
                   />
                   <YAxis className="text-sm text-gray-600" />
                   <Tooltip 
-                    formatter={(value) => [`€${value}`, 'Ienākumi']}
-                    labelFormatter={(value) => new Date(value).toLocaleDateString('lv-LV')}
+                    formatter={(value) => [`€${value}`, t('income')]}
+                    labelFormatter={(value) => new Date(value).toLocaleDateString(currentLanguage === 'lv' ? 'lv-LV' : currentLanguage === 'en' ? 'en-US' : `${currentLanguage}-${currentLanguage.toUpperCase()}`)}
                   />
                   <Line 
                     type="monotone" 
@@ -174,8 +180,8 @@ const DashboardTab = () => {
         {/* Inquiries Chart */}
         <Card>
           <CardHeader>
-            <CardTitle>Apdrošināšanas Pieprasījumi</CardTitle>
-            <CardDescription>Dienas laikā saņemto pieprasījumu skaits</CardDescription>
+            <CardTitle>{t('inquiriesChart')}</CardTitle>
+            <CardDescription>{t('inquiriesChartDesc')}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-80">
@@ -185,12 +191,12 @@ const DashboardTab = () => {
                   <XAxis 
                     dataKey="date" 
                     className="text-sm text-gray-600"
-                    tickFormatter={(value) => new Date(value).toLocaleDateString('lv-LV', { month: 'short', day: 'numeric' })}
+                    tickFormatter={(value) => new Date(value).toLocaleDateString(currentLanguage === 'lv' ? 'lv-LV' : currentLanguage === 'en' ? 'en-US' : `${currentLanguage}-${currentLanguage.toUpperCase()}`, { month: 'short', day: 'numeric' })}
                   />
                   <YAxis className="text-sm text-gray-600" />
                   <Tooltip 
-                    formatter={(value) => [`${value}`, 'Pieprasījumi']}
-                    labelFormatter={(value) => new Date(value).toLocaleDateString('lv-LV')}
+                    formatter={(value) => [`${value}`, t('inquiriesCount')]}
+                    labelFormatter={(value) => new Date(value).toLocaleDateString(currentLanguage === 'lv' ? 'lv-LV' : currentLanguage === 'en' ? 'en-US' : `${currentLanguage}-${currentLanguage.toUpperCase()}`)}
                   />
                   <Bar 
                     dataKey="inquiries" 
