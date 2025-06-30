@@ -36,11 +36,30 @@ const InquiriesTab = ({ currentLanguage }: InquiriesTabProps) => {
   };
 
   const getStatusLabel = (status: string) => {
-    return t(status as keyof typeof translations.lv) || status || t('new');
+    const statusMap: Record<string, keyof ReturnType<typeof useTranslation>['t']> = {
+      'new': 'new',
+      'processed': 'processed',
+      'completed': 'completed',
+      'cancelled': 'cancelled',
+      'notified': 'notified',
+      'invoiced': 'invoiced'
+    };
+    
+    const translationKey = statusMap[status];
+    return translationKey ? t(translationKey) : status || t('new');
   };
 
   const getProductTypeLabel = (productType: string) => {
-    return t(productType as keyof typeof translations.lv) || productType || t('notSpecified');
+    const productTypeMap: Record<string, keyof ReturnType<typeof useTranslation>['t']> = {
+      'auto': 'auto',
+      'health': 'health',
+      'home': 'home',
+      'life': 'life',
+      'travel': 'travel'
+    };
+    
+    const translationKey = productTypeMap[productType];
+    return translationKey ? t(translationKey) : productType || t('notSpecified');
   };
 
   const filteredAndSortedInquiries = inquiries
