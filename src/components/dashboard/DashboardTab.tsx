@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { Euro, FileText, MessageSquare, AlertCircle } from "lucide-react";
@@ -166,9 +167,9 @@ const DashboardTab = ({ currentLanguage }: DashboardTabProps) => {
                   <Line 
                     type="monotone" 
                     dataKey="income" 
-                    stroke="#2563eb" 
+                    stroke="#81d8d0" 
                     strokeWidth={3}
-                    dot={{ fill: '#2563eb', strokeWidth: 2, r: 4 }}
+                    dot={{ fill: '#81d8d0', strokeWidth: 2, r: 4 }}
                   />
                 </LineChart>
               </ResponsiveContainer>
