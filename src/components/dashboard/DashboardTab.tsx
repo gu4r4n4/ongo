@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { Euro, FileText, MessageSquare, AlertCircle } from "lucide-react";
@@ -200,7 +199,7 @@ const DashboardTab = ({ currentLanguage }: DashboardTabProps) => {
                   />
                   <Bar 
                     dataKey="inquiries" 
-                    fill="#7c3aed" 
+                    fill="#81d8d0" 
                     radius={[4, 4, 0, 0]}
                   />
                 </BarChart>
