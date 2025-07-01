@@ -15,27 +15,39 @@ const DashboardTab = ({ currentLanguage }: DashboardTabProps) => {
   const { inquiries, invoices, isLoading } = useDashboardData();
 
   const dashboardStats = useMemo(() => {
-    const totalIncome = invoices
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    // Filter invoices for current month
+    const thisMonthInvoices = invoices.filter(invoice => {
+      const invoiceDate = invoice.paid_at ? new Date(invoice.paid_at) : new Date(invoice.created_at);
+      return invoiceDate.getMonth() === currentMonth && 
+             invoiceDate.getFullYear() === currentYear;
+    });
+
+    // Current month income (from paid invoices)
+    const thisMonthIncome = thisMonthInvoices
       .filter(invoice => invoice.status === 'paid')
       .reduce((sum, invoice) => sum + Number(invoice.amount || 0), 0);
     
-    const unpaidInvoices = invoices.filter(invoice => invoice.status === 'pending');
-    const unpaidAmount = unpaidInvoices.reduce((sum, invoice) => sum + Number(invoice.amount || 0), 0);
+    // Current month unpaid invoices
+    const thisMonthUnpaidInvoices = thisMonthInvoices.filter(invoice => invoice.status === 'pending');
+    const thisMonthUnpaidAmount = thisMonthUnpaidInvoices.reduce((sum, invoice) => sum + Number(invoice.amount || 0), 0);
     
+    // Current month inquiries
     const thisMonthInquiries = inquiries.filter(inquiry => {
       const inquiryDate = new Date(inquiry.received_at || '');
-      const now = new Date();
-      return inquiryDate.getMonth() === now.getMonth() && 
-             inquiryDate.getFullYear() === now.getFullYear();
+      return inquiryDate.getMonth() === currentMonth && 
+             inquiryDate.getFullYear() === currentYear;
     });
 
     return {
-      totalIncome,
-      totalInvoices: invoices.length,
-      totalInquiries: inquiries.length,
-      unpaidInvoicesCount: unpaidInvoices.length,
-      unpaidAmount,
-      thisMonthInquiries: thisMonthInquiries.length
+      thisMonthIncome,
+      thisMonthInvoices: thisMonthInvoices.length,
+      thisMonthInquiries: thisMonthInquiries.length,
+      thisMonthUnpaidInvoicesCount: thisMonthUnpaidInvoices.length,
+      thisMonthUnpaidAmount
     };
   }, [inquiries, invoices]);
 
@@ -102,8 +114,8 @@ const DashboardTab = ({ currentLanguage }: DashboardTabProps) => {
             <Euro className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-900">€{dashboardStats.totalIncome.toLocaleString()}</div>
-            <p className="text-xs text-blue-600">{t('fromPaidInvoices')}</p>
+            <div className="text-2xl font-bold text-blue-900">€{dashboardStats.thisMonthIncome.toLocaleString()}</div>
+            <p className="text-xs text-blue-600">{t('thisMonth')}</p>
           </CardContent>
         </Card>
 
@@ -113,8 +125,8 @@ const DashboardTab = ({ currentLanguage }: DashboardTabProps) => {
             <FileText className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-900">{dashboardStats.totalInvoices}</div>
-            <p className="text-xs text-green-600">{t('allIssuedInvoices')}</p>
+            <div className="text-2xl font-bold text-green-900">{dashboardStats.thisMonthInvoices}</div>
+            <p className="text-xs text-green-600">{t('thisMonth')}</p>
           </CardContent>
         </Card>
 
@@ -124,8 +136,8 @@ const DashboardTab = ({ currentLanguage }: DashboardTabProps) => {
             <MessageSquare className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-purple-900">{dashboardStats.totalInquiries}</div>
-            <p className="text-xs text-purple-600">{dashboardStats.thisMonthInquiries} {t('thisMonth')}</p>
+            <div className="text-2xl font-bold text-purple-900">{dashboardStats.thisMonthInquiries}</div>
+            <p className="text-xs text-purple-600">{t('thisMonth')}</p>
           </CardContent>
         </Card>
 
@@ -135,8 +147,8 @@ const DashboardTab = ({ currentLanguage }: DashboardTabProps) => {
             <AlertCircle className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-900">{dashboardStats.unpaidInvoicesCount}</div>
-            <p className="text-xs text-red-600">€{dashboardStats.unpaidAmount.toLocaleString()} {t('unpaid')}</p>
+            <div className="text-2xl font-bold text-red-900">{dashboardStats.thisMonthUnpaidInvoicesCount}</div>
+            <p className="text-xs text-red-600">€{dashboardStats.thisMonthUnpaidAmount.toLocaleString()} {t('thisMonth')}</p>
           </CardContent>
         </Card>
       </div>
