@@ -31,8 +31,8 @@ const DashboardTab = ({ currentLanguage }: DashboardTabProps) => {
       .filter(invoice => invoice.status === 'paid')
       .reduce((sum, invoice) => sum + Number(invoice.amount || 0), 0);
     
-    // Current month unpaid invoices
-    const thisMonthUnpaidInvoices = thisMonthInvoices.filter(invoice => invoice.status === 'pending');
+    // Current month unpaid invoices (changed from 'pending' to 'invoiced')
+    const thisMonthUnpaidInvoices = thisMonthInvoices.filter(invoice => invoice.status === 'invoiced');
     const thisMonthUnpaidAmount = thisMonthUnpaidInvoices.reduce((sum, invoice) => sum + Number(invoice.amount || 0), 0);
     
     // Current month inquiries
