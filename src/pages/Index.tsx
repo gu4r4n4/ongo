@@ -9,10 +9,12 @@ import LeadsTab from "@/components/dashboard/LeadsTab";
 import ApiConnectionTab from "@/components/dashboard/ApiConnectionTab";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { Language, useTranslation } from "@/utils/translations";
+import { useAuth } from "@/hooks/useAuth";
 
 const Index = () => {
   const [currentLanguage, setCurrentLanguage] = useState<Language>('lv');
   const { t } = useTranslation(currentLanguage);
+  const { signOut } = useAuth();
 
   const handleLanguageChange = (language: Language) => {
     setCurrentLanguage(language);
@@ -31,7 +33,10 @@ const Index = () => {
               currentLanguage={currentLanguage}
               onLanguageChange={handleLanguageChange}
             />
-            <LogOut className="h-6 w-6 text-gray-600 cursor-pointer hover:text-gray-800 transition-colors" />
+            <LogOut 
+              className="h-6 w-6 text-gray-600 cursor-pointer hover:text-gray-800 transition-colors" 
+              onClick={signOut}
+            />
           </div>
         </div>
 
