@@ -66,7 +66,7 @@ const Login = () => {
               <Input
                 id="username"
                 type="text"
-                placeholder="Enter your username"
+                placeholder="Ievadi lietotājvārdu"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
@@ -79,7 +79,7 @@ const Login = () => {
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="Enter your password"
+                  placeholder="Ievadi paroli"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
