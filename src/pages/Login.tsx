@@ -54,15 +54,15 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl font-bold">VIS Broker House</CardTitle>
+          <CardTitle className="text-2xl font-bold">OnGo.lv - VIS BrokerHouse</CardTitle>
           <CardDescription>
-            Sign in to access your dashboard
+            Pieslēgties
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="username">Lietotājvārds</Label>
               <Input
                 id="username"
                 type="text"
@@ -74,7 +74,7 @@ const Login = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Parole</Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -100,7 +100,7 @@ const Login = () => {
               </div>
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Signing in...' : 'Sign In'}
+              {isLoading ? 'Pieslēdzas...' : 'Pieslēgties'}
             </Button>
           </form>
         </CardContent>
