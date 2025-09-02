@@ -212,7 +212,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
             </Button>
             <Button 
               onClick={handleSubmit}
-              className="flex-1 hover:bg-[rgb(129,216,208)]"
+              className="flex-1 hover:bg-[rgb(129,216,208)] hover:text-black"
               disabled={isUploading}
             >
               {isUploading ? t('processing') : `${t('uploadProcess')} (${uploadForms.filter(f => f.companyHint && f.pdfFile).length})`}
