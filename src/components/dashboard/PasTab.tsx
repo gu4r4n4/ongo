@@ -6,9 +6,13 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Language, useTranslation } from "@/utils/translations";
 import { toast } from "sonner";
 import { Trash2, Download } from "lucide-react";
+import { InsurerLogo } from "@/components/InsurerLogo";
+
+type Insurer = 'BTA' | 'BTA2';
 
 interface PasTabProps {
   currentLanguage: Language;
@@ -19,120 +23,120 @@ interface Program {
   program_code: string;
   base_sum_eur: number;
   premium_eur: number;
-  payment_method: string;
-  features: Record<string, string>;
+  payment_method?: string | null;
+  features: Record<string, any>;
 }
 
 interface ApiResponse {
   source_file: string;
   programs: Program[];
+  inquiry_id?: number;
+  offer_ids?: number[];
 }
 
-interface FormData {
-  inquiryId: string;
-  companyHint: string;
+interface UploadItem {
+  file: File;
+  hint: Insurer;
 }
 
 const PasTab = ({ currentLanguage }: PasTabProps) => {
   const { t } = useTranslation(currentLanguage);
-  const [formData, setFormData] = useState<FormData>({
-    inquiryId: '',
-    companyHint: ''
-  });
-  const [files, setFiles] = useState<File[]>([]);
+  const [inquiryId, setInquiryId] = useState<string>('');
+  const [usePerFileHints, setUsePerFileHints] = useState(true); // default ON
+  const [globalHint, setGlobalHint] = useState<Insurer>('BTA');
+  const [items, setItems] = useState<UploadItem[]>([]);
   const [isUploading, setIsUploading] = useState(false);
-  const [progress, setProgress] = useState<{ current: number; total: number } | null>(null);
-  const [apiResponse, setApiResponse] = useState<ApiResponse | null>(null);
+  
+  // Each element in results corresponds to one uploaded file's ApiResponse
+  const [results, setResults] = useState<ApiResponse[]>([]);
+  const [activeTab, setActiveTab] = useState<string | undefined>(undefined);
 
-  const handleInputChange = (field: keyof FormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = Array.from(event.target.files || []);
-    const pdfFiles = selectedFiles.filter(file => 
+  const onFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    
+    const pdfFiles = files.filter(file => 
       file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')
     );
     
-    if (pdfFiles.length !== selectedFiles.length) {
-      toast.error('Only PDF files are allowed');
+    if (pdfFiles.length !== files.length) {
+      toast.error(t('onlyPdfAllowed') || 'Only PDF files are allowed');
     }
     
-    setFiles(pdfFiles);
+    const def: Insurer = 'BTA';
+    const mapped = pdfFiles.map((f) => ({ file: f, hint: def }));
+    setItems(mapped);
   };
 
-  const removeFile = (index: number) => {
-    setFiles(prev => prev.filter((_, i) => i !== index));
+  const setItemHint = (idx: number, value: Insurer) => {
+    setItems((prev) => prev.map((it, i) => (i === idx ? { ...it, hint: value } : it)));
   };
 
-  const uploadOfferSingle = async (file: File, companyHint: string, inquiryId?: string) => {
+  async function uploadOffer(file: File, companyHint: string, inquiryId?: string): Promise<ApiResponse> {
     const form = new FormData();
     form.append('file', file);
-    if (companyHint) form.append('company_hint', companyHint);
-    if (inquiryId) form.append('inquiry_id', String(inquiryId));
-
-    const res = await fetch('https://visbrokerhouse.onrender.com/ingest', {
-      method: 'POST',
-      body: form
+    form.append('company_hint', companyHint);
+    if (inquiryId) form.append('inquiry_id', inquiryId);
+    
+    const res = await fetch('https://visbrokerhouse.onrender.com/ingest', { 
+      method: 'POST', 
+      body: form 
     });
     
     if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      throw new Error(errorData.error || `Upload failed for ${file.name}`);
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data?.error || `Upload failed (${res.status})`);
     }
     
-    return res.json();
-  };
+    return (await res.json()) as ApiResponse;
+  }
 
   const handleSubmit = async () => {
-    if (!formData.companyHint || files.length === 0) {
-      toast.error(t('fillAllFields'));
+    if (items.length === 0) {
+      toast.error(t('selectFiles') || 'Please select at least one PDF.');
+      return;
+    }
+
+    // Validate hints
+    if (!usePerFileHints && !globalHint) {
+      toast.error(t('selectInsurer') || 'Please select insurer.');
+      return;
+    }
+    if (usePerFileHints && items.some((it) => !it.hint)) {
+      toast.error(t('selectInsurerForEachFile') || 'Please select insurer for each file.');
       return;
     }
 
     setIsUploading(true);
-    setProgress({ current: 0, total: files.length });
-    setApiResponse(null);
-    
+    setResults([]);
+    setActiveTab(undefined);
+
     try {
-      const allResponses: ApiResponse[] = [];
-      let successCount = 0;
-
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        setProgress({ current: i + 1, total: files.length });
-
+      // Sequential uploads; results appear as they finish
+      for (let i = 0; i < items.length; i++) {
+        const it = items[i];
+        const hint = usePerFileHints ? it.hint : globalHint;
         try {
-          const response = await uploadOfferSingle(
-            file,
-            formData.companyHint,
-            formData.inquiryId || undefined
-          );
-          allResponses.push(response);
-          successCount++;
-        } catch (error) {
-          console.error(`Error uploading ${file.name}:`, error);
-          toast.error(error instanceof Error ? error.message : `Failed: ${file.name}`);
+          const response = await uploadOffer(it.file, hint, inquiryId || undefined);
+          setResults((prev) => {
+            const next = [...prev, response];
+            // Select first tab once first result arrives
+            if (!activeTab && next.length > 0) setActiveTab(`r${next.length - 1}`);
+            return next;
+          });
+        } catch (err: any) {
+          toast.error(`${t('failed') || 'Failed'}: ${it.file.name} — ${err?.message || 'Upload error'}`);
         }
       }
-
-      // Aggregate results
-      if (allResponses.length > 0) {
-        const aggregated: ApiResponse = {
-          source_file: allResponses.map(r => r.source_file).join(', '),
-          programs: allResponses.flatMap(r => r.programs)
-        };
-        setApiResponse(aggregated);
-        toast.success(`Processed ${successCount} of ${files.length} file(s) successfully`);
-      }
+      toast.success(t('finishedProcessing') || 'Finished processing selected files.');
     } finally {
       setIsUploading(false);
-      setProgress(null);
     }
   };
 
   const exportToCSV = () => {
-    if (!apiResponse || apiResponse.programs.length === 0) return;
+    const allPrograms = results.flatMap(r => r.programs);
+    if (allPrograms.length === 0) return;
 
     // Create CSV headers
     const headers = [
@@ -146,15 +150,17 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     ];
 
     // Convert data to CSV rows
-    const rows = apiResponse.programs.map(program => [
-      apiResponse.source_file,
-      program.insurer,
-      program.program_code,
-      program.base_sum_eur,
-      program.premium_eur,
-      program.payment_method,
-      Object.entries(program.features).map(([key, value]) => `${key}: ${value}`).join('; ')
-    ]);
+    const rows = results.flatMap(result =>
+      result.programs.map(program => [
+        result.source_file,
+        program.insurer,
+        program.program_code,
+        program.base_sum_eur,
+        program.premium_eur,
+        program.payment_method || '',
+        Object.entries(program.features).map(([key, value]) => `${key}: ${value}`).join('; ')
+      ])
+    );
 
     // Create CSV content
     const csvContent = [headers, ...rows]
@@ -172,8 +178,77 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     link.click();
     document.body.removeChild(link);
     
-    toast.success('CSV exported successfully');
+    toast.success(t('csvExported') || 'CSV exported successfully');
   };
+
+  // Small renderer for one ApiResponse (reuse existing layout)
+  const ResultCard = ({ data }: { data: ApiResponse }) => {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('processingResults')}</CardTitle>
+          <CardDescription>
+            {t('file')}: {data.source_file} • {data.programs?.length || 0} {t('programsFound')}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {data.programs.map((program, idx) => (
+            <div key={idx} className="p-4 border rounded-lg space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline">{program.insurer}</Badge>
+                  <Badge>{program.program_code}</Badge>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm text-muted-foreground">{t('premium')}</div>
+                  <div className="font-semibold">€{program.premium_eur}</div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-muted-foreground">{t('baseSum')}:</span>
+                  <span className="ml-2 font-medium">€{program.base_sum_eur?.toLocaleString?.() ?? program.base_sum_eur}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">{t('payment')}:</span>
+                  <span className="ml-2 font-medium capitalize">{program.payment_method || '-'}</span>
+                </div>
+              </div>
+
+              {program.features && Object.keys(program.features).length > 0 && (
+                <>
+                  <Separator />
+                  <div>
+                    <div className="text-sm font-medium mb-2">{t('features')}:</div>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      {Object.entries(program.features).map(([k, v]) => (
+                        <div key={k} className="flex justify-between">
+                          <span className="text-muted-foreground">{k}:</span>
+                          <span className={v === 'Yes' ? 'text-green-600' : v === 'No' ? 'text-red-600' : ''}>
+                            {typeof v === 'boolean' ? (v ? 'Yes' : 'No') : String(v)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+    );
+  };
+
+  // First program of each result to build tab label/logo
+  const tabMeta = results.map((r, i) => {
+    const p = r.programs?.[0];
+    const label = p
+      ? `${(p.insurer || '').toUpperCase()} — ${p.program_code || ''}`.trim()
+      : r.source_file || `Result ${i + 1}`;
+    return { id: `r${i}`, label, insurer: p?.insurer, file: r.source_file };
+  });
 
   return (
     <div className="space-y-6">
@@ -183,27 +258,46 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
           <CardDescription>{t('pasDesc')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="space-y-4">
+          <div className="grid gap-4">
             <div>
-              <Label htmlFor="pas-inquiry-id">{t('inquiryIdOptional')}</Label>
-              <Input
-                id="pas-inquiry-id"
-                placeholder={t('enterId')}
-                value={formData.inquiryId}
-                onChange={(e) => handleInputChange('inquiryId', e.target.value)}
+              <Label htmlFor="inq">{t('inquiryIdOptional')}</Label>
+              <Input 
+                id="inq" 
+                placeholder={t('enterId')} 
+                value={inquiryId} 
+                onChange={(e) => setInquiryId(e.target.value)} 
                 type="number"
               />
             </div>
 
+            <div className="flex items-center justify-between">
+              <div className="font-medium">Per-file insurers</div>
+              <div className="flex items-center gap-3">
+                <Label className="text-sm text-muted-foreground">{usePerFileHints ? 'ON' : 'OFF'}</Label>
+                <button
+                  type="button"
+                  onClick={() => setUsePerFileHints((v) => !v)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
+                    usePerFileHints ? 'bg-primary' : 'bg-muted'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${
+                      usePerFileHints ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
+
             <div>
-              <Label htmlFor="pas-insurer">{t('insurer')} *</Label>
-              <Select 
-                value={formData.companyHint} 
-                onValueChange={(value) => handleInputChange('companyHint', value)}
+              <Label>{t('insurer')} {usePerFileHints ? '(disabled — per file)' : '*'}</Label>
+              <Select
+                value={globalHint}
+                onValueChange={(v: Insurer) => setGlobalHint(v)}
+                disabled={usePerFileHints}
               >
-                <SelectTrigger>
-                  <SelectValue placeholder={t('selectInsurer')} />
-                </SelectTrigger>
+                <SelectTrigger><SelectValue placeholder={t('selectInsurer')} /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="BTA">BTA</SelectItem>
                   <SelectItem value="BTA2">BTA2</SelectItem>
@@ -212,73 +306,57 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
             </div>
 
             <div>
-              <Label htmlFor="pas-pdf">{t('offerUpload')} *</Label>
-              <Input
-                id="pas-pdf"
-                type="file"
-                accept=".pdf"
-                multiple
-                onChange={handleFileChange}
-                className="cursor-pointer"
+              <Label>{t('offerUpload')} — Multiple allowed</Label>
+              <Input 
+                type="file" 
+                accept=".pdf" 
+                multiple 
+                onChange={onFilesChange} 
+                className="cursor-pointer" 
               />
-              <p className="text-sm text-muted-foreground mt-1">
-                {t('uploadOffer')} (Multiple PDFs allowed)
-              </p>
-            </div>
-
-            {files.length > 0 && (
-              <div className="space-y-2">
-                <Label>Selected Files ({files.length})</Label>
-                <div className="space-y-2 max-h-32 overflow-y-auto">
-                  {files.map((file, index) => (
-                    <div key={index} className="flex items-center justify-between p-2 bg-muted rounded">
-                      <span className="text-sm truncate flex-1">{file.name}</span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeFile(index)}
-                        className="h-6 w-6 p-0 ml-2"
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
+              {items.length > 0 && usePerFileHints && (
+                <div className="mt-3 space-y-2">
+                  <Label>Selected Files ({items.length})</Label>
+                  {items.map((it, idx) => (
+                    <div key={idx} className="flex items-center justify-between rounded border p-2">
+                      <div className="text-sm truncate">{it.file.name}</div>
+                      <div className="flex items-center gap-2">
+                        <InsurerLogo name={it.hint} />
+                        <Select value={it.hint} onValueChange={(v: Insurer) => setItemHint(idx, v)}>
+                          <SelectTrigger className="w-[120px]"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="BTA">BTA</SelectItem>
+                            <SelectItem value="BTA2">BTA2</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
-
-            {progress && (
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Processing files...</span>
-                  <span>{progress.current}/{progress.total}</span>
+              )}
+              {items.length > 0 && !usePerFileHints && (
+                <div className="mt-3">
+                  <Label>Selected Files ({items.length})</Label>
+                  <div className="space-y-1 max-h-32 overflow-y-auto">
+                    {items.map((it, idx) => (
+                      <div key={idx} className="text-sm p-1 bg-muted rounded">
+                        {it.file.name}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="w-full bg-muted rounded-full h-2">
-                  <div 
-                    className="bg-primary h-2 rounded-full transition-all duration-300" 
-                    style={{ width: `${(progress.current / progress.total) * 100}%` }}
-                  />
-                </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
-          <Button 
-            onClick={handleSubmit}
-            className="w-full hover:bg-[rgb(129,216,208)] hover:text-black"
-            disabled={isUploading || !formData.companyHint || files.length === 0}
-          >
-            {isUploading 
-              ? progress 
-                ? `${t('processing')} ${progress.current}/${progress.total}...`
-                : t('processing') 
-              : `${t('uploadProcess')} (${files.length} ${files.length === 1 ? 'file' : 'files'})`
-            }
+          <Button onClick={handleSubmit} className="w-full" disabled={isUploading}>
+            {isUploading ? t('processing') || 'Processing…' : `${t('uploadProcess')} (${items.length || 0} files)`}
           </Button>
         </CardContent>
       </Card>
 
-      {apiResponse && (
+      {/* Results Tabs */}
+      {results.length > 0 && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold">{t('processingResults')}</h3>
@@ -292,60 +370,22 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
             </Button>
           </div>
           
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('processingResults')}</CardTitle>
-              <CardDescription>
-                {t('file')}: {apiResponse.source_file} • {apiResponse.programs.length} {t('programsFound')}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {apiResponse.programs.map((program, index) => (
-                <div key={index} className="p-4 border rounded-lg space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline">{program.insurer}</Badge>
-                      <Badge>{program.program_code}</Badge>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm text-muted-foreground">{t('premium')}</div>
-                      <div className="font-semibold">€{program.premium_eur}</div>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="text-muted-foreground">{t('baseSum')}:</span>
-                      <span className="ml-2 font-medium">€{program.base_sum_eur.toLocaleString()}</span>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">{t('payment')}:</span>
-                      <span className="ml-2 font-medium capitalize">{program.payment_method}</span>
-                    </div>
-                  </div>
-
-                  {Object.keys(program.features).length > 0 && (
-                    <>
-                      <Separator />
-                      <div>
-                        <div className="text-sm font-medium mb-2">{t('features')}:</div>
-                        <div className="grid grid-cols-2 gap-2 text-sm">
-                          {Object.entries(program.features).map(([key, value]) => (
-                            <div key={key} className="flex justify-between">
-                              <span className="text-muted-foreground">{key}:</span>
-                              <span className={value === 'Yes' ? 'text-green-600' : value === 'No' ? 'text-red-600' : ''}>
-                                {value}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
+          <Tabs value={activeTab ?? tabMeta[0]?.id} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="flex flex-wrap gap-2">
+              {tabMeta.map(({ id, insurer, label }) => (
+                <TabsTrigger key={id} value={id} className="flex items-center gap-2">
+                  <InsurerLogo name={insurer} />
+                  <span className="truncate max-w-[220px]">{label}</span>
+                </TabsTrigger>
               ))}
-            </CardContent>
-          </Card>
+            </TabsList>
+
+            {results.map((r, i) => (
+              <TabsContent key={i} value={`r${i}`} className="mt-4">
+                <ResultCard data={r} />
+              </TabsContent>
+            ))}
+          </Tabs>
         </div>
       )}
     </div>

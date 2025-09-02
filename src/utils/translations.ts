@@ -43,6 +43,11 @@ export const translations = {
     payment: 'Maksājums',
     features: 'Īpašības',
     premium: 'Prēmija',
+    onlyPdfAllowed: 'Atļauti tikai PDF faili',
+    selectFiles: 'Lūdzu izvēlieties vismaz vienu PDF',
+    selectInsurerForEachFile: 'Lūdzu izvēlieties apdrošinātāju katram failam',
+    finishedProcessing: 'Pabeigta izvēlēto failu apstrāde',
+    csvExported: 'CSV sekmīgi eksportēts',
     manageInvoices: 'Pārvaldiet rēķinus un konfigurējiet API savienojumus',
     
     // Dashboard
@@ -190,6 +195,11 @@ export const translations = {
     payment: 'Payment',
     features: 'Features',
     premium: 'Premium',
+    onlyPdfAllowed: 'Only PDF files are allowed',
+    selectFiles: 'Please select at least one PDF',
+    selectInsurerForEachFile: 'Please select insurer for each file',
+    finishedProcessing: 'Finished processing selected files',
+    csvExported: 'CSV exported successfully',
     manageInvoices: 'Manage invoices and configure API connections',
     
     // Dashboard
@@ -337,6 +347,11 @@ export const translations = {
     payment: 'Платеж',
     features: 'Характеристики',
     premium: 'Премия',
+    onlyPdfAllowed: 'Разрешены только PDF файлы',
+    selectFiles: 'Пожалуйста, выберите хотя бы один PDF',
+    selectInsurerForEachFile: 'Пожалуйста, выберите страховщика для каждого файла',
+    finishedProcessing: 'Завершена обработка выбранных файлов',
+    csvExported: 'CSV успешно экспортирован',
     manageInvoices: 'Управляйте счетами и настраивайте API соединения',
     
     // Dashboard
