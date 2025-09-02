@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Language, useTranslation } from "@/utils/translations";
 import { toast } from "sonner";
 import { Plus, Trash2, Download } from "lucide-react";
@@ -280,62 +281,75 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
               {t('exportCsv')}
             </Button>
           </div>
-          {apiResponses.map((response, responseIndex) => (
-            <Card key={responseIndex}>
-              <CardHeader>
-                <CardTitle>Processing Results {responseIndex + 1}</CardTitle>
-                <CardDescription>
-                  File: {response.source_file} • {response.programs.length} program(s) found
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {response.programs.map((program, index) => (
-                  <div key={index} className="p-4 border rounded-lg space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline">{program.insurer}</Badge>
-                        <Badge>{program.program_code}</Badge>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-sm text-muted-foreground">Premium</div>
-                        <div className="font-semibold">€{program.premium_eur}</div>
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <span className="text-muted-foreground">Base Sum:</span>
-                        <span className="ml-2 font-medium">€{program.base_sum_eur.toLocaleString()}</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Payment:</span>
-                        <span className="ml-2 font-medium capitalize">{program.payment_method}</span>
-                      </div>
-                    </div>
-
-                    {Object.keys(program.features).length > 0 && (
-                      <>
-                        <Separator />
-                        <div>
-                          <div className="text-sm font-medium mb-2">Features:</div>
-                          <div className="grid grid-cols-2 gap-2 text-sm">
-                            {Object.entries(program.features).map(([key, value]) => (
-                              <div key={key} className="flex justify-between">
-                                <span className="text-muted-foreground">{key}:</span>
-                                <span className={value === 'Yes' ? 'text-green-600' : value === 'No' ? 'text-red-600' : ''}>
-                                  {value}
-                                </span>
-                              </div>
-                            ))}
+          
+          <Tabs defaultValue="0" className="w-full">
+            <TabsList className="grid w-full" style={{ gridTemplateColumns: `repeat(${apiResponses.length}, 1fr)` }}>
+              {apiResponses.map((response, responseIndex) => (
+                <TabsTrigger key={responseIndex} value={responseIndex.toString()}>
+                  {response.programs[0]?.insurer || `Result ${responseIndex + 1}`}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+            
+            {apiResponses.map((response, responseIndex) => (
+              <TabsContent key={responseIndex} value={responseIndex.toString()}>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Processing Results {responseIndex + 1}</CardTitle>
+                    <CardDescription>
+                      File: {response.source_file} • {response.programs.length} program(s) found
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {response.programs.map((program, index) => (
+                      <div key={index} className="p-4 border rounded-lg space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline">{program.insurer}</Badge>
+                            <Badge>{program.program_code}</Badge>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-sm text-muted-foreground">Premium</div>
+                            <div className="font-semibold">€{program.premium_eur}</div>
                           </div>
                         </div>
-                      </>
-                    )}
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          ))}
+                        
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <span className="text-muted-foreground">Base Sum:</span>
+                            <span className="ml-2 font-medium">€{program.base_sum_eur.toLocaleString()}</span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Payment:</span>
+                            <span className="ml-2 font-medium capitalize">{program.payment_method}</span>
+                          </div>
+                        </div>
+
+                        {Object.keys(program.features).length > 0 && (
+                          <>
+                            <Separator />
+                            <div>
+                              <div className="text-sm font-medium mb-2">Features:</div>
+                              <div className="grid grid-cols-2 gap-2 text-sm">
+                                {Object.entries(program.features).map(([key, value]) => (
+                                  <div key={key} className="flex justify-between">
+                                    <span className="text-muted-foreground">{key}:</span>
+                                    <span className={value === 'Yes' ? 'text-green-600' : value === 'No' ? 'text-red-600' : ''}>
+                                      {value}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            ))}
+          </Tabs>
         </div>
       )}
     </div>
