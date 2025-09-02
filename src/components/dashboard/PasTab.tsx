@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Language, useTranslation } from "@/utils/translations";
 import { toast } from "sonner";
+import { Plus, Trash2 } from "lucide-react";
 
 interface PasTabProps {
   currentLanguage: Language;
@@ -27,30 +28,52 @@ interface ApiResponse {
   programs: Program[];
 }
 
+interface UploadForm {
+  id: string;
+  inquiryId: string;
+  companyHint: string;
+  pdfFile: File | null;
+}
+
 const PasTab = ({ currentLanguage }: PasTabProps) => {
   const { t } = useTranslation(currentLanguage);
-  const [formData, setFormData] = useState({
+  const [uploadForms, setUploadForms] = useState<UploadForm[]>([{
+    id: '1',
     inquiryId: '',
     companyHint: '',
-    pdfFile: null as File | null
-  });
+    pdfFile: null
+  }]);
   const [isUploading, setIsUploading] = useState(false);
-  const [apiResponse, setApiResponse] = useState<ApiResponse | null>(null);
+  const [apiResponses, setApiResponses] = useState<ApiResponse[]>([]);
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+  const addUploadForm = () => {
+    const newForm: UploadForm = {
+      id: Date.now().toString(),
+      inquiryId: '',
+      companyHint: '',
+      pdfFile: null
+    };
+    setUploadForms(prev => [...prev, newForm]);
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const removeUploadForm = (id: string) => {
+    if (uploadForms.length > 1) {
+      setUploadForms(prev => prev.filter(form => form.id !== id));
+    }
+  };
+
+  const handleInputChange = (id: string, field: keyof UploadForm, value: string) => {
+    setUploadForms(prev => prev.map(form => 
+      form.id === id ? { ...form, [field]: value } : form
+    ));
+  };
+
+  const handleFileChange = (id: string, event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file && file.type === 'application/pdf') {
-      setFormData(prev => ({
-        ...prev,
-        pdfFile: file
-      }));
+      setUploadForms(prev => prev.map(form => 
+        form.id === id ? { ...form, pdfFile: file } : form
+      ));
     } else if (file) {
       toast.error('Please select a PDF file');
     }
@@ -76,25 +99,31 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
   };
 
   const handleSubmit = async () => {
-    if (!formData.companyHint || !formData.pdfFile) {
+    const validForms = uploadForms.filter(form => form.companyHint && form.pdfFile);
+    
+    if (validForms.length === 0) {
       toast.error(t('fillAllFields'));
       return;
     }
 
     setIsUploading(true);
-    setApiResponse(null);
+    setApiResponses([]);
     
     try {
-      const response = await uploadOffer(
-        formData.pdfFile, 
-        formData.companyHint, 
-        formData.inquiryId || undefined
+      const responses = await Promise.all(
+        validForms.map(form =>
+          uploadOffer(
+            form.pdfFile!,
+            form.companyHint,
+            form.inquiryId || undefined
+          )
+        )
       );
       
-      setApiResponse(response);
-      toast.success('Offer processed successfully');
+      setApiResponses(responses);
+      toast.success(`${responses.length} offer(s) processed successfully`);
     } catch (error) {
-      console.error('Error uploading offer:', error);
+      console.error('Error uploading offers:', error);
       toast.error(error instanceof Error ? error.message : 'Upload failed');
     } finally {
       setIsUploading(false);
@@ -109,116 +138,148 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
           <CardDescription>{t('pasDesc')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="pas-inquiry-id">Inquiry ID (optional)</Label>
-              <Input
-                id="pas-inquiry-id"
-                placeholder={t('enterId')}
-                value={formData.inquiryId}
-                onChange={(e) => handleInputChange('inquiryId', e.target.value)}
-                type="number"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="pas-insurer">{t('insurer')} *</Label>
-              <Select value={formData.companyHint} onValueChange={(value) => handleInputChange('companyHint', value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder={t('selectInsurer')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="BTA">BTA</SelectItem>
-                  <SelectItem value="BTA2">BTA2</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="pas-pdf">{t('offerUpload')} *</Label>
-              <Input
-                id="pas-pdf"
-                type="file"
-                accept=".pdf"
-                onChange={handleFileChange}
-                className="cursor-pointer"
-              />
-              <p className="text-sm text-muted-foreground mt-1">
-                {t('uploadOffer')}
-              </p>
-              {formData.pdfFile && (
-                <p className="text-sm text-green-600 mt-1">
-                  Selected: {formData.pdfFile.name}
-                </p>
+          {uploadForms.map((form, index) => (
+            <div key={form.id} className="space-y-4 p-4 border rounded-lg relative">
+              {uploadForms.length > 1 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="absolute top-2 right-2 h-8 w-8 p-0"
+                  onClick={() => removeUploadForm(form.id)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               )}
-            </div>
-          </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor={`pas-inquiry-id-${form.id}`}>Inquiry ID (optional)</Label>
+                  <Input
+                    id={`pas-inquiry-id-${form.id}`}
+                    placeholder={t('enterId')}
+                    value={form.inquiryId}
+                    onChange={(e) => handleInputChange(form.id, 'inquiryId', e.target.value)}
+                    type="number"
+                  />
+                </div>
 
-          <Button 
-            onClick={handleSubmit}
-            className="w-full"
-            disabled={isUploading}
-          >
-            {isUploading ? 'Processing...' : 'Upload & Process'}
-          </Button>
+                <div>
+                  <Label htmlFor={`pas-insurer-${form.id}`}>{t('insurer')} *</Label>
+                  <Select 
+                    value={form.companyHint} 
+                    onValueChange={(value) => handleInputChange(form.id, 'companyHint', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={t('selectInsurer')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="BTA">BTA</SelectItem>
+                      <SelectItem value="BTA2">BTA2</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor={`pas-pdf-${form.id}`}>{t('offerUpload')} *</Label>
+                  <Input
+                    id={`pas-pdf-${form.id}`}
+                    type="file"
+                    accept=".pdf"
+                    onChange={(e) => handleFileChange(form.id, e)}
+                    className="cursor-pointer"
+                  />
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {t('uploadOffer')}
+                  </p>
+                  {form.pdfFile && (
+                    <p className="text-sm text-green-600 mt-1">
+                      Selected: {form.pdfFile.name}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={addUploadForm}
+              className="flex-1"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Another File
+            </Button>
+            <Button 
+              onClick={handleSubmit}
+              className="flex-1"
+              disabled={isUploading}
+            >
+              {isUploading ? 'Processing...' : `Upload & Process (${uploadForms.filter(f => f.companyHint && f.pdfFile).length})`}
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
-      {apiResponse && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Processing Results</CardTitle>
-            <CardDescription>
-              File: {apiResponse.source_file} • {apiResponse.programs.length} program(s) found
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {apiResponse.programs.map((program, index) => (
-              <div key={index} className="p-4 border rounded-lg space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline">{program.insurer}</Badge>
-                    <Badge>{program.program_code}</Badge>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm text-muted-foreground">Premium</div>
-                    <div className="font-semibold">€{program.premium_eur}</div>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">Base Sum:</span>
-                    <span className="ml-2 font-medium">€{program.base_sum_eur.toLocaleString()}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Payment:</span>
-                    <span className="ml-2 font-medium capitalize">{program.payment_method}</span>
-                  </div>
-                </div>
-
-                {Object.keys(program.features).length > 0 && (
-                  <>
-                    <Separator />
-                    <div>
-                      <div className="text-sm font-medium mb-2">Features:</div>
-                      <div className="grid grid-cols-2 gap-2 text-sm">
-                        {Object.entries(program.features).map(([key, value]) => (
-                          <div key={key} className="flex justify-between">
-                            <span className="text-muted-foreground">{key}:</span>
-                            <span className={value === 'Yes' ? 'text-green-600' : value === 'No' ? 'text-red-600' : ''}>
-                              {value}
-                            </span>
-                          </div>
-                        ))}
+      {apiResponses.length > 0 && (
+        <div className="space-y-4">
+          {apiResponses.map((response, responseIndex) => (
+            <Card key={responseIndex}>
+              <CardHeader>
+                <CardTitle>Processing Results {responseIndex + 1}</CardTitle>
+                <CardDescription>
+                  File: {response.source_file} • {response.programs.length} program(s) found
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {response.programs.map((program, index) => (
+                  <div key={index} className="p-4 border rounded-lg space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline">{program.insurer}</Badge>
+                        <Badge>{program.program_code}</Badge>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm text-muted-foreground">Premium</div>
+                        <div className="font-semibold">€{program.premium_eur}</div>
                       </div>
                     </div>
-                  </>
-                )}
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+                    
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-muted-foreground">Base Sum:</span>
+                        <span className="ml-2 font-medium">€{program.base_sum_eur.toLocaleString()}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Payment:</span>
+                        <span className="ml-2 font-medium capitalize">{program.payment_method}</span>
+                      </div>
+                    </div>
+
+                    {Object.keys(program.features).length > 0 && (
+                      <>
+                        <Separator />
+                        <div>
+                          <div className="text-sm font-medium mb-2">Features:</div>
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            {Object.entries(program.features).map(([key, value]) => (
+                              <div key={key} className="flex justify-between">
+                                <span className="text-muted-foreground">{key}:</span>
+                                <span className={value === 'Yes' ? 'text-green-600' : value === 'No' ? 'text-red-600' : ''}>
+                                  {value}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       )}
     </div>
   );
