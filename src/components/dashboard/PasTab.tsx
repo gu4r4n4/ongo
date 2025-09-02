@@ -153,7 +153,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
               
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor={`pas-inquiry-id-${form.id}`}>Inquiry ID (optional)</Label>
+                  <Label htmlFor={`pas-inquiry-id-${form.id}`}>{t('inquiryIdOptional')}</Label>
                   <Input
                     id={`pas-inquiry-id-${form.id}`}
                     placeholder={t('enterId')}
@@ -208,14 +208,14 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
               className="flex-1"
             >
               <Plus className="h-4 w-4 mr-2" />
-              Add Another File
+              {t('addAnotherFile')}
             </Button>
             <Button 
               onClick={handleSubmit}
-              className="flex-1"
+              className="flex-1 hover:bg-[rgb(129,216,208)]"
               disabled={isUploading}
             >
-              {isUploading ? 'Processing...' : `Upload & Process (${uploadForms.filter(f => f.companyHint && f.pdfFile).length})`}
+              {isUploading ? t('processing') : `${t('uploadProcess')} (${uploadForms.filter(f => f.companyHint && f.pdfFile).length})`}
             </Button>
           </div>
         </CardContent>

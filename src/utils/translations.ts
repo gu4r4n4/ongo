@@ -31,6 +31,10 @@ export const translations = {
     selectInsurer: 'Izvēlieties apdrošinātāju',
     offerUpload: 'Piedāvājums',
     uploadOffer: 'Augšupielādēt piedāvājumu (PDF)',
+    inquiryIdOptional: 'Pieprasījuma ID (neobligāts)',
+    addAnotherFile: 'Pievienot citu failu',
+    uploadProcess: 'Augšupielādēt un apstrādāt',
+    processing: 'Apstrādā...',
     manageInvoices: 'Pārvaldiet rēķinus un konfigurējiet API savienojumus',
     
     // Dashboard
@@ -166,6 +170,10 @@ export const translations = {
     selectInsurer: 'Select insurer',
     offerUpload: 'Offer',
     uploadOffer: 'Upload offer (PDF)',
+    inquiryIdOptional: 'Inquiry ID (optional)',
+    addAnotherFile: 'Add Another File',
+    uploadProcess: 'Upload & Process',
+    processing: 'Processing...',
     manageInvoices: 'Manage invoices and configure API connections',
     
     // Dashboard
@@ -301,6 +309,10 @@ export const translations = {
     selectInsurer: 'Выберите страховщика',
     offerUpload: 'Предложение',
     uploadOffer: 'Загрузить предложение (PDF)',
+    inquiryIdOptional: 'ID запроса (необязательно)',
+    addAnotherFile: 'Добавить другой файл',
+    uploadProcess: 'Загрузить и обработать',
+    processing: 'Обработка...',
     manageInvoices: 'Управляйте счетами и настраивайте API соединения',
     
     // Dashboard
