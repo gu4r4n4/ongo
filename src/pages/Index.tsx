@@ -1,8 +1,9 @@
 
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, BarChart3, FileText, MessageSquare, Plug, Users } from "lucide-react";
+import { LogOut, BarChart3, FileText, MessageSquare, Plug, Users, FileDown } from "lucide-react";
 import DashboardTab from "@/components/dashboard/DashboardTab";
+import PasTab from "@/components/dashboard/PasTab";
 import InvoicesTab from "@/components/dashboard/InvoicesTab";
 import InquiriesTab from "@/components/dashboard/InquiriesTab";
 import LeadsTab from "@/components/dashboard/LeadsTab";
@@ -41,10 +42,14 @@ const Index = () => {
         </div>
 
         <Tabs defaultValue="dashboard" className="w-full">
-          <TabsList className="grid w-full grid-cols-5 mb-8">
+          <TabsList className="grid w-full grid-cols-6 mb-8">
             <TabsTrigger value="dashboard" className="text-lg py-3">
               <BarChart3 className="h-5 w-5 md:hidden" />
               <span className="hidden md:inline">{t('dashboard')}</span>
+            </TabsTrigger>
+            <TabsTrigger value="pas" className="text-lg py-3">
+              <FileDown className="h-5 w-5 md:hidden" />
+              <span className="hidden md:inline">{t('pas')}</span>
             </TabsTrigger>
             <TabsTrigger value="invoices" className="text-lg py-3">
               <FileText className="h-5 w-5 md:hidden" />
@@ -66,6 +71,10 @@ const Index = () => {
 
           <TabsContent value="dashboard">
             <DashboardTab currentLanguage={currentLanguage} />
+          </TabsContent>
+
+          <TabsContent value="pas">
+            <PasTab currentLanguage={currentLanguage} />
           </TabsContent>
 
           <TabsContent value="invoices">
