@@ -72,6 +72,10 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     setItems((prev) => prev.map((it, i) => (i === idx ? { ...it, hint: value } : it)));
   };
 
+  const removeItem = (idx: number) => {
+    setItems((prev) => prev.filter((_, i) => i !== idx));
+  };
+
   async function uploadOffer(file: File, companyHint: string, inquiryId?: string): Promise<ApiResponse> {
     const form = new FormData();
     form.append('file', file);
@@ -271,9 +275,9 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
             </div>
 
             <div className="flex items-center justify-between">
-              <div className="font-medium">Per-file insurers</div>
+              <div className="font-medium">{t('perFileInsurers')}</div>
               <div className="flex items-center gap-3">
-                <Label className="text-sm text-muted-foreground">{usePerFileHints ? 'ON' : 'OFF'}</Label>
+                <Label className="text-sm text-muted-foreground">{usePerFileHints ? t('on') : t('off')}</Label>
                 <button
                   type="button"
                   onClick={() => setUsePerFileHints((v) => !v)}
@@ -291,7 +295,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
             </div>
 
             <div>
-              <Label>{t('insurer')} {usePerFileHints ? '(disabled — per file)' : '*'}</Label>
+              <Label>{t('insurer')} {usePerFileHints ? t('disabledPerFile') : '*'}</Label>
               <Select
                 value={globalHint}
                 onValueChange={(v: Insurer) => setGlobalHint(v)}
@@ -306,7 +310,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
             </div>
 
             <div>
-              <Label>{t('offerUpload')} — Multiple allowed</Label>
+              <Label>{t('offerUpload')} — {t('multipleAllowed')}</Label>
               <Input 
                 type="file" 
                 accept=".pdf" 
@@ -316,7 +320,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
               />
               {items.length > 0 && usePerFileHints && (
                 <div className="mt-3 space-y-2">
-                  <Label>Selected Files ({items.length})</Label>
+                  <Label>{t('selectedFiles')} ({items.length})</Label>
                   {items.map((it, idx) => (
                     <div key={idx} className="flex items-center justify-between rounded border p-2">
                       <div className="text-sm truncate">{it.file.name}</div>
@@ -329,6 +333,14 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
                             <SelectItem value="BTA2">BTA2</SelectItem>
                           </SelectContent>
                         </Select>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeItem(idx)}
+                          className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
                   ))}
@@ -336,7 +348,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
               )}
               {items.length > 0 && !usePerFileHints && (
                 <div className="mt-3">
-                  <Label>Selected Files ({items.length})</Label>
+                  <Label>{t('selectedFiles')} ({items.length})</Label>
                   <div className="space-y-1 max-h-32 overflow-y-auto">
                     {items.map((it, idx) => (
                       <div key={idx} className="text-sm p-1 bg-muted rounded">
@@ -350,7 +362,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
           </div>
 
           <Button onClick={handleSubmit} className="w-full" disabled={isUploading}>
-            {isUploading ? t('processing') || 'Processing…' : `${t('uploadProcess')} (${items.length || 0} files)`}
+            {isUploading ? t('processing') || 'Processing…' : `${t('uploadProcess')} (${items.length || 0} ${t('files')})`}
           </Button>
         </CardContent>
       </Card>

@@ -48,6 +48,14 @@ export const translations = {
     selectInsurerForEachFile: 'Lūdzu izvēlieties apdrošinātāju katram failam',
     finishedProcessing: 'Pabeigta izvēlēto failu apstrāde',
     csvExported: 'CSV sekmīgi eksportēts',
+    // Per-file insurers
+    perFileInsurers: 'Apdrošinātāji katram failam',
+    on: 'IESLĒGTS',
+    off: 'IZSLĒGTS',
+    disabledPerFile: '(atspējots — katram failam)',
+    multipleAllowed: 'Atļauti vairāki',
+    selectedFiles: 'Izvēlētie faili',
+    files: 'faili',
     manageInvoices: 'Pārvaldiet rēķinus un konfigurējiet API savienojumus',
     
     // Dashboard
@@ -200,6 +208,14 @@ export const translations = {
     selectInsurerForEachFile: 'Please select insurer for each file',
     finishedProcessing: 'Finished processing selected files',
     csvExported: 'CSV exported successfully',
+    // Per-file insurers
+    perFileInsurers: 'Per-file insurers',
+    on: 'ON',
+    off: 'OFF',
+    disabledPerFile: '(disabled — per file)',
+    multipleAllowed: 'Multiple allowed',
+    selectedFiles: 'Selected Files',
+    files: 'files',
     manageInvoices: 'Manage invoices and configure API connections',
     
     // Dashboard
@@ -352,6 +368,14 @@ export const translations = {
     selectInsurerForEachFile: 'Пожалуйста, выберите страховщика для каждого файла',
     finishedProcessing: 'Завершена обработка выбранных файлов',
     csvExported: 'CSV успешно экспортирован',
+    // Per-file insurers
+    perFileInsurers: 'Страховщики для каждого файла',
+    on: 'ВКЛ',
+    off: 'ВЫКЛ',
+    disabledPerFile: '(отключено — для каждого файла)',
+    multipleAllowed: 'Разрешено несколько',
+    selectedFiles: 'Выбранные файлы',
+    files: 'файлы',
     manageInvoices: 'Управляйте счетами и настраивайте API соединения',
     
     // Dashboard
