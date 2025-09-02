@@ -271,7 +271,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
       {apiResponses.length > 0 && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Processing Results</h3>
+            <h3 className="text-lg font-semibold">{t('processingResults')}</h3>
             <Button 
               variant="outline" 
               onClick={exportToCSV}
@@ -295,9 +295,9 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
               <TabsContent key={responseIndex} value={responseIndex.toString()}>
                 <Card>
                   <CardHeader>
-                    <CardTitle>Processing Results {responseIndex + 1}</CardTitle>
+                    <CardTitle>{t('processingResults')} {responseIndex + 1}</CardTitle>
                     <CardDescription>
-                      File: {response.source_file} • {response.programs.length} program(s) found
+                      {t('file')}: {response.source_file} • {response.programs.length} {t('programsFound')}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -309,18 +309,18 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
                             <Badge>{program.program_code}</Badge>
                           </div>
                           <div className="text-right">
-                            <div className="text-sm text-muted-foreground">Premium</div>
+                            <div className="text-sm text-muted-foreground">{t('premium')}</div>
                             <div className="font-semibold">€{program.premium_eur}</div>
                           </div>
                         </div>
                         
                         <div className="grid grid-cols-2 gap-4 text-sm">
                           <div>
-                            <span className="text-muted-foreground">Base Sum:</span>
+                            <span className="text-muted-foreground">{t('baseSum')}:</span>
                             <span className="ml-2 font-medium">€{program.base_sum_eur.toLocaleString()}</span>
                           </div>
                           <div>
-                            <span className="text-muted-foreground">Payment:</span>
+                            <span className="text-muted-foreground">{t('payment')}:</span>
                             <span className="ml-2 font-medium capitalize">{program.payment_method}</span>
                           </div>
                         </div>
@@ -329,7 +329,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
                           <>
                             <Separator />
                             <div>
-                              <div className="text-sm font-medium mb-2">Features:</div>
+                              <div className="text-sm font-medium mb-2">{t('features')}:</div>
                               <div className="grid grid-cols-2 gap-2 text-sm">
                                 {Object.entries(program.features).map(([key, value]) => (
                                   <div key={key} className="flex justify-between">
