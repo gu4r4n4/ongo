@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Language, useTranslation } from "@/utils/translations";
 import { toast } from "sonner";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Download } from "lucide-react";
 
 interface PasTabProps {
   currentLanguage: Language;
@@ -130,6 +130,52 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     }
   };
 
+  const exportToCSV = () => {
+    if (apiResponses.length === 0) return;
+
+    // Create CSV headers
+    const headers = [
+      'Source File',
+      'Insurer', 
+      'Program Code',
+      'Base Sum (EUR)',
+      'Premium (EUR)',
+      'Payment Method',
+      'Features'
+    ];
+
+    // Convert data to CSV rows
+    const rows = apiResponses.flatMap(response => 
+      response.programs.map(program => [
+        response.source_file,
+        program.insurer,
+        program.program_code,
+        program.base_sum_eur,
+        program.premium_eur,
+        program.payment_method,
+        Object.entries(program.features).map(([key, value]) => `${key}: ${value}`).join('; ')
+      ])
+    );
+
+    // Create CSV content
+    const csvContent = [headers, ...rows]
+      .map(row => row.map(field => `"${field}"`).join(','))
+      .join('\n');
+
+    // Create and download file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `pas-results-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast.success('CSV exported successfully');
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -223,6 +269,17 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
 
       {apiResponses.length > 0 && (
         <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold">Processing Results</h3>
+            <Button 
+              variant="outline" 
+              onClick={exportToCSV}
+              className="flex items-center gap-2"
+            >
+              <Download className="h-4 w-4" />
+              {t('exportCsv')}
+            </Button>
+          </div>
           {apiResponses.map((response, responseIndex) => (
             <Card key={responseIndex}>
               <CardHeader>

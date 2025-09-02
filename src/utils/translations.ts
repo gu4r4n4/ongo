@@ -35,6 +35,7 @@ export const translations = {
     addAnotherFile: 'Pievienot citu failu',
     uploadProcess: 'Augšupielādēt un apstrādāt',
     processing: 'Apstrādā...',
+    exportCsv: 'Eksportēt CSV',
     manageInvoices: 'Pārvaldiet rēķinus un konfigurējiet API savienojumus',
     
     // Dashboard
@@ -174,6 +175,7 @@ export const translations = {
     addAnotherFile: 'Add Another File',
     uploadProcess: 'Upload & Process',
     processing: 'Processing...',
+    exportCsv: 'Export CSV',
     manageInvoices: 'Manage invoices and configure API connections',
     
     // Dashboard
@@ -313,6 +315,7 @@ export const translations = {
     addAnotherFile: 'Добавить другой файл',
     uploadProcess: 'Загрузить и обработать',
     processing: 'Обработка...',
+    exportCsv: 'Экспорт CSV',
     manageInvoices: 'Управляйте счетами и настраивайте API соединения',
     
     // Dashboard
