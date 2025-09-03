@@ -9,7 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Language, useTranslation } from "@/utils/translations";
 import { toast } from "sonner";
-import { Trash2, Download, Check, X } from "lucide-react";
+import { Trash2, Download, Check, Minus } from "lucide-react"; // NOTE: use Minus instead of X
 import { InsurerLogo } from "@/components/InsurerLogo";
 
 type Insurer = 'BTA' | 'BTA2';
@@ -41,12 +41,15 @@ interface UploadItem {
 
 const PasTab = ({ currentLanguage }: PasTabProps) => {
   const { t } = useTranslation(currentLanguage);
+
+  // --- NEW: extra form fields ---
+  const [companyName, setCompanyName] = useState<string>("LDZ");
+  const [employeeCount, setEmployeeCount] = useState<string>("~ 45 cilvēki");
+
   const [inquiryId, setInquiryId] = useState<string>('');
-  const [usePerFileHints, setUsePerFileHints] = useState(true); // default ON
-  const [globalHint, setGlobalHint] = useState<Insurer>('BTA');
   const [items, setItems] = useState<UploadItem[]>([]);
   const [isUploading, setIsUploading] = useState(false);
-  
+
   // Each element in results corresponds to one uploaded file's ApiResponse
   const [results, setResults] = useState<ApiResponse[]>([]);
   const [activeTab, setActiveTab] = useState<string | undefined>(undefined);
@@ -54,15 +57,15 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
   const onFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
-    
-    const pdfFiles = files.filter(file => 
+
+    const pdfFiles = files.filter(file =>
       file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')
     );
-    
+
     if (pdfFiles.length !== files.length) {
       toast.error(t('onlyPdfAllowed') || 'Only PDF files are allowed');
     }
-    
+
     const def: Insurer = 'BTA';
     const mapped = pdfFiles.map((f) => ({ file: f, hint: def }));
     setItems(mapped);
@@ -81,17 +84,17 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     form.append('file', file);
     form.append('company_hint', companyHint);
     if (inquiryId) form.append('inquiry_id', inquiryId);
-    
-    const res = await fetch('https://visbrokerhouse.onrender.com/ingest', { 
-      method: 'POST', 
-      body: form 
+
+    const res = await fetch('https://visbrokerhouse.onrender.com/ingest', {
+      method: 'POST',
+      body: form
     });
-    
+
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
       throw new Error(data?.error || `Upload failed (${res.status})`);
     }
-    
+
     return (await res.json()) as ApiResponse;
   }
 
@@ -101,7 +104,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
       return;
     }
 
-    // Validate hints
+    // Validate per-file hints present
     if (items.some((it) => !it.hint)) {
       toast.error(t('selectInsurerForEachFile') || 'Please select insurer for each file.');
       return;
@@ -120,7 +123,6 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
           const response = await uploadOffer(it.file, hint, inquiryId || undefined);
           setResults((prev) => {
             const next = [...prev, response];
-            // Select first tab once first result arrives
             if (!activeTab && next.length > 0) setActiveTab(`r${next.length - 1}`);
             return next;
           });
@@ -138,10 +140,9 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     const allPrograms = results.flatMap(r => r.programs);
     if (allPrograms.length === 0) return;
 
-    // Create CSV headers
     const headers = [
       'Source File',
-      'Insurer', 
+      'Insurer',
       'Program Code',
       'Base Sum (EUR)',
       'Premium (EUR)',
@@ -149,7 +150,6 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
       'Features'
     ];
 
-    // Convert data to CSV rows
     const rows = results.flatMap(result =>
       result.programs.map(program => [
         result.source_file,
@@ -162,12 +162,10 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
       ])
     );
 
-    // Create CSV content
     const csvContent = [headers, ...rows]
       .map(row => row.map(field => `"${field}"`).join(','))
       .join('\n');
 
-    // Create and download file
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
@@ -177,11 +175,10 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     toast.success(t('csvExported') || 'CSV exported successfully');
   };
 
-  // Small renderer for one ApiResponse (reuse existing layout)
   const ResultCard = ({ data }: { data: ApiResponse }) => {
     return (
       <Card>
@@ -241,7 +238,6 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     );
   };
 
-  // First program of each result to build tab label/logo
   const tabMeta = results.map((r, i) => {
     const p = r.programs?.[0];
     const label = p
@@ -259,17 +255,41 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid gap-4">
+            {/* NEW: Kompānija */}
+            <div>
+              <Label htmlFor="company">{t('company') || 'Kompānija'}</Label>
+              <Input
+                id="company"
+                placeholder="LDZ"
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
+              />
+            </div>
+
+            {/* NEW: Nodarbināto skaits */}
+            <div>
+              <Label htmlFor="emp">{t('employeeCount') || 'Nodarbināto skaits'}</Label>
+              <Input
+                id="emp"
+                placeholder="~ 45 cilvēki"
+                value={employeeCount}
+                onChange={(e) => setEmployeeCount(e.target.value)}
+              />
+            </div>
+
+            {/* Inquiry ID */}
             <div>
               <Label htmlFor="inq">{t('inquiryIdOptional')}</Label>
-              <Input 
-                id="inq" 
-                placeholder={t('enterId')} 
-                value={inquiryId} 
-                onChange={(e) => setInquiryId(e.target.value)} 
+              <Input
+                id="inq"
+                placeholder={t('enterId')}
+                value={inquiryId}
+                onChange={(e) => setInquiryId(e.target.value)}
                 type="number"
               />
             </div>
 
+            {/* File picker + docx→pdf */}
             <div>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
                 <Label>{t('offerUpload')} — {t('multipleAllowed')}</Label>
@@ -282,12 +302,12 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
                   {t('docxToPdf')}
                 </Button>
               </div>
-              <Input 
-                type="file" 
-                accept=".pdf" 
-                multiple 
-                onChange={onFilesChange} 
-                className="cursor-pointer" 
+              <Input
+                type="file"
+                accept=".pdf"
+                multiple
+                onChange={onFilesChange}
+                className="cursor-pointer"
               />
               {items.length > 0 && (
                 <div className="mt-3 space-y-2">
@@ -321,18 +341,43 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
           </div>
 
           <Button onClick={handleSubmit} className="w-full" disabled={isUploading}>
-            {isUploading ? t('processing') || 'Processing…' : `${t('uploadProcess')} (${items.length || 0} ${t('files')})`}
+            {isUploading ? (t('processing') || 'Processing…') : `${t('uploadProcess')} (${items.length || 0} ${t('files')})`}
           </Button>
         </CardContent>
       </Card>
 
-      {/* Results Tabs */}
+      {/* Results */}
       {results.length > 0 && (
         <div className="space-y-4">
+          {/* NEW: results header panel */}
+          <div className="grid gap-4 sm:grid-cols-2 p-4 border rounded-lg bg-card">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Check className="h-4 w-4 text-green-600" />
+                <span className="text-sm text-muted-foreground">v iekļauts polises segumā</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Minus className="h-4 w-4 text-red-600" />
+                <span className="text-sm text-muted-foreground">– nav iekļauts polises segumā</span>
+              </div>
+            </div>
+            <div className="space-y-1">
+              <div className="text-sm">
+                <span className="text-muted-foreground">Kompānija:</span>
+                <span className="ml-2 font-medium">{companyName || '—'}</span>
+              </div>
+              <div className="text-sm">
+                <span className="text-muted-foreground">Nodarbināto skaits:</span>
+                <span className="ml-2 font-medium">{employeeCount || '—'}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* title + CSV */}
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold">{t('processingResults')}</h3>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={exportToCSV}
               className="flex items-center gap-2"
             >
@@ -340,7 +385,8 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
               {t('exportCsv')}
             </Button>
           </div>
-          
+
+          {/* Tabs */}
           <Tabs value={activeTab ?? tabMeta[0]?.id} onValueChange={setActiveTab} className="w-full">
             <TabsList className="flex flex-wrap gap-2">
               {tabMeta.map(({ id, insurer, label }) => (
@@ -357,17 +403,19 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
               </TabsContent>
             ))}
           </Tabs>
-          
+
           {/* Static Info Footer */}
           <div className="space-y-6 text-sm text-muted-foreground mt-8">
             <Separator />
-            
+
             <div className="space-y-4">
               <div>
-                <h4 className="font-semibold text-foreground mb-2">PACIENTA IEMAKSA — maksājums, kuru pacients veic, saņemot valsts apmaksātus veselības aprūpes pakalpojumus</h4>
-                <a 
-                  href="http://www.vmnvd.gov.lv/lv/veselibas-aprupes-pakalpojumi/ambulatoras-iestades-un-arsti-specialisti" 
-                  target="_blank" 
+                <h4 className="font-semibold text-foreground mb-2">
+                  PACIENTA IEMAKSA — maksājums, kuru pacients veic, saņemot valsts apmaksātus veselības aprūpes pakalpojumus
+                </h4>
+                <a
+                  href="http://www.vmnvd.gov.lv/lv/veselibas-aprupes-pakalpojumi/ambulatoras-iestades-un-arsti-specialisti"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary hover:underline"
                 >
@@ -379,15 +427,15 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
 
               <div>
                 <h4 className="font-semibold text-foreground mb-2">MAKSAS AMBULATORIE PAKALPOJUMI</h4>
-                <a 
-                  href="http://www.vi.gov.lv/lv/air" 
-                  target="_blank" 
+                <a
+                  href="http://www.vi.gov.lv/lv/air"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary hover:underline block mb-3"
                 >
                   Maksas pakalpojuma saņemšanai iespējams izvēlēties pakalpojuma sniedzēju →
                 </a>
-                
+
                 <div className="space-y-1 mb-4">
                   <p>• Maksas diagnostiskajiem pakalpojumiem (laboratorija, diagnostika, terapijas) nepieciešams ārsta nosūtījums</p>
                   <p>• Veicot čeku norēķinus par maksas pakalpojumiem, tiek piemērots apdrošinātāja pakalpojuma apmaksas cenrādis (piem.skat.tabulā)</p>
