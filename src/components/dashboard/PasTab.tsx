@@ -210,10 +210,14 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
   };
 
   const ResultCard = ({ data }: { data: ApiResponse }) => {
+    // Check if any program uses BTA or BTA2
+    const usesBTA = data.programs.some(p => p.insurer === 'BTA' || p.insurer === 'BTA2');
+    const cardTitle = usesBTA ? 'Veselības apdrošināšana' : t('processingResults');
+    
     return (
       <Card>
         <CardHeader>
-          <CardTitle>{t('processingResults')}</CardTitle>
+          <CardTitle>{cardTitle}</CardTitle>
           <CardDescription>
             {t('file')}: {data.source_file} • {data.programs?.length || 0} {t('programsFound')}
           </CardDescription>
@@ -248,7 +252,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
                   <Separator />
                   <div>
                     <div className="text-sm font-medium mb-2">{t('features')}:</div>
-                    <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
                       {Object.entries(program.features).map(([k, v]) => (
                         <div key={k} className="flex justify-between">
                           <span className="text-muted-foreground">{k}:</span>
@@ -426,9 +430,9 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
 
           {/* Tabs */}
           <Tabs value={activeTab ?? tabMeta[0]?.id} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="flex flex-wrap gap-2">
+            <TabsList className={`flex gap-2 ${tabMeta.length > 3 ? 'flex-col md:flex-row md:flex-wrap' : 'flex-wrap'}`}>
               {tabMeta.map(({ id, insurer, label }) => (
-                <TabsTrigger key={id} value={id} className="flex items-center gap-2">
+                <TabsTrigger key={id} value={id} className="flex items-center gap-2 w-full md:w-auto">
                   <InsurerLogo name={insurer} />
                   <span className="truncate max-w-[220px]">{label}</span>
                 </TabsTrigger>
