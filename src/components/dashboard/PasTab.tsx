@@ -123,7 +123,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               company_name: companyName || null,
-              employees_count: companyName === '' && !employeesCount ? null : Number(employeesCount || 0)
+              employees_count: !employeesCount ? null : Number(employeesCount)
             }),
           }).then(r => {
             if (!r.ok) throw new Error('Failed to save inquiry meta');
