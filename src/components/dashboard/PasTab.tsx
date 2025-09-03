@@ -140,13 +140,11 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
         const hint = it.hint;
         try {
           const response = await uploadOffer(it.file, hint, inquiryId || undefined);
-            setResults((prev) => {
-              const next = [...prev, response];
-              // DEBUG: check if both files are being accumulated
-              console.log("[PAS] pushed result:", it.file.name, "→ total results now:", next.length);
-              if (!activeTab && next.length > 0) setActiveTab(`r${next.length - 1}`);
-              return next;
-            });
+          setResults((prev) => {
+            const next = [...prev, response];
+            if (!activeTab && next.length > 0) setActiveTab(`r${next.length - 1}`);
+            return next;
+          });
         } catch (err: any) {
           toast.error(`${t('failed') || 'Failed'}: ${it.file.name} — ${err?.message || 'Upload error'}`);
         }
