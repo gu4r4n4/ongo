@@ -430,11 +430,15 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
 
           {/* Tabs */}
           <Tabs value={activeTab ?? tabMeta[0]?.id} onValueChange={setActiveTab} className="w-full">
-            <TabsList className={`flex gap-2 ${tabMeta.length > 3 ? 'flex-col md:flex-row md:flex-wrap' : 'flex-wrap'}`}>
+            <TabsList className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-wrap gap-1 h-auto p-1">
               {tabMeta.map(({ id, insurer, label }) => (
-                <TabsTrigger key={id} value={id} className="flex items-center gap-2 w-full md:w-auto">
+                <TabsTrigger 
+                  key={id} 
+                  value={id} 
+                  className="flex items-center gap-2 text-xs sm:text-sm p-2 h-auto justify-start"
+                >
                   <InsurerLogo name={insurer} />
-                  <span className="truncate max-w-[220px]">{label}</span>
+                  <span className="truncate">{label}</span>
                 </TabsTrigger>
               ))}
             </TabsList>
