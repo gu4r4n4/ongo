@@ -310,7 +310,17 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
             </div>
 
             <div>
-              <Label>{t('offerUpload')} — {t('multipleAllowed')}</Label>
+              <div className="flex items-center justify-between mb-2">
+                <Label>{t('offerUpload')} — {t('multipleAllowed')}</Label>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.open('https://www.ilovepdf.com/word_to_pdf', '_blank')}
+                  className="text-xs"
+                >
+                  {t('docxToPdf')}
+                </Button>
+              </div>
               <Input 
                 type="file" 
                 accept=".pdf" 

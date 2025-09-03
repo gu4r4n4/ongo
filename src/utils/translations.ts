@@ -48,6 +48,7 @@ export const translations = {
     selectInsurerForEachFile: 'Lūdzu izvēlieties apdrošinātāju katram failam',
     finishedProcessing: 'Pabeigta izvēlēto failu apstrāde',
     csvExported: 'CSV sekmīgi eksportēts',
+    docxToPdf: 'docx→pdf',
     // Per-file insurers
     perFileInsurers: 'Apdrošinātāji katram failam',
     on: 'IESLĒGTS',
@@ -208,6 +209,7 @@ export const translations = {
     selectInsurerForEachFile: 'Please select insurer for each file',
     finishedProcessing: 'Finished processing selected files',
     csvExported: 'CSV exported successfully',
+    docxToPdf: 'docx→pdf',
     // Per-file insurers
     perFileInsurers: 'Per-file insurers',
     on: 'ON',
@@ -368,6 +370,7 @@ export const translations = {
     selectInsurerForEachFile: 'Пожалуйста, выберите страховщика для каждого файла',
     finishedProcessing: 'Завершена обработка выбранных файлов',
     csvExported: 'CSV успешно экспортирован',
+    docxToPdf: 'docx→pdf',
     // Per-file insurers
     perFileInsurers: 'Страховщики для каждого файла',
     on: 'ВКЛ',
