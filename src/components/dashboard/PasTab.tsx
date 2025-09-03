@@ -328,7 +328,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
                 onChange={onFilesChange} 
                 className="cursor-pointer" 
               />
-              {items.length > 0 && usePerFileHints && (
+              {items.length > 0 && (
                 <div className="mt-3 space-y-2">
                   <Label>{t('selectedFiles')} ({items.length})</Label>
                   {items.map((it, idx) => (
