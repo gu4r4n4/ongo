@@ -102,11 +102,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     }
 
     // Validate hints
-    if (!usePerFileHints && !globalHint) {
-      toast.error(t('selectInsurer') || 'Please select insurer.');
-      return;
-    }
-    if (usePerFileHints && items.some((it) => !it.hint)) {
+    if (items.some((it) => !it.hint)) {
       toast.error(t('selectInsurerForEachFile') || 'Please select insurer for each file.');
       return;
     }
@@ -119,7 +115,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
       // Sequential uploads; results appear as they finish
       for (let i = 0; i < items.length; i++) {
         const it = items[i];
-        const hint = usePerFileHints ? it.hint : globalHint;
+        const hint = it.hint;
         try {
           const response = await uploadOffer(it.file, hint, inquiryId || undefined);
           setResults((prev) => {
@@ -274,49 +270,14 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
               />
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="font-medium">{t('perFileInsurers')}</div>
-              <div className="flex items-center gap-3">
-                <Label className="text-sm text-muted-foreground">{usePerFileHints ? t('on') : t('off')}</Label>
-                <button
-                  type="button"
-                  onClick={() => setUsePerFileHints((v) => !v)}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
-                    usePerFileHints ? 'bg-primary' : 'bg-muted'
-                  }`}
-                >
-                  <span
-                    className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${
-                      usePerFileHints ? 'translate-x-6' : 'translate-x-1'
-                    }`}
-                  />
-                </button>
-              </div>
-            </div>
-
             <div>
-              <Label>{t('insurer')} {usePerFileHints ? t('disabledPerFile') : '*'}</Label>
-              <Select
-                value={globalHint}
-                onValueChange={(v: Insurer) => setGlobalHint(v)}
-                disabled={usePerFileHints}
-              >
-                <SelectTrigger><SelectValue placeholder={t('selectInsurer')} /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="BTA">BTA</SelectItem>
-                  <SelectItem value="BTA2">BTA2</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
                 <Label>{t('offerUpload')} — {t('multipleAllowed')}</Label>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => window.open('https://www.ilovepdf.com/word_to_pdf', '_blank')}
-                  className="text-xs"
+                  className="text-xs w-full sm:w-auto"
                 >
                   {t('docxToPdf')}
                 </Button>
