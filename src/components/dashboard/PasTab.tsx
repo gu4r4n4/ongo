@@ -409,7 +409,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
               className="flex items-center gap-2"
             >
               <Share2 className="h-4 w-4" />
-              Share
+              {t('share')}
             </Button>
           </div>
 

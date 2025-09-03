@@ -178,6 +178,20 @@ export const translations = {
     company: 'Kompānija',
     employeeCount: 'Nodarbināto skaits',
     
+    // Share functionality
+    share: 'Dalīties',
+    
+    // Share page content
+    includedInPolicy: 'iekļauts polises segumā',
+    notIncludedInPolicy: 'nav iekļauts polises segumā',
+    healthInsurance: 'Veselības apdrošināšana',
+    patientPayment: 'PACIENTA IEMAKSA',
+    patientPaymentDesc: 'Maksājums, kuru pacients veic, saņemot valsts apmaksātus veselības aprūpes pakalpojumus',
+    paidServices: 'MAKSAS AMBULATORIE PAKALPOJUMI',
+    paidServicesDesc: 'Privāti apmaksāti medicīnas pakalpojumi',
+    doctorVisits: 'Ārsta vizītes',
+    doctorVisitsDesc: 'Pieejamie medicīnas speciālisti un pakalpojumi',
+    
     // Badge categories
     general: 'Vispārīgs',
     specialist: 'Speciālists',
@@ -351,6 +365,20 @@ export const translations = {
     errorChangingStatus: 'Error changing status',
     company: 'Company',
     employeeCount: 'Employee Count',
+    
+    // Share functionality
+    share: 'Share',
+    
+    // Share page content
+    includedInPolicy: 'included in policy coverage',
+    notIncludedInPolicy: 'not included in policy coverage',
+    healthInsurance: 'Health Insurance',
+    patientPayment: 'PATIENT PAYMENT',
+    patientPaymentDesc: 'Payment made by patient when receiving state-funded healthcare services',
+    paidServices: 'PAID OUTPATIENT SERVICES',
+    paidServicesDesc: 'Privately paid medical services',
+    doctorVisits: 'Doctor Visits',
+    doctorVisitsDesc: 'Available medical specialists and services',
     
     // Badge categories
     general: 'General',
@@ -526,6 +554,20 @@ export const translations = {
     company: 'Компания',
     employeeCount: 'Количество сотрудников',
     
+    // Share functionality
+    share: 'Поделиться',
+    
+    // Share page content
+    includedInPolicy: 'включено в покрытие полиса',
+    notIncludedInPolicy: 'не включено в покрытие полиса',
+    healthInsurance: 'Медицинское Страхование',
+    patientPayment: 'ПЛАТА ПАЦИЕНТА',
+    patientPaymentDesc: 'Платеж, который делает пациент при получении государственных медицинских услуг',
+    paidServices: 'ПЛАТНЫЕ АМБУЛАТОРНЫЕ УСЛУГИ',
+    paidServicesDesc: 'Частные медицинские услуги',
+    doctorVisits: 'Визиты к врачу',
+    doctorVisitsDesc: 'Доступные медицинские специалисты и услуги',
+    
     // Badge categories
     general: 'Общий',
     specialist: 'Специалист',
@@ -686,6 +728,20 @@ export const translations = {
     company: 'Ettevõte',
     employeeCount: 'Töötajate arv',
     
+    // Share functionality
+    share: 'Jaga',
+    
+    // Share page content
+    includedInPolicy: 'poliisilehes kaasatud',
+    notIncludedInPolicy: 'poliisilehes mitte kaasatud',
+    healthInsurance: 'Tervisekindlustus',
+    patientPayment: 'PATSIENDI MAKSE',
+    patientPaymentDesc: 'Makse, mida patsient teeb riiklike tervishoiuteenuste saamisel',
+    paidServices: 'TASULISED AMBULATOORSED TEENUSED',
+    paidServicesDesc: 'Eraviisil tasutud meditsiiniteenused',
+    doctorVisits: 'Arsti visiidid',
+    doctorVisitsDesc: 'Saadaolevad meditsiinieriala spetsialistid ja teenused',
+    
     // Badge categories
     general: 'Üldine',
     specialist: 'Spetsialist',
@@ -845,6 +901,20 @@ export const translations = {
     errorChangingStatus: 'Klaida keičiant statusą',
     company: 'Kompanija',
     employeeCount: 'Darbuotojų skaičius',
+    
+    // Share functionality
+    share: 'Dalintis',
+    
+    // Share page content
+    includedInPolicy: 'įtraukta į poliso padengimą',
+    notIncludedInPolicy: 'neįtraukta į poliso padengimą',
+    healthInsurance: 'Sveikatos draudimas',
+    patientPayment: 'PACIENTO MOKĖJIMAS',
+    patientPaymentDesc: 'Mokėjimas, kurį atlieka pacientas gaudamas valstybės apmokamas sveikatos paslaugas',
+    paidServices: 'MOKAMOS AMBULATORINĖS PASLAUGOS',
+    paidServicesDesc: 'Privatūs medicinos paslaugų mokėjimai',
+    doctorVisits: 'Gydytojo vizitai',
+    doctorVisitsDesc: 'Prieinami medicinos specialistai ir paslaugos',
     
     // Badge categories
     general: 'Bendras',
@@ -1166,6 +1236,20 @@ export const translations = {
     company: 'Företag',
     employeeCount: 'Antal anställda',
     
+    // Share functionality
+    share: 'Dela',
+    
+    // Share page content
+    includedInPolicy: 'inkluderad i försäkringsskydd',
+    notIncludedInPolicy: 'ej inkluderad i försäkringsskydd',
+    healthInsurance: 'Hälsoförsäkring',
+    patientPayment: 'PATIENTBETALNING',
+    patientPaymentDesc: 'Betalning som patienten gör när de får statligt finansierade hälsotjänster',
+    paidServices: 'BETALDA POLIKLINISKA TJÄNSTER',
+    paidServicesDesc: 'Privat betalda medicinska tjänster',
+    doctorVisits: 'Läkarbesök',
+    doctorVisitsDesc: 'Tillgängliga medicinska specialister och tjänster',
+    
     // Badge categories
     general: 'Allmän',
     specialist: 'Specialist',
@@ -1325,6 +1409,20 @@ export const translations = {
     errorChangingStatus: 'Fejl ved ændring af status',
     company: 'Virksomhed',
     employeeCount: 'Antal ansatte',
+    
+    // Share functionality
+    share: 'Del',
+    
+    // Share page content
+    includedInPolicy: 'inkluderet i forsikringsdækning',
+    notIncludedInPolicy: 'ikke inkluderet i forsikringsdækning',
+    healthInsurance: 'Sundhedsforsikring',
+    patientPayment: 'PATIENTBETALING',
+    patientPaymentDesc: 'Betaling som patienten foretager ved modtagelse af statsfinansierede sundhedstjenester',
+    paidServices: 'BETALTE AMBULANTE TJENESTER',
+    paidServicesDesc: 'Privat betalte medicinske tjenester',
+    doctorVisits: 'Lægebesøg',
+    doctorVisitsDesc: 'Tilgængelige medicinske specialister og tjenester',
     
     // Badge categories
     general: 'Generel',
@@ -1646,6 +1744,20 @@ export const translations = {
     company: 'Unternehmen',
     employeeCount: 'Anzahl der Mitarbeiter',
     
+    // Share functionality
+    share: 'Teilen',
+    
+    // Share page content
+    includedInPolicy: 'in Versicherungsdeckung enthalten',
+    notIncludedInPolicy: 'nicht in Versicherungsdeckung enthalten',
+    healthInsurance: 'Krankenversicherung',
+    patientPayment: 'PATIENTENZAHLUNG',
+    patientPaymentDesc: 'Zahlung, die der Patient bei Erhalt staatlich finanzierter Gesundheitsdienste leistet',
+    paidServices: 'BEZAHLTE AMBULANTE DIENSTE',
+    paidServicesDesc: 'Privat bezahlte medizinische Dienste',
+    doctorVisits: 'Arztbesuche',
+    doctorVisitsDesc: 'Verfügbare medizinische Spezialisten und Dienste',
+    
     // Badge categories
     general: 'Allgemein',
     specialist: 'Spezialist',
@@ -1805,6 +1917,20 @@ export const translations = {
     errorChangingStatus: 'Error al cambiar el estado',
     company: 'Empresa',
     employeeCount: 'Número de empleados',
+    
+    // Share functionality
+    share: 'Compartir',
+    
+    // Share page content
+    includedInPolicy: 'incluido en la cobertura del seguro',
+    notIncludedInPolicy: 'no incluido en la cobertura del seguro',
+    healthInsurance: 'Seguro de Salud',
+    patientPayment: 'PAGO DEL PACIENTE',
+    patientPaymentDesc: 'Pago que realiza el paciente al recibir servicios de salud financiados por el estado',
+    paidServices: 'SERVICIOS AMBULATORIOS DE PAGO',
+    paidServicesDesc: 'Servicios médicos pagados privadamente',
+    doctorVisits: 'Visitas al médico',
+    doctorVisitsDesc: 'Especialistas médicos y servicios disponibles',
     
     // Badge categories
     general: 'General',

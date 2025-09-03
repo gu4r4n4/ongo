@@ -79,9 +79,9 @@ const Share = () => {
   }, [token]);
 
   const ShareResultCard = ({ data }: { data: ShareResult }) => {
-    // If any program is BTA/BTA2, show the LV title; else default title
+    // If any program is BTA/BTA2, show the translated health insurance title; else default title
     const usesBTA = data.programs.some(p => p.insurer === 'BTA' || p.insurer === 'BTA2');
-    const cardTitle = usesBTA ? 'Veselības apdrošināšana' : 'Processing Results';
+    const cardTitle = usesBTA ? t('healthInsurance') : 'Processing Results';
 
     return (
       <Card>
@@ -211,22 +211,22 @@ const Share = () => {
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <Check className="h-4 w-4 text-green-600" />
-            <span className="text-sm text-muted-foreground">iekļauts polises segumā</span>
+            <span className="text-sm text-muted-foreground">{t('includedInPolicy')}</span>
           </div>
           <div className="flex items-center gap-2">
             <Minus className="h-4 w-4 text-red-600" />
-            <span className="text-sm text-muted-foreground">nav iekļauts polises segumā</span>
+            <span className="text-sm text-muted-foreground">{t('notIncludedInPolicy')}</span>
           </div>
         </div>
         <div className="space-y-1">
-          <div className="text-sm">
-            <span className="text-muted-foreground">Company:</span>
-            <span className="ml-2 font-medium">{data.company_name || '—'}</span>
-          </div>
-          <div className="text-sm">
-            <span className="text-muted-foreground">Employee Count:</span>
-            <span className="ml-2 font-medium">{data.employees_count || '—'}</span>
-          </div>
+        <div className="text-sm">
+          <span className="text-muted-foreground">{t('company')}:</span>
+          <span className="ml-2 font-medium">{data.company_name || '—'}</span>
+        </div>
+        <div className="text-sm">
+          <span className="text-muted-foreground">{t('employeeCount')}:</span>
+          <span className="ml-2 font-medium">{data.employees_count || '—'}</span>
+        </div>
         </div>
       </div>
 
@@ -272,10 +272,10 @@ const Share = () => {
               <Card>
                 <CardHeader>
                   <CardTitle className="text-base">
-                    PACIENTA IEMAKSA
+                    {t('patientPayment')}
                   </CardTitle>
                   <CardDescription>
-                    Maksājums, kuru pacients veic, saņemot valsts apmaksātus veselības aprūpes pakalpojumus
+                    {t('patientPaymentDesc')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -294,10 +294,10 @@ const Share = () => {
               <Card>
                 <CardHeader>
                   <CardTitle className="text-base">
-                    MAKSAS AMBULATORIE PAKALPOJUMI
+                    {t('paidServices')}
                   </CardTitle>
                   <CardDescription>
-                    Privāti apmaksāti medicīnas pakalpojumi
+                    {t('paidServicesDesc')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
@@ -322,8 +322,8 @@ const Share = () => {
             {/* Doctor Visits Card */}
             <Card className="mt-6">
               <CardHeader>
-                <CardTitle className="text-base">Ārsta vizītes</CardTitle>
-                <CardDescription>Pieejamie medicīnas speciālisti un pakalpojumi</CardDescription>
+                <CardTitle className="text-base">{t('doctorVisits')}</CardTitle>
+                <CardDescription>{t('doctorVisitsDesc')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
