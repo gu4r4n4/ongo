@@ -497,55 +497,55 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
               <CardContent>
                 <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 text-sm">
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs">General</Badge>
+                    <Badge variant="outline" className="text-xs">{t('general')}</Badge>
                     <span>Ģimenes ārsts (maksas)</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs">Specialist</Badge>
+                    <Badge variant="outline" className="text-xs">{t('specialist')}</Badge>
                     <span>Kardiologs, LOR, neirologs</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs">Specialist</Badge>
+                    <Badge variant="outline" className="text-xs">{t('specialist')}</Badge>
                     <span>Ginekologs, urologs</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs">Skin</Badge>
+                    <Badge variant="outline" className="text-xs">{t('skin')}</Badge>
                     <span>Dermatologs</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs">Alternative</Badge>
+                    <Badge variant="outline" className="text-xs">{t('alternative')}</Badge>
                     <span>Homeopāts</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs">Alternative</Badge>
+                    <Badge variant="outline" className="text-xs">{t('alternative')}</Badge>
                     <span>Osteopāts</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs">Sports</Badge>
+                    <Badge variant="outline" className="text-xs">{t('sports')}</Badge>
                     <span>Sporta ārsts</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs">Therapy</Badge>
+                    <Badge variant="outline" className="text-xs">{t('therapy')}</Badge>
                     <span>Fizikālās terapijas ārsts</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs">Therapy</Badge>
+                    <Badge variant="outline" className="text-xs">{t('therapy')}</Badge>
                     <span>Rehabilitologs, fizioterapeits</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs">Academic</Badge>
+                    <Badge variant="outline" className="text-xs">{t('academic')}</Badge>
                     <span>Docenta konsultācija</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs">Mental</Badge>
+                    <Badge variant="outline" className="text-xs">{t('mental')}</Badge>
                     <span>Psihologs, psihoterapeits</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs">Mental</Badge>
+                    <Badge variant="outline" className="text-xs">{t('mental')}</Badge>
                     <span>Psihiatru konsultācijas</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs">Remote</Badge>
+                    <Badge variant="outline" className="text-xs">{t('remote')}</Badge>
                     <span>Attālinātas ārstu konsultācijas</span>
                   </div>
                 </div>

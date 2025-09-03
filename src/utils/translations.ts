@@ -177,6 +177,17 @@ export const translations = {
     errorChangingStatus: 'Kļūda mainot statusu',
     company: 'Kompānija',
     employeeCount: 'Nodarbināto skaits',
+    
+    // Badge categories
+    general: 'Vispārīgs',
+    specialist: 'Speciālists',
+    skin: 'Ādas',
+    alternative: 'Alternatīvs',
+    sports: 'Sports',
+    therapy: 'Terapija',
+    academic: 'Akadēmisks',
+    mental: 'Mentāls',
+    remote: 'Attālināts',
   },
   en: {
     // Header
@@ -340,6 +351,17 @@ export const translations = {
     errorChangingStatus: 'Error changing status',
     company: 'Company',
     employeeCount: 'Employee Count',
+    
+    // Badge categories
+    general: 'General',
+    specialist: 'Specialist',
+    skin: 'Skin',
+    alternative: 'Alternative',
+    sports: 'Sports',
+    therapy: 'Therapy',
+    academic: 'Academic',
+    mental: 'Mental',
+    remote: 'Remote',
   },
   ru: {
     // Header
@@ -503,6 +525,17 @@ export const translations = {
     errorChangingStatus: 'Ошибка изменения статуса',
     company: 'Компания',
     employeeCount: 'Количество сотрудников',
+    
+    // Badge categories
+    general: 'Общий',
+    specialist: 'Специалист',
+    skin: 'Кожа',
+    alternative: 'Альтернативный',
+    sports: 'Спорт',
+    therapy: 'Терапия',
+    academic: 'Академический',
+    mental: 'Ментальный',
+    remote: 'Удаленный',
   },
   et: {
     // Header
@@ -652,6 +685,17 @@ export const translations = {
     errorChangingStatus: 'Viga staatuse muutmisel',
     company: 'Ettevõte',
     employeeCount: 'Töötajate arv',
+    
+    // Badge categories
+    general: 'Üldine',
+    specialist: 'Spetsialist',
+    skin: 'Nahk',
+    alternative: 'Alternatiivne',
+    sports: 'Sport',
+    therapy: 'Teraapia',
+    academic: 'Akadeemiline',
+    mental: 'Vaimne',
+    remote: 'Kaugel',
   },
   lt: {
     // Header
@@ -801,6 +845,17 @@ export const translations = {
     errorChangingStatus: 'Klaida keičiant statusą',
     company: 'Kompanija',
     employeeCount: 'Darbuotojų skaičius',
+    
+    // Badge categories
+    general: 'Bendras',
+    specialist: 'Specialistas',
+    skin: 'Oda',
+    alternative: 'Alternatyvus',
+    sports: 'Sportas',
+    therapy: 'Terapija',
+    academic: 'Akademinis',
+    mental: 'Psichikos',
+    remote: 'Nuotolinis',
   },
   no: {
     // Header
@@ -950,6 +1005,17 @@ export const translations = {
     errorChangingStatus: 'Feil ved endring av status',
     company: 'Selskap',
     employeeCount: 'Antall ansatte',
+    
+    // Badge categories
+    general: 'Generell',
+    specialist: 'Spesialist',
+    skin: 'Hud',
+    alternative: 'Alternativ',
+    sports: 'Sport',
+    therapy: 'Terapi',
+    academic: 'Akademisk',
+    mental: 'Mental',
+    remote: 'Ekstern',
   },
   sv: {
     // Header
@@ -1099,6 +1165,17 @@ export const translations = {
     errorChangingStatus: 'Fel vid ändring av status',
     company: 'Företag',
     employeeCount: 'Antal anställda',
+    
+    // Badge categories
+    general: 'Allmän',
+    specialist: 'Specialist',
+    skin: 'Hud',
+    alternative: 'Alternativ',
+    sports: 'Sport',
+    therapy: 'Terapi',
+    academic: 'Akademisk',
+    mental: 'Mental',
+    remote: 'Fjärr',
   },
   da: {
     // Header
@@ -1248,6 +1325,17 @@ export const translations = {
     errorChangingStatus: 'Fejl ved ændring af status',
     company: 'Virksomhed',
     employeeCount: 'Antal ansatte',
+    
+    // Badge categories
+    general: 'Generel',
+    specialist: 'Specialist',
+    skin: 'Hud',
+    alternative: 'Alternativ',
+    sports: 'Sport',
+    therapy: 'Terapi',
+    academic: 'Akademisk',
+    mental: 'Mental',
+    remote: 'Fjern',
   },
   fr: {
     // Header
@@ -1397,6 +1485,17 @@ export const translations = {
     errorChangingStatus: 'Erreur lors du changement de statut',
     company: 'Entreprise',
     employeeCount: 'Nombre d\'employés',
+    
+    // Badge categories
+    general: 'Général',
+    specialist: 'Spécialiste',
+    skin: 'Peau',
+    alternative: 'Alternatif',
+    sports: 'Sport',
+    therapy: 'Thérapie',
+    academic: 'Académique',
+    mental: 'Mental',
+    remote: 'Distant',
   },
   de: {
     // Header
@@ -1546,6 +1645,17 @@ export const translations = {
     errorChangingStatus: 'Fehler beim Ändern des Status',
     company: 'Unternehmen',
     employeeCount: 'Anzahl der Mitarbeiter',
+    
+    // Badge categories
+    general: 'Allgemein',
+    specialist: 'Spezialist',
+    skin: 'Haut',
+    alternative: 'Alternativ',
+    sports: 'Sport',
+    therapy: 'Therapie',
+    academic: 'Akademisch',
+    mental: 'Mental',
+    remote: 'Fern',
   },
   es: {
     // Header
@@ -1695,6 +1805,17 @@ export const translations = {
     errorChangingStatus: 'Error al cambiar el estado',
     company: 'Empresa',
     employeeCount: 'Número de empleados',
+    
+    // Badge categories
+    general: 'General',
+    specialist: 'Especialista',
+    skin: 'Piel',
+    alternative: 'Alternativo',
+    sports: 'Deportes',
+    therapy: 'Terapia',
+    academic: 'Académico',
+    mental: 'Mental',
+    remote: 'Remoto',
   },
 };
 
