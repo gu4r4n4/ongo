@@ -356,18 +356,6 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
                   ))}
                 </div>
               )}
-              {items.length > 0 && !usePerFileHints && (
-                <div className="mt-3">
-                  <Label>{t('selectedFiles')} ({items.length})</Label>
-                  <div className="space-y-1 max-h-32 overflow-y-auto">
-                    {items.map((it, idx) => (
-                      <div key={idx} className="text-sm p-1 bg-muted rounded">
-                        {it.file.name}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
 
