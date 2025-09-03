@@ -358,8 +358,8 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
                         <Select value={it.hint} onValueChange={(v: Insurer) => setItemHint(idx, v)}>
                           <SelectTrigger className="w-[120px]"><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="BTA">BTA</SelectItem>
-                            <SelectItem value="BTA2">BTA2</SelectItem>
+                            <SelectItem value="BTA">BTA VA</SelectItem>
+                            <SelectItem value="BTA2">BTA VA2</SelectItem>
                           </SelectContent>
                         </Select>
                         <Button
