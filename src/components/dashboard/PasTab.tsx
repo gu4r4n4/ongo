@@ -186,7 +186,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
       }
 
       const { token } = await res.json();
-      const url = `https://visbrokerhouse.onrender.com/shares/${encodeURIComponent(token)}`;
+      const url = `${window.location.origin}/share/${encodeURIComponent(token)}`;
       window.open(url, '_blank', 'noopener,noreferrer');
       toast.success('Share link created');
     } catch (err: any) {
