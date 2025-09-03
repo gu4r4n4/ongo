@@ -257,7 +257,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
           <div className="grid gap-4">
             {/* NEW: Kompānija */}
             <div>
-              <Label htmlFor="company">{t('company') || 'Kompānija'}</Label>
+              <Label htmlFor="company">Kompānija</Label>
               <Input
                 id="company"
                 placeholder="LDZ"
@@ -268,7 +268,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
 
             {/* NEW: Nodarbināto skaits */}
             <div>
-              <Label htmlFor="emp">{t('employeeCount') || 'Nodarbināto skaits'}</Label>
+              <Label htmlFor="emp">Nodarbināto skaits</Label>
               <Input
                 id="emp"
                 placeholder="~ 45 cilvēki"
