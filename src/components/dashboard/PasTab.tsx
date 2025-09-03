@@ -357,6 +357,61 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
               </TabsContent>
             ))}
           </Tabs>
+          
+          {/* Static Info Footer */}
+          <div className="space-y-6 text-sm text-muted-foreground mt-8">
+            <Separator />
+            
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-semibold text-foreground mb-2">PACIENTA IEMAKSA — maksājums, kuru pacients veic, saņemot valsts apmaksātus veselības aprūpes pakalpojumus</h4>
+                <a 
+                  href="http://www.vmnvd.gov.lv/lv/veselibas-aprupes-pakalpojumi/ambulatoras-iestades-un-arsti-specialisti" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  Ārstniecības iestāžu saraksts un valsts apmaksātie ambulatorie pakalpojumi →
+                </a>
+              </div>
+
+              <Separator />
+
+              <div>
+                <h4 className="font-semibold text-foreground mb-2">MAKSAS AMBULATORIE PAKALPOJUMI</h4>
+                <a 
+                  href="http://www.vi.gov.lv/lv/air" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline block mb-3"
+                >
+                  Maksas pakalpojuma saņemšanai iespējams izvēlēties pakalpojuma sniedzēju →
+                </a>
+                
+                <div className="space-y-1 mb-4">
+                  <p>• Maksas diagnostiskajiem pakalpojumiem (laboratorija, diagnostika, terapijas) nepieciešams ārsta nosūtījums</p>
+                  <p>• Veicot čeku norēķinus par maksas pakalpojumiem, tiek piemērots apdrošinātāja pakalpojuma apmaksas cenrādis (piem.skat.tabulā)</p>
+                  <p>• Par apdrošinātāja neapmaksāto pakalpojuma daļu iespējams saņemt pārmaksāto IIN, iesniedzot VID gadas ienākuma deklarāciju.</p>
+                </div>
+
+                <div>
+                  <h5 className="font-medium text-foreground mb-2">Ārsta vizītes</h5>
+                  <div className="space-y-1">
+                    <p>• Ģimenes ārsts (maksas)</p>
+                    <p>• Ārsti-speciālisti — kardiologs, LOR, neirologs, ginekologs, urologs u.c.</p>
+                    <p>• Dermatologs</p>
+                    <p>• Homeopāts</p>
+                    <p>• Osteopāts</p>
+                    <p>• Sporta ārsts</p>
+                    <p>• Fizikālās terapijas ārsts, rehabilitologs, fizioterapeits</p>
+                    <p>• Docenta konsultācija</p>
+                    <p>• Psihologa, psihoterapeita, psihiatra konsultācijas, pēc čekiem</p>
+                    <p>• Attālinātas ārstu konsultācijas</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
