@@ -432,60 +432,147 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
           </Tabs>
 
           {/* Static Info Footer */}
-          <div className="space-y-6 text-sm text-muted-foreground mt-8">
+          <div className="mt-8">
             <Separator />
+            
+            <div className="grid gap-6 mt-6 md:grid-cols-2">
+              {/* Patient Payment Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">
+                    PACIENTA IEMAKSA
+                  </CardTitle>
+                  <CardDescription>
+                    Maksājums, kuru pacients veic, saņemot valsts apmaksātus veselības aprūpes pakalpojumus
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <a
+                    href="http://www.vmnvd.gov.lv/lv/veselibas-aprupes-pakalpojumi/ambulatoras-iestades-un-arsti-specialisti"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline text-sm"
+                  >
+                    Ārstniecības iestāžu saraksts un valsts apmaksātie ambulatorie pakalpojumi →
+                  </a>
+                </CardContent>
+              </Card>
 
-            <div className="space-y-4">
-              <div>
-                <h4 className="font-semibold text-foreground mb-2">
-                  PACIENTA IEMAKSA — maksājums, kuru pacients veic, saņemot valsts apmaksātus veselības aprūpes pakalpojumus
-                </h4>
-                <a
-                  href="http://www.vmnvd.gov.lv/lv/veselibas-aprupes-pakalpojumi/ambulatoras-iestades-un-arsti-specialisti"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary hover:underline"
-                >
-                  Ārstniecības iestāžu saraksts un valsts apmaksātie ambulatorie pakalpojumi →
-                </a>
-              </div>
+              {/* Paid Services Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">
+                    MAKSAS AMBULATORIE PAKALPOJUMI
+                  </CardTitle>
+                  <CardDescription>
+                    Privāti apmaksāti medicīnas pakalpojumi
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <a
+                    href="http://www.vi.gov.lv/lv/air"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline text-sm block"
+                  >
+                    Maksas pakalpojuma saņemšanai iespējams izvēlēties pakalpojuma sniedzēju →
+                  </a>
+                  
+                  <div className="space-y-2 text-sm text-muted-foreground">
+                    <p>• Maksas diagnostiskajiem pakalpojumiem nepieciešams ārsta nosūtījums</p>
+                    <p>• Tiek piemērots apdrošinātāja pakalpojuma apmaksas cenrādis</p>
+                    <p>• Par neapmaksāto daļu iespējams saņemt pārmaksāto IIN</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
-              <Separator />
+            {/* Doctor Visits Card */}
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle className="text-base">Ārsta vizītes</CardTitle>
+                <CardDescription>Pieejamie medicīnas speciālisti un pakalpojumi</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {/* General */}
+                  <div className="space-y-2">
+                    <Badge variant="secondary" className="mb-2">{t('general')}</Badge>
+                    <div className="space-y-1 text-sm text-muted-foreground">
+                      <p>• Ģimenes ārsts (maksas)</p>
+                    </div>
+                  </div>
 
-              <div>
-                <h4 className="font-semibold text-foreground mb-2">MAKSAS AMBULATORIE PAKALPOJUMI</h4>
-                <a
-                  href="http://www.vi.gov.lv/lv/air"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary hover:underline block mb-3"
-                >
-                  Maksas pakalpojuma saņemšanai iespējams izvēlēties pakalpojuma sniedzēju →
-                </a>
+                  {/* Specialists */}
+                  <div className="space-y-2">
+                    <Badge variant="outline" className="mb-2">{t('specialist')}</Badge>
+                    <div className="space-y-1 text-sm text-muted-foreground">
+                      <p>• Kardiologs, LOR, neirologs</p>
+                      <p>• Ginekologs, urologs u.c.</p>
+                    </div>
+                  </div>
 
-                <div className="space-y-1 mb-4">
-                  <p>• Maksas diagnostiskajiem pakalpojumiem (laboratorija, diagnostika, terapijas) nepieciešams ārsta nosūtījums</p>
-                  <p>• Veicot čeku norēķinus par maksas pakalpojumiem, tiek piemērots apdrošinātāja pakalpojuma apmaksas cenrādis (piem.skat.tabulā)</p>
-                  <p>• Par apdrošinātāja neapmaksāto pakalpojuma daļu iespējams saņemt pārmaksāto IIN, iesniedzot VID gadas ienākuma deklarāciju.</p>
-                </div>
+                  {/* Skin */}
+                  <div className="space-y-2">
+                    <Badge variant="outline" className="mb-2">{t('skin')}</Badge>
+                    <div className="space-y-1 text-sm text-muted-foreground">
+                      <p>• Dermatologs</p>
+                    </div>
+                  </div>
 
-                <div>
-                  <h5 className="font-medium text-foreground mb-2">Ārsta vizītes</h5>
-                  <div className="space-y-1">
-                    <p>• Ģimenes ārsts (maksas)</p>
-                    <p>• Ārsti-speciālisti — kardiologs, LOR, neirologs, ginekologs, urologs u.c.</p>
-                    <p>• Dermatologs</p>
-                    <p>• Homeopāts</p>
-                    <p>• Osteopāts</p>
-                    <p>• Sporta ārsts</p>
-                    <p>• Fizikālās terapijas ārsts, rehabilitologs, fizioterapeits</p>
-                    <p>• Docenta konsultācija</p>
-                    <p>• Psihologa, psihoterapeita, psihiatra konsultācijas, pēc čekiem</p>
-                    <p>• Attālinātas ārstu konsultācijas</p>
+                  {/* Alternative */}
+                  <div className="space-y-2">
+                    <Badge variant="outline" className="mb-2">{t('alternative')}</Badge>
+                    <div className="space-y-1 text-sm text-muted-foreground">
+                      <p>• Homeopāts</p>
+                      <p>• Osteopāts</p>
+                    </div>
+                  </div>
+
+                  {/* Sports */}
+                  <div className="space-y-2">
+                    <Badge variant="outline" className="mb-2">{t('sports')}</Badge>
+                    <div className="space-y-1 text-sm text-muted-foreground">
+                      <p>• Sporta ārsts</p>
+                    </div>
+                  </div>
+
+                  {/* Therapy */}
+                  <div className="space-y-2">
+                    <Badge variant="outline" className="mb-2">{t('therapy')}</Badge>
+                    <div className="space-y-1 text-sm text-muted-foreground">
+                      <p>• Fizikālās terapijas ārsts</p>
+                      <p>• Rehabilitologs, fizioterapeits</p>
+                    </div>
+                  </div>
+
+                  {/* Academic */}
+                  <div className="space-y-2">
+                    <Badge variant="outline" className="mb-2">{t('academic')}</Badge>
+                    <div className="space-y-1 text-sm text-muted-foreground">
+                      <p>• Docenta konsultācija</p>
+                    </div>
+                  </div>
+
+                  {/* Mental Health */}
+                  <div className="space-y-2">
+                    <Badge variant="outline" className="mb-2">{t('mental')}</Badge>
+                    <div className="space-y-1 text-sm text-muted-foreground">
+                      <p>• Psihologs, psihoterapeits</p>
+                      <p>• Psihiatrs (pēc čekiem)</p>
+                    </div>
+                  </div>
+
+                  {/* Remote */}
+                  <div className="space-y-2">
+                    <Badge variant="outline" className="mb-2">{t('remote')}</Badge>
+                    <div className="space-y-1 text-sm text-muted-foreground">
+                      <p>• Attālinātas ārstu konsultācijas</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       )}
