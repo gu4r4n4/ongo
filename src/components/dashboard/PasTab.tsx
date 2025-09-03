@@ -497,7 +497,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {/* General */}
                   <div className="space-y-2">
-                    <Badge variant="secondary" className="mb-2">{t('general')}</Badge>
+                    <Badge variant="secondary" className="mb-2 bg-badge-category text-black">{t('general')}</Badge>
                     <div className="space-y-1 text-sm text-muted-foreground">
                       <p>• Ģimenes ārsts (maksas)</p>
                     </div>
@@ -505,7 +505,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
 
                   {/* Specialists */}
                   <div className="space-y-2">
-                    <Badge variant="outline" className="mb-2">{t('specialist')}</Badge>
+                    <Badge variant="outline" className="mb-2 bg-badge-category text-black">{t('specialist')}</Badge>
                     <div className="space-y-1 text-sm text-muted-foreground">
                       <p>• Kardiologs, LOR, neirologs</p>
                       <p>• Ginekologs, urologs u.c.</p>
@@ -514,7 +514,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
 
                   {/* Skin */}
                   <div className="space-y-2">
-                    <Badge variant="outline" className="mb-2">{t('skin')}</Badge>
+                    <Badge variant="outline" className="mb-2 bg-badge-category text-black">{t('skin')}</Badge>
                     <div className="space-y-1 text-sm text-muted-foreground">
                       <p>• Dermatologs</p>
                     </div>
@@ -522,7 +522,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
 
                   {/* Alternative */}
                   <div className="space-y-2">
-                    <Badge variant="outline" className="mb-2">{t('alternative')}</Badge>
+                    <Badge variant="outline" className="mb-2 bg-badge-category text-black">{t('alternative')}</Badge>
                     <div className="space-y-1 text-sm text-muted-foreground">
                       <p>• Homeopāts</p>
                       <p>• Osteopāts</p>
@@ -531,7 +531,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
 
                   {/* Sports */}
                   <div className="space-y-2">
-                    <Badge variant="outline" className="mb-2">{t('sports')}</Badge>
+                    <Badge variant="outline" className="mb-2 bg-badge-category text-black">{t('sports')}</Badge>
                     <div className="space-y-1 text-sm text-muted-foreground">
                       <p>• Sporta ārsts</p>
                     </div>
@@ -539,7 +539,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
 
                   {/* Therapy */}
                   <div className="space-y-2">
-                    <Badge variant="outline" className="mb-2">{t('therapy')}</Badge>
+                    <Badge variant="outline" className="mb-2 bg-badge-category text-black">{t('therapy')}</Badge>
                     <div className="space-y-1 text-sm text-muted-foreground">
                       <p>• Fizikālās terapijas ārsts</p>
                       <p>• Rehabilitologs, fizioterapeits</p>
@@ -548,7 +548,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
 
                   {/* Academic */}
                   <div className="space-y-2">
-                    <Badge variant="outline" className="mb-2">{t('academic')}</Badge>
+                    <Badge variant="outline" className="mb-2 bg-badge-category text-black">{t('academic')}</Badge>
                     <div className="space-y-1 text-sm text-muted-foreground">
                       <p>• Docenta konsultācija</p>
                     </div>
@@ -556,7 +556,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
 
                   {/* Mental Health */}
                   <div className="space-y-2">
-                    <Badge variant="outline" className="mb-2">{t('mental')}</Badge>
+                    <Badge variant="outline" className="mb-2 bg-badge-category text-black">{t('mental')}</Badge>
                     <div className="space-y-1 text-sm text-muted-foreground">
                       <p>• Psihologs, psihoterapeits</p>
                       <p>• Psihiatrs (pēc čekiem)</p>
@@ -565,7 +565,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
 
                   {/* Remote */}
                   <div className="space-y-2">
-                    <Badge variant="outline" className="mb-2">{t('remote')}</Badge>
+                    <Badge variant="outline" className="mb-2 bg-badge-category text-black">{t('remote')}</Badge>
                     <div className="space-y-1 text-sm text-muted-foreground">
                       <p>• Attālinātas ārstu konsultācijas</p>
                     </div>
