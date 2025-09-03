@@ -381,11 +381,11 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Check className="h-4 w-4 text-green-600" />
-                <span className="text-sm text-muted-foreground">v iekļauts polises segumā</span>
+                <span className="text-sm text-muted-foreground">iekļauts polises segumā</span>
               </div>
               <div className="flex items-center gap-2">
                 <Minus className="h-4 w-4 text-red-600" />
-                <span className="text-sm text-muted-foreground">– nav iekļauts polises segumā</span>
+                <span className="text-sm text-muted-foreground">nav iekļauts polises segumā</span>
               </div>
             </div>
             <div className="space-y-1">
