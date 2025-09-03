@@ -351,9 +351,9 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
                 <div className="mt-3 space-y-2">
                   <Label>{t('selectedFiles')} ({items.length})</Label>
                   {items.map((it, idx) => (
-                    <div key={idx} className="flex items-center justify-between rounded border p-2">
-                      <div className="text-sm truncate">{it.file.name}</div>
-                      <div className="flex items-center gap-2">
+                    <div key={idx} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded border p-3">
+                      <div className="text-sm truncate flex-1">{it.file.name}</div>
+                      <div className="flex items-center justify-between sm:justify-end gap-2">
                         <InsurerLogo name={it.hint} />
                         <Select value={it.hint} onValueChange={(v: Insurer) => setItemHint(idx, v)}>
                           <SelectTrigger className="w-[120px]"><SelectValue /></SelectTrigger>
