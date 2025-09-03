@@ -431,61 +431,126 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
             ))}
           </Tabs>
 
-          {/* Static Info Footer */}
-          <div className="space-y-6 text-sm text-muted-foreground mt-8">
+          {/* Healthcare Information Cards */}
+          <div className="space-y-4 mt-8">
             <Separator />
+            
+            <div className="grid gap-4 lg:grid-cols-2">
+              {/* Patient Copayment Card */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">PACIENTA IEMAKSA</CardTitle>
+                  <CardDescription className="text-sm">
+                    Maksājums, kuru pacients veic, saņemot valsts apmaksātus veselības aprūpes pakalpojumus
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <a
+                    href="http://www.vmnvd.gov.lv/lv/veselibas-aprupes-pakalpojumi/ambulatoras-iestades-un-arsti-specialisti"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center text-sm text-primary hover:underline"
+                  >
+                    Ārstniecības iestāžu saraksts un valsts apmaksātie ambulatorie pakalpojumi →
+                  </a>
+                </CardContent>
+              </Card>
 
-            <div className="space-y-4">
-              <div>
-                <h4 className="font-semibold text-foreground mb-2">
-                  PACIENTA IEMAKSA — maksājums, kuru pacients veic, saņemot valsts apmaksātus veselības aprūpes pakalpojumus
-                </h4>
-                <a
-                  href="http://www.vmnvd.gov.lv/lv/veselibas-aprupes-pakalpojumi/ambulatoras-iestades-un-arsti-specialisti"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary hover:underline"
-                >
-                  Ārstniecības iestāžu saraksts un valsts apmaksātie ambulatorie pakalpojumi →
-                </a>
-              </div>
+              {/* Paid Services Card */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">MAKSAS AMBULATORIE PAKALPOJUMI</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <a
+                    href="http://www.vi.gov.lv/lv/air"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center text-sm text-primary hover:underline"
+                  >
+                    Maksas pakalpojuma saņemšanai iespējams izvēlēties pakalpojuma sniedzēju →
+                  </a>
 
-              <Separator />
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-start gap-2">
+                      <span className="text-muted-foreground mt-1">•</span>
+                      <span>Maksas diagnostiskajiem pakalpojumiem (laboratorija, diagnostika, terapijas) nepieciešams ārsta nosūtījums</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-muted-foreground mt-1">•</span>
+                      <span>Veicot čeku norēķinus par maksas pakalpojumiem, tiek piemērots apdrošinātāja pakalpojuma apmaksas cenrādis</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-muted-foreground mt-1">•</span>
+                      <span>Par apdrošinātāja neapmaksāto pakalpojuma daļu iespējams saņemt pārmaksāto IIN, iesniedzot VID gadas ienākuma deklarāciju</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
-              <div>
-                <h4 className="font-semibold text-foreground mb-2">MAKSAS AMBULATORIE PAKALPOJUMI</h4>
-                <a
-                  href="http://www.vi.gov.lv/lv/air"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary hover:underline block mb-3"
-                >
-                  Maksas pakalpojuma saņemšanai iespējams izvēlēties pakalpojuma sniedzēju →
-                </a>
-
-                <div className="space-y-1 mb-4">
-                  <p>• Maksas diagnostiskajiem pakalpojumiem (laboratorija, diagnostika, terapijas) nepieciešams ārsta nosūtījums</p>
-                  <p>• Veicot čeku norēķinus par maksas pakalpojumiem, tiek piemērots apdrošinātāja pakalpojuma apmaksas cenrādis (piem.skat.tabulā)</p>
-                  <p>• Par apdrošinātāja neapmaksāto pakalpojuma daļu iespējams saņemt pārmaksāto IIN, iesniedzot VID gadas ienākuma deklarāciju.</p>
-                </div>
-
-                <div>
-                  <h5 className="font-medium text-foreground mb-2">Ārsta vizītes</h5>
-                  <div className="space-y-1">
-                    <p>• Ģimenes ārsts (maksas)</p>
-                    <p>• Ārsti-speciālisti — kardiologs, LOR, neirologs, ginekologs, urologs u.c.</p>
-                    <p>• Dermatologs</p>
-                    <p>• Homeopāts</p>
-                    <p>• Osteopāts</p>
-                    <p>• Sporta ārsts</p>
-                    <p>• Fizikālās terapijas ārsts, rehabilitologs, fizioterapeits</p>
-                    <p>• Docenta konsultācija</p>
-                    <p>• Psihologa, psihoterapeita, psihiatra konsultācijas, pēc čekiem</p>
-                    <p>• Attālinātas ārstu konsultācijas</p>
+            {/* Doctor Services Card */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Ārsta vizītes</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 text-sm">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs">General</Badge>
+                    <span>Ģimenes ārsts (maksas)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs">Specialist</Badge>
+                    <span>Kardiologs, LOR, neirologs</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs">Specialist</Badge>
+                    <span>Ginekologs, urologs</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs">Skin</Badge>
+                    <span>Dermatologs</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs">Alternative</Badge>
+                    <span>Homeopāts</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs">Alternative</Badge>
+                    <span>Osteopāts</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs">Sports</Badge>
+                    <span>Sporta ārsts</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs">Therapy</Badge>
+                    <span>Fizikālās terapijas ārsts</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs">Therapy</Badge>
+                    <span>Rehabilitologs, fizioterapeits</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs">Academic</Badge>
+                    <span>Docenta konsultācija</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs">Mental</Badge>
+                    <span>Psihologs, psihoterapeits</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs">Mental</Badge>
+                    <span>Psihiatru konsultācijas</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs">Remote</Badge>
+                    <span>Attālinātas ārstu konsultācijas</span>
                   </div>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       )}
