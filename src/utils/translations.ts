@@ -175,6 +175,8 @@ export const translations = {
     newApiConnectionDesc: 'Pievienojiet jaunu API savienojuma formu.',
     statusChanged: 'Rēķina statuss nomainīts uz',
     errorChangingStatus: 'Kļūda mainot statusu',
+    company: 'Kompānija',
+    employeeCount: 'Nodarbināto skaits',
   },
   en: {
     // Header
@@ -336,6 +338,8 @@ export const translations = {
     newApiConnectionDesc: 'Add a new API connection form.',
     statusChanged: 'Invoice status changed to',
     errorChangingStatus: 'Error changing status',
+    company: 'Company',
+    employeeCount: 'Employee Count',
   },
   ru: {
     // Header
@@ -497,6 +501,8 @@ export const translations = {
     newApiConnectionDesc: 'Добавить новую форму API соединения.',
     statusChanged: 'Статус счета изменен на',
     errorChangingStatus: 'Ошибка изменения статуса',
+    company: 'Компания',
+    employeeCount: 'Количество сотрудников',
   },
   et: {
     // Header
@@ -644,6 +650,8 @@ export const translations = {
     newApiConnectionDesc: 'Lisa uus API ühenduse vorm.',
     statusChanged: 'Arve staatus muudetud',
     errorChangingStatus: 'Viga staatuse muutmisel',
+    company: 'Ettevõte',
+    employeeCount: 'Töötajate arv',
   },
   lt: {
     // Header
@@ -791,6 +799,8 @@ export const translations = {
     newApiConnectionDesc: 'Pridėti naują API ryšio formą.',
     statusChanged: 'Sąskaitos statusas pakeistas į',
     errorChangingStatus: 'Klaida keičiant statusą',
+    company: 'Kompanija',
+    employeeCount: 'Darbuotojų skaičius',
   },
   no: {
     // Header
@@ -938,6 +948,8 @@ export const translations = {
     newApiConnectionDesc: 'Legg til et nytt API-tilkoblingsskjema.',
     statusChanged: 'Fakturastatus endret til',
     errorChangingStatus: 'Feil ved endring av status',
+    company: 'Selskap',
+    employeeCount: 'Antall ansatte',
   },
   sv: {
     // Header
@@ -1085,6 +1097,8 @@ export const translations = {
     newApiConnectionDesc: 'Lägg till ett nytt API-anslutningsformulär.',
     statusChanged: 'Fakturastatus ändrad till',
     errorChangingStatus: 'Fel vid ändring av status',
+    company: 'Företag',
+    employeeCount: 'Antal anställda',
   },
   da: {
     // Header
@@ -1232,6 +1246,8 @@ export const translations = {
     newApiConnectionDesc: 'Tilføj en ny API-forbindelsesformular.',
     statusChanged: 'Fakturastatus ændret til',
     errorChangingStatus: 'Fejl ved ændring af status',
+    company: 'Virksomhed',
+    employeeCount: 'Antal ansatte',
   },
   fr: {
     // Header
@@ -1379,6 +1395,8 @@ export const translations = {
     newApiConnectionDesc: 'Ajouter un nouveau formulaire de connexion API.',
     statusChanged: 'Statut de la facture changé en',
     errorChangingStatus: 'Erreur lors du changement de statut',
+    company: 'Entreprise',
+    employeeCount: 'Nombre d\'employés',
   },
   de: {
     // Header
@@ -1526,6 +1544,8 @@ export const translations = {
     newApiConnectionDesc: 'Ein neues API-Verbindungsformular hinzufügen.',
     statusChanged: 'Rechnungsstatus geändert zu',
     errorChangingStatus: 'Fehler beim Ändern des Status',
+    company: 'Unternehmen',
+    employeeCount: 'Anzahl der Mitarbeiter',
   },
   es: {
     // Header
@@ -1673,6 +1693,8 @@ export const translations = {
     newApiConnectionDesc: 'Agregar un nuevo formulario de conexión API.',
     statusChanged: 'Estado de factura cambiado a',
     errorChangingStatus: 'Error al cambiar el estado',
+    company: 'Empresa',
+    employeeCount: 'Número de empleados',
   },
 };
 

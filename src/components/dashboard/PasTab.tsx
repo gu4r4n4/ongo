@@ -222,9 +222,15 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
                       {Object.entries(program.features).map(([k, v]) => (
                         <div key={k} className="flex justify-between">
                           <span className="text-muted-foreground">{k}:</span>
-                          <span className={v === 'Yes' ? 'text-green-600' : v === 'No' ? 'text-red-600' : ''}>
-                            {typeof v === 'boolean' ? (v ? 'Yes' : 'No') : String(v)}
-                          </span>
+                           <span className={v === 'Yes' || v === 'v' || v === true ? 'text-green-600' : v === 'No' || v === '-' || v === false ? 'text-red-600' : ''}>
+                             {v === 'v' || v === 'Yes' || v === true ? (
+                               <Check className="h-4 w-4 text-green-600" />
+                             ) : v === '-' || v === 'No' || v === false ? (
+                               <Minus className="h-4 w-4 text-red-600" />
+                             ) : (
+                               String(v)
+                             )}
+                           </span>
                         </div>
                       ))}
                     </div>
@@ -257,7 +263,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
           <div className="grid gap-4">
             {/* NEW: Kompānija */}
             <div>
-              <Label htmlFor="company">Kompānija</Label>
+              <Label htmlFor="company">{t('company')}</Label>
               <Input
                 id="company"
                 placeholder="LDZ"
@@ -268,7 +274,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
 
             {/* NEW: Nodarbināto skaits */}
             <div>
-              <Label htmlFor="emp">Nodarbināto skaits</Label>
+              <Label htmlFor="emp">{t('employeeCount')}</Label>
               <Input
                 id="emp"
                 placeholder="~ 45 cilvēki"
@@ -363,11 +369,11 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
             </div>
             <div className="space-y-1">
               <div className="text-sm">
-                <span className="text-muted-foreground">Kompānija:</span>
+                <span className="text-muted-foreground">{t('company')}:</span>
                 <span className="ml-2 font-medium">{companyName || '—'}</span>
               </div>
               <div className="text-sm">
-                <span className="text-muted-foreground">Nodarbināto skaits:</span>
+                <span className="text-muted-foreground">{t('employeeCount')}:</span>
                 <span className="ml-2 font-medium">{employeeCount || '—'}</span>
               </div>
             </div>
