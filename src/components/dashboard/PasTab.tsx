@@ -135,17 +135,28 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
       }
 
       // Sequential uploads; results appear as they finish
+      const allResults: ApiResponse[] = [];
       for (let i = 0; i < items.length; i++) {
         const it = items[i];
         const hint = it.hint;
         try {
+          console.log(`Processing file ${i + 1}/${items.length}: ${it.file.name}`);
           const response = await uploadOffer(it.file, hint, inquiryId || undefined);
-          setResults((prev) => {
-            const next = [...prev, response];
-            if (!activeTab && next.length > 0) setActiveTab(`r${next.length - 1}`);
-            return next;
-          });
+          console.log(`Received response for ${it.file.name}:`, response);
+          
+          allResults.push(response);
+          
+          // Update results state with the accumulated results
+          setResults([...allResults]);
+          
+          // Set active tab to the first result if not already set
+          if (!activeTab && allResults.length === 1) {
+            setActiveTab('r0');
+          }
+          
+          console.log(`Total results so far: ${allResults.length}`);
         } catch (err: any) {
+          console.error(`Upload failed for ${it.file.name}:`, err);
           toast.error(`${t('failed') || 'Failed'}: ${it.file.name} — ${err?.message || 'Upload error'}`);
         }
       }
