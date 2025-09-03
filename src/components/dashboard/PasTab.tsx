@@ -508,7 +508,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {/* General */}
                   <div className="space-y-2">
-                    <Badge variant="secondary" className="mb-2 bg-badge-category text-black">{t('general')}</Badge>
+                    <Badge variant="secondary" className="mb-2 bg-badge-category text-black hover:bg-badge-category hover:text-black">{t('general')}</Badge>
                     <div className="space-y-1 text-sm text-muted-foreground">
                       <p>• Ģimenes ārsts (maksas)</p>
                     </div>
