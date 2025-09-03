@@ -9,7 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Language, useTranslation } from "@/utils/translations";
 import { toast } from "sonner";
-import { Trash2, Download, Check, Minus } from "lucide-react"; // NOTE: use Minus instead of X
+import { Trash2, Check, Minus, Share2 } from "lucide-react"; // replaced Download with Share2
 import { InsurerLogo } from "@/components/InsurerLogo";
 
 type Insurer = 'BTA' | 'BTA2';
@@ -140,23 +140,13 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
         const it = items[i];
         const hint = it.hint;
         try {
-          console.log(`Processing file ${i + 1}/${items.length}: ${it.file.name}`);
           const response = await uploadOffer(it.file, hint, inquiryId || undefined);
-          console.log(`Received response for ${it.file.name}:`, response);
-          
           allResults.push(response);
-          
-          // Update results state with the accumulated results
           setResults([...allResults]);
-          
-          // Set active tab to the first result if not already set
           if (!activeTab && allResults.length === 1) {
             setActiveTab('r0');
           }
-          
-          console.log(`Total results so far: ${allResults.length}`);
         } catch (err: any) {
-          console.error(`Upload failed for ${it.file.name}:`, err);
           toast.error(`${t('failed') || 'Failed'}: ${it.file.name} — ${err?.message || 'Upload error'}`);
         }
       }
@@ -166,54 +156,49 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     }
   };
 
-  const exportToCSV = () => {
-    const allPrograms = results.flatMap(r => r.programs);
-    if (allPrograms.length === 0) return;
+  // ----- Share: snapshot current results and open public link -----
+  const shareResults = async () => {
+    if (results.length === 0) {
+      toast.error(t('selectFiles') || 'Please process results before sharing.');
+      return;
+    }
 
-    const headers = [
-      'Source File',
-      'Insurer',
-      'Program Code',
-      'Base Sum (EUR)',
-      'Premium (EUR)',
-      'Payment Method',
-      'Features'
-    ];
+    const snapshot = {
+      company_name: companyName || null,
+      employees_count: Number.isFinite(Number(employeesCount)) ? Number(employeesCount) : null,
+      results: results.map(r => ({
+        source_file: r.source_file,
+        programs: r.programs, // matches backend Program
+      })),
+      // expires_in_hours: 720, // optional (default 30 days)
+    };
 
-    const rows = results.flatMap(result =>
-      result.programs.map(program => [
-        result.source_file,
-        program.insurer,
-        program.program_code,
-        program.base_sum_eur,
-        program.premium_eur,
-        program.payment_method || '',
-        Object.entries(program.features).map(([key, value]) => `${key}: ${value}`).join('; ')
-      ])
-    );
+    try {
+      const res = await fetch('https://visbrokerhouse.onrender.com/shares', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(snapshot),
+      });
 
-    const csvContent = [headers, ...rows]
-      .map(row => row.map(field => `"${field}"`).join(','))
-      .join('\n');
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data?.detail || `Failed (${res.status})`);
+      }
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `pas-results-${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    toast.success(t('csvExported') || 'CSV exported successfully');
+      const { token } = await res.json();
+      const url = `https://visbrokerhouse.onrender.com/shares/${encodeURIComponent(token)}`;
+      window.open(url, '_blank', 'noopener,noreferrer');
+      toast.success(t('shareLinkCreated') || 'Share link created');
+    } catch (err: any) {
+      toast.error(`${t('failed') || 'Failed'}: ${err?.message || 'Share error'}`);
+    }
   };
 
   const ResultCard = ({ data }: { data: ApiResponse }) => {
-    // Check if any program uses BTA or BTA2
+    // If any program is BTA/BTA2, show the LV title; else default i18n title
     const usesBTA = data.programs.some(p => p.insurer === 'BTA' || p.insurer === 'BTA2');
     const cardTitle = usesBTA ? 'Veselības apdrošināšana' : t('processingResults');
-    
+
     return (
       <Card>
         <CardHeader>
@@ -256,15 +241,15 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
                       {Object.entries(program.features).map(([k, v]) => (
                         <div key={k} className="flex justify-between">
                           <span className="text-muted-foreground">{k}:</span>
-                           <span className={v === 'Yes' || v === 'v' || v === true ? 'text-green-600' : v === 'No' || v === '-' || v === false ? 'text-red-600' : ''}>
-                             {v === 'v' || v === 'Yes' || v === true ? (
-                               <Check className="h-4 w-4 text-green-600" />
-                             ) : v === '-' || v === 'No' || v === false ? (
-                               <Minus className="h-4 w-4 text-red-600" />
-                             ) : (
-                               String(v)
-                             )}
-                           </span>
+                          <span className={v === 'Yes' || v === 'v' || v === true ? 'text-green-600' : v === 'No' || v === '-' || v === false ? 'text-red-600' : ''}>
+                            {v === 'v' || v === 'Yes' || v === true ? (
+                              <Check className="h-4 w-4 text-green-600" />
+                            ) : v === '-' || v === 'No' || v === false ? (
+                              <Minus className="h-4 w-4 text-red-600" />
+                            ) : (
+                              String(v)
+                            )}
+                          </span>
                         </div>
                       ))}
                     </div>
@@ -415,16 +400,16 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
             </div>
           </div>
 
-          {/* title + CSV */}
+          {/* title + SHARE */}
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold">{t('processingResults')}</h3>
             <Button
               variant="outline"
-              onClick={exportToCSV}
+              onClick={shareResults}
               className="flex items-center gap-2"
             >
-              <Download className="h-4 w-4" />
-              {t('exportCsv')}
+              <Share2 className="h-4 w-4" />
+              {t('share') || 'Share'}
             </Button>
           </div>
 
