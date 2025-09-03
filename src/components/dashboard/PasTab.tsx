@@ -188,7 +188,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
       const { token } = await res.json();
       const url = `https://visbrokerhouse.onrender.com/shares/${encodeURIComponent(token)}`;
       window.open(url, '_blank', 'noopener,noreferrer');
-      toast.success(t('shareLinkCreated') || 'Share link created');
+      toast.success('Share link created');
     } catch (err: any) {
       toast.error(`${t('failed') || 'Failed'}: ${err?.message || 'Share error'}`);
     }
@@ -409,7 +409,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
               className="flex items-center gap-2"
             >
               <Share2 className="h-4 w-4" />
-              {t('share') || 'Share'}
+              Share
             </Button>
           </div>
 
