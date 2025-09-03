@@ -44,7 +44,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
 
   // --- NEW: extra form fields ---
   const [companyName, setCompanyName] = useState<string>("LDZ");
-  const [employeeCount, setEmployeeCount] = useState<string>("~ 45 cilvēki");
+  const [employeesCount, setEmployeesCount] = useState<number>(45);
 
   const [inquiryId, setInquiryId] = useState<string>('');
   const [items, setItems] = useState<UploadItem[]>([]);
@@ -115,6 +115,25 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     setActiveTab(undefined);
 
     try {
+      // If Inquiry ID is present, save metadata first
+      if (inquiryId) {
+        try {
+          await fetch(`https://visbrokerhouse.onrender.com/inquiries/${inquiryId}/meta`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              company_name: companyName || null,
+              employees_count: companyName === '' && !employeesCount ? null : Number(employeesCount || 0)
+            }),
+          }).then(r => {
+            if (!r.ok) throw new Error('Failed to save inquiry meta');
+          });
+        } catch (err: any) {
+          toast.error(`Failed to save inquiry metadata: ${err?.message || 'Unknown error'}`);
+          return;
+        }
+      }
+
       // Sequential uploads; results appear as they finish
       for (let i = 0; i < items.length; i++) {
         const it = items[i];
@@ -277,9 +296,11 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
               <Label htmlFor="emp">{t('employeeCount')}</Label>
               <Input
                 id="emp"
-                placeholder="~ 45 cilvēki"
-                value={employeeCount}
-                onChange={(e) => setEmployeeCount(e.target.value)}
+                type="number"
+                min="1"
+                placeholder="45"
+                value={employeesCount}
+                onChange={(e) => setEmployeesCount(Number(e.target.value) || 0)}
               />
             </div>
 
@@ -374,7 +395,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
               </div>
               <div className="text-sm">
                 <span className="text-muted-foreground">{t('employeeCount')}:</span>
-                <span className="ml-2 font-medium">{employeeCount || '—'}</span>
+                <span className="ml-2 font-medium">{employeesCount || '—'}</span>
               </div>
             </div>
           </div>
