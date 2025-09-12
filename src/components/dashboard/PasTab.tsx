@@ -184,6 +184,8 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     const snapshot = {
       company_name: companyName || null,
       employees_count: Number.isFinite(Number(employeesCount)) ? Number(employeesCount) : null,
+      document_ids: results.map(r => r.source_file),
+      title: "Piedāvājums",
       results: results.map(r => ({
         source_file: r.source_file,
         programs: r.programs, // matches backend Program
