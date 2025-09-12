@@ -9,12 +9,18 @@ interface InsurerLogoProps {
 export function InsurerLogo({ name, className = 'h-5 w-5' }: InsurerLogoProps) {
   const key = (name || '').toUpperCase();
   
-  if (key === 'BTA') {
-    return <img src="/logos/bta.svg" alt="BTA" className={className} />;
-  }
+  const logoMap: Record<string, string> = {
+    'BTA': '/logos/bta-new.svg',
+    'BAL': '/logos/bal.svg',
+    'COM': '/logos/com.svg',
+    'ERG': '/logos/erg.svg',
+    'GJE': '/logos/gje.svg',
+    'IFI': '/logos/ifi.svg',
+    'SEE': '/logos/see.svg'
+  };
   
-  if (key === 'BTA2') {
-    return <img src="/logos/bta2.svg" alt="BTA2" className={className} />;
+  if (logoMap[key]) {
+    return <img src={logoMap[key]} alt={key} className={className} />;
   }
   
   // Fallback: simple shield icon
