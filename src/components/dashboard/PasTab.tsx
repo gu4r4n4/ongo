@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { Trash2, Check, Minus, Share2 } from "lucide-react"; // replaced Download with Share2
 import { InsurerLogo } from "@/components/InsurerLogo";
 
-type Insurer = 'BTA' | 'BTA2' | 'COM_VA';
+type Insurer = 'BTA' | 'BAL' | 'COM' | 'ERG' | 'GJE' | 'IFI' | 'SEE';
 
 interface PasTabProps {
   currentLanguage: Language;
@@ -347,9 +347,13 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
                         <Select value={it.hint} onValueChange={(v: Insurer) => setItemHint(idx, v)}>
                           <SelectTrigger className="w-[120px]"><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="BTA">BTA VA</SelectItem>
-                            <SelectItem value="BTA2">BTA VA2</SelectItem>
-                            <SelectItem value="COM_VA">COM VA</SelectItem>
+                            <SelectItem value="BTA">BTA</SelectItem>
+                            <SelectItem value="BAL">BAL</SelectItem>
+                            <SelectItem value="COM">COM</SelectItem>
+                            <SelectItem value="ERG">ERG</SelectItem>
+                            <SelectItem value="GJE">GJE</SelectItem>
+                            <SelectItem value="IFI">IFI</SelectItem>
+                            <SelectItem value="SEE">SEE</SelectItem>
                           </SelectContent>
                         </Select>
                         <Button
