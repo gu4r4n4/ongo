@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { Trash2, Check, Minus, Share2 } from "lucide-react"; // replaced Download with Share2
 import { InsurerLogo } from "@/components/InsurerLogo";
 
-type Insurer = 'BTA' | 'BAL' | 'COM' | 'ERG' | 'GJE' | 'IFI' | 'SEE';
+type Insurer = 'BTA' | 'BAL' | 'BAN' | 'COM' | 'ERG' | 'GJE' | 'IFI' | 'SEE';
 
 interface PasTabProps {
   currentLanguage: Language;
@@ -361,6 +361,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
                           <SelectContent>
                             <SelectItem value="BTA">BTA</SelectItem>
                             <SelectItem value="BAL">BAL</SelectItem>
+                            <SelectItem value="BAN">BAN</SelectItem>
                             <SelectItem value="COM">COM</SelectItem>
                             <SelectItem value="ERG">ERG</SelectItem>
                             <SelectItem value="GJE">GJE</SelectItem>

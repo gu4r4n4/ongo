@@ -12,6 +12,7 @@ export function InsurerLogo({ name, className = 'h-5 w-5' }: InsurerLogoProps) {
   const logoMap: Record<string, string> = {
     'BTA': '/logos/bta-new.svg',
     'BAL': '/logos/bal.svg',
+    'BAN': '/logos/ban.svg',
     'COM': '/logos/com.svg',
     'ERG': '/logos/erg.svg',
     'GJE': '/logos/gje.svg',
