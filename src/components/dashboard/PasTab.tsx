@@ -9,7 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Language, useTranslation } from "@/utils/translations";
 import { toast } from "sonner";
-import { Trash2, Check, Minus, Share2 } from "lucide-react"; // replaced Download with Share2
+import { Trash2, Check, Minus, Share2, Edit, Save, X } from "lucide-react"; // replaced Download with Share2
 import { InsurerLogo } from "@/components/InsurerLogo";
 
 type Insurer = 'BTA' | 'BAL' | 'BAN' | 'COM' | 'ERG' | 'GJE' | 'IFI' | 'SEE';
@@ -53,6 +53,12 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
   // Each element in results corresponds to one uploaded file's ApiResponse
   const [results, setResults] = useState<ApiResponse[]>([]);
   const [activeTab, setActiveTab] = useState<string | undefined>(undefined);
+
+  const handleResultSave = (resultIndex: number, updatedData: ApiResponse) => {
+    setResults(prev => prev.map((result, idx) => 
+      idx === resultIndex ? updatedData : result
+    ));
+  };
 
   const onFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -206,10 +212,53 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     }
   };
 
-  const ResultCard = ({ data }: { data: ApiResponse }) => {
+  const ResultCard = ({ data, onSave }: { data: ApiResponse; onSave: (updatedData: ApiResponse) => void }) => {
+    const [editingProgram, setEditingProgram] = useState<number | null>(null);
+    const [editData, setEditData] = useState<Program | null>(null);
+
     // If any program is BTA/BTA2, show the LV title; else default i18n title
     const usesBTA = data.programs.some(p => p.insurer === 'BTA' || p.insurer === 'BTA2');
     const cardTitle = usesBTA ? 'Veselības apdrošināšana' : t('processingResults');
+
+    const startEdit = (programIdx: number) => {
+      setEditingProgram(programIdx);
+      setEditData({ ...data.programs[programIdx] });
+    };
+
+    const cancelEdit = () => {
+      setEditingProgram(null);
+      setEditData(null);
+    };
+
+    const saveEdit = async () => {
+      if (editingProgram === null || !editData) return;
+
+      try {
+        const updatedPrograms = [...data.programs];
+        updatedPrograms[editingProgram] = editData;
+        const updatedData = { ...data, programs: updatedPrograms };
+        
+        onSave(updatedData);
+        setEditingProgram(null);
+        setEditData(null);
+        toast.success('Program updated successfully');
+      } catch (error) {
+        toast.error('Failed to save changes');
+      }
+    };
+
+    const updateEditField = (field: keyof Program, value: any) => {
+      if (!editData) return;
+      setEditData({ ...editData, [field]: value });
+    };
+
+    const updateFeature = (key: string, value: any) => {
+      if (!editData) return;
+      setEditData({
+        ...editData,
+        features: { ...editData.features, [key]: value }
+      });
+    };
 
     return (
       <Card>
@@ -227,45 +276,166 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
                   <Badge variant="outline">{program.insurer}</Badge>
                   <Badge>{program.program_code}</Badge>
                 </div>
-                <div className="text-right">
-                  <div className="text-sm text-muted-foreground">{t('premium')}</div>
-                  <div className="font-semibold">€{program.premium_eur}</div>
+                <div className="flex items-center gap-2">
+                  <div className="text-right">
+                    <div className="text-sm text-muted-foreground">{t('premium')}</div>
+                    <div className="font-semibold">€{program.premium_eur}</div>
+                  </div>
+                  {editingProgram === idx ? (
+                    <div className="flex gap-1">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={saveEdit}
+                        className="h-8 w-8 p-0 text-green-600 hover:text-green-700"
+                      >
+                        <Save className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={cancelEdit}
+                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => startEdit(idx)}
+                      className="h-8 w-8 p-0 text-blue-600 hover:text-blue-700"
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="text-muted-foreground">{t('baseSum')}:</span>
-                  <span className="ml-2 font-medium">€{program.base_sum_eur?.toLocaleString?.() ?? program.base_sum_eur}</span>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">{t('payment')}:</span>
-                  <span className="ml-2 font-medium capitalize">{program.payment_method || '-'}</span>
-                </div>
-              </div>
-
-              {program.features && Object.keys(program.features).length > 0 && (
-                <>
-                  <Separator />
-                  <div>
-                    <div className="text-sm font-medium mb-2">{t('features')}:</div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                      {Object.entries(program.features).map(([k, v]) => (
-                        <div key={k} className="flex justify-between">
-                          <span className="text-muted-foreground">{k}:</span>
-                          <span className={v === 'Yes' || v === 'v' || v === true ? 'text-green-600' : v === 'No' || v === '-' || v === false ? 'text-red-600' : ''}>
-                            {v === 'v' || v === 'Yes' || v === true ? (
-                              <Check className="h-4 w-4 text-green-600" />
-                            ) : v === '-' || v === 'No' || v === false ? (
-                              <Minus className="h-4 w-4 text-red-600" />
-                            ) : (
-                              String(v)
-                            )}
-                          </span>
-                        </div>
-                      ))}
+              {editingProgram === idx && editData ? (
+                // Edit mode
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor={`base-sum-${idx}`} className="text-sm">{t('baseSum')}</Label>
+                      <Input
+                        id={`base-sum-${idx}`}
+                        type="number"
+                        value={editData.base_sum_eur || ''}
+                        onChange={(e) => updateEditField('base_sum_eur', parseFloat(e.target.value) || 0)}
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor={`premium-${idx}`} className="text-sm">{t('premium')}</Label>
+                      <Input
+                        id={`premium-${idx}`}
+                        type="number"
+                        value={editData.premium_eur || ''}
+                        onChange={(e) => updateEditField('premium_eur', parseFloat(e.target.value) || 0)}
+                        className="mt-1"
+                      />
                     </div>
                   </div>
+                  
+                  <div>
+                    <Label htmlFor={`payment-${idx}`} className="text-sm">{t('payment')}</Label>
+                    <Select 
+                      value={editData.payment_method || ''} 
+                      onValueChange={(v) => updateEditField('payment_method', v)}
+                    >
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="Select payment method" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="monthly">Monthly</SelectItem>
+                        <SelectItem value="quarterly">Quarterly</SelectItem>
+                        <SelectItem value="annually">Annually</SelectItem>
+                        <SelectItem value="one-time">One-time</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {editData.features && Object.keys(editData.features).length > 0 && (
+                    <>
+                      <Separator />
+                      <div>
+                        <div className="text-sm font-medium mb-2">{t('features')}:</div>
+                        <div className="grid grid-cols-1 gap-3">
+                          {Object.entries(editData.features).map(([k, v]) => (
+                            <div key={k} className="flex items-center justify-between gap-2">
+                              <Label className="text-sm flex-1">{k}:</Label>
+                              <Select 
+                                value={String(v)} 
+                                onValueChange={(newValue) => {
+                                  let processedValue: any = newValue;
+                                  if (newValue === 'true') processedValue = true;
+                                  else if (newValue === 'false') processedValue = false;
+                                  else if (newValue === 'Yes') processedValue = 'Yes';
+                                  else if (newValue === 'No') processedValue = 'No';
+                                  else if (newValue === 'v') processedValue = 'v';
+                                  else if (newValue === '-') processedValue = '-';
+                                  updateFeature(k, processedValue);
+                                }}
+                              >
+                                <SelectTrigger className="w-32">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Yes">Yes</SelectItem>
+                                  <SelectItem value="No">No</SelectItem>
+                                  <SelectItem value="v">✓</SelectItem>
+                                  <SelectItem value="-">-</SelectItem>
+                                  <SelectItem value="true">True</SelectItem>
+                                  <SelectItem value="false">False</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ) : (
+                // View mode
+                <>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-muted-foreground">{t('baseSum')}:</span>
+                      <span className="ml-2 font-medium">€{program.base_sum_eur?.toLocaleString?.() ?? program.base_sum_eur}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">{t('payment')}:</span>
+                      <span className="ml-2 font-medium capitalize">{program.payment_method || '-'}</span>
+                    </div>
+                  </div>
+
+                  {program.features && Object.keys(program.features).length > 0 && (
+                    <>
+                      <Separator />
+                      <div>
+                        <div className="text-sm font-medium mb-2">{t('features')}:</div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                          {Object.entries(program.features).map(([k, v]) => (
+                            <div key={k} className="flex justify-between">
+                              <span className="text-muted-foreground">{k}:</span>
+                              <span className={v === 'Yes' || v === 'v' || v === true ? 'text-green-600' : v === 'No' || v === '-' || v === false ? 'text-red-600' : ''}>
+                                {v === 'v' || v === 'Yes' || v === true ? (
+                                  <Check className="h-4 w-4 text-green-600" />
+                                ) : v === '-' || v === 'No' || v === false ? (
+                                  <Minus className="h-4 w-4 text-red-600" />
+                                ) : (
+                                  String(v)
+                                )}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </>
               )}
             </div>
@@ -448,7 +618,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
 
             {results.map((r, i) => (
               <TabsContent key={i} value={`r${i}`} className="mt-4">
-                <ResultCard data={r} />
+                <ResultCard data={r} onSave={(updatedData) => handleResultSave(i, updatedData)} />
               </TabsContent>
             ))}
           </Tabs>
