@@ -79,13 +79,23 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     setItems((prev) => prev.filter((_, i) => i !== idx));
   };
 
-  async function uploadOffer(file: File, companyHint: string, inquiryId?: string): Promise<ApiResponse> {
+  async function uploadMultipleOffers(files: UploadItem[], inquiryId?: string): Promise<ApiResponse[]> {
     const form = new FormData();
-    form.append('file', file);
-    form.append('company_hint', companyHint);
+    
+    // Add all files
+    files.forEach((item) => {
+      form.append('files', item.file);
+    });
+    
+    // Add metadata (using the first item's hint as the insurer)
+    if (files.length > 0) {
+      form.append('insurer', files[0].hint);
+    }
+    form.append('company', companyName);
+    form.append('insured_count', employeesCount.toString());
     if (inquiryId) form.append('inquiry_id', inquiryId);
 
-    const res = await fetch('https://visbrokerhouse.onrender.com/ingest', {
+    const res = await fetch('https://gpt-vis.onrender.com/extract/multiple', {
       method: 'POST',
       body: form
     });
@@ -95,7 +105,15 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
       throw new Error(data?.error || `Upload failed (${res.status})`);
     }
 
-    return (await res.json()) as ApiResponse;
+    const response = await res.json();
+    
+    // Convert response to match expected ApiResponse format
+    if (Array.isArray(response)) {
+      return response;
+    } else {
+      // If single response, wrap in array
+      return [response];
+    }
   }
 
   const handleSubmit = async () => {
@@ -134,21 +152,15 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
         }
       }
 
-      // Sequential uploads; results appear as they finish
-      const allResults: ApiResponse[] = [];
-      for (let i = 0; i < items.length; i++) {
-        const it = items[i];
-        const hint = it.hint;
-        try {
-          const response = await uploadOffer(it.file, hint, inquiryId || undefined);
-          allResults.push(response);
-          setResults([...allResults]);
-          if (!activeTab && allResults.length === 1) {
-            setActiveTab('r0');
-          }
-        } catch (err: any) {
-          toast.error(`${t('failed') || 'Failed'}: ${it.file.name} — ${err?.message || 'Upload error'}`);
+      // Upload all files at once using the new multiple endpoint
+      try {
+        const allResults = await uploadMultipleOffers(items, inquiryId || undefined);
+        setResults(allResults);
+        if (!activeTab && allResults.length > 0) {
+          setActiveTab('r0');
         }
+      } catch (err: any) {
+        toast.error(`${t('failed') || 'Failed'}: ${err?.message || 'Upload error'}`);
       }
       toast.success(t('finishedProcessing') || 'Finished processing selected files.');
     } finally {
