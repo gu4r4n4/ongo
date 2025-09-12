@@ -365,34 +365,16 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
                       <div>
                         <div className="text-sm font-medium mb-2">{t('features')}:</div>
                         <div className="grid grid-cols-1 gap-3">
-                          {Object.entries(editData.features).map(([k, v]) => (
-                            <div key={k} className="flex items-center justify-between gap-2">
+                           {Object.entries(editData.features).map(([k, v]) => (
+                            <div key={k} className="flex items-center gap-2">
                               <Label className="text-sm flex-1">{k}:</Label>
-                              <Select 
-                                value={String(v)} 
-                                onValueChange={(newValue) => {
-                                  let processedValue: any = newValue;
-                                  if (newValue === 'true') processedValue = true;
-                                  else if (newValue === 'false') processedValue = false;
-                                  else if (newValue === 'Yes') processedValue = 'Yes';
-                                  else if (newValue === 'No') processedValue = 'No';
-                                  else if (newValue === 'v') processedValue = 'v';
-                                  else if (newValue === '-') processedValue = '-';
-                                  updateFeature(k, processedValue);
-                                }}
-                              >
-                                <SelectTrigger className="w-32">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="Yes">Yes</SelectItem>
-                                  <SelectItem value="No">No</SelectItem>
-                                  <SelectItem value="v">✓</SelectItem>
-                                  <SelectItem value="-">-</SelectItem>
-                                  <SelectItem value="true">True</SelectItem>
-                                  <SelectItem value="false">False</SelectItem>
-                                </SelectContent>
-                              </Select>
+                              <Input
+                                type="text"
+                                value={String(v)}
+                                onChange={(e) => updateFeature(k, e.target.value)}
+                                className="w-32"
+                                placeholder="Enter value"
+                              />
                             </div>
                           ))}
                         </div>
