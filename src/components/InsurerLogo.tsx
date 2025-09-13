@@ -6,18 +6,27 @@ interface InsurerLogoProps {
   className?: string;
 }
 
-export function InsurerLogo({ name, className = 'h-5 w-5' }: InsurerLogoProps) {
+export function InsurerLogo({ name, className = 'h-8 w-8' }: InsurerLogoProps) {
   const key = (name || '').toUpperCase();
   
+  // Map both old and new company names to logos
   const logoMap: Record<string, string> = {
-    'BTA': '/logos/bta-new.svg',
-    'BAL': '/logos/bal.svg',
-    'BAN': '/logos/ban.svg',
-    'COM': '/logos/com.svg',
-    'ERG': '/logos/erg.svg',
-    'GJE': '/logos/gje.svg',
-    'IFI': '/logos/ifi.svg',
-    'SEE': '/logos/see.svg'
+    // New company names
+    'SEESAM': '/logos/seesam.svg',
+    'IF': '/logos/if.svg', 
+    'GJENSIDIGE': '/logos/gjensidige.svg',
+    'ERGO': '/logos/ergo.svg',
+    'COMPENSA': '/logos/compensa.svg',
+    'BAN': '/logos/ban-new.svg',
+    'BALTA': '/logos/balta.svg',
+    'BTA': '/logos/bta-square.svg',
+    // Legacy mappings for backwards compatibility
+    'SEE': '/logos/seesam.svg',
+    'IFI': '/logos/if.svg',
+    'GJE': '/logos/gjensidige.svg',
+    'ERG': '/logos/ergo.svg',
+    'COM': '/logos/compensa.svg',
+    'BAL': '/logos/balta.svg'
   };
   
   if (logoMap[key]) {

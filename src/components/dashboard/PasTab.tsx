@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { Trash2, Check, Minus, Share2, Edit, Save, X } from "lucide-react"; // replaced Download with Share2
 import { InsurerLogo } from "@/components/InsurerLogo";
 
-type Insurer = 'BTA' | 'BAL' | 'BAN' | 'COM' | 'ERG' | 'GJE' | 'IFI' | 'SEE';
+type Insurer = 'BTA' | 'Balta' | 'BAN' | 'Compensa' | 'ERGO' | 'Gjensidige' | 'If' | 'Seesam';
 
 interface PasTabProps {
   currentLanguage: Language;
@@ -514,13 +514,13 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
                           <SelectTrigger className="w-[120px]"><SelectValue /></SelectTrigger>
                           <SelectContent>
                             <SelectItem value="BTA">BTA</SelectItem>
-                            <SelectItem value="BAL">BAL</SelectItem>
+                            <SelectItem value="Balta">Balta</SelectItem>
                             <SelectItem value="BAN">BAN</SelectItem>
-                            <SelectItem value="COM">COM</SelectItem>
-                            <SelectItem value="ERG">ERG</SelectItem>
-                            <SelectItem value="GJE">GJE</SelectItem>
-                            <SelectItem value="IFI">IFI</SelectItem>
-                            <SelectItem value="SEE">SEE</SelectItem>
+                            <SelectItem value="Compensa">Compensa</SelectItem>
+                            <SelectItem value="ERGO">ERGO</SelectItem>
+                            <SelectItem value="Gjensidige">Gjensidige</SelectItem>
+                            <SelectItem value="If">If</SelectItem>
+                            <SelectItem value="Seesam">Seesam</SelectItem>
                           </SelectContent>
                         </Select>
                         <Button
@@ -588,16 +588,18 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
           {/* Tabs */}
           <Tabs value={activeTab ?? tabMeta[0]?.id} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-wrap gap-1 h-auto p-1">
-              {tabMeta.map(({ id, insurer, label }) => (
-                <TabsTrigger 
-                  key={id} 
-                  value={id} 
-                  className="flex items-center gap-2 text-xs sm:text-sm p-2 h-auto justify-start"
-                >
-                  <InsurerLogo name={insurer} />
-                  <span className="truncate">{label}</span>
-                </TabsTrigger>
-              ))}
+               {tabMeta.map(({ id, insurer, label }) => (
+                 <TabsTrigger 
+                   key={id} 
+                   value={id} 
+                   className="flex flex-col items-center gap-1 text-xs sm:text-sm p-3 h-auto min-w-[80px]"
+                 >
+                   <div className="w-8 h-8 flex items-center justify-center">
+                     <InsurerLogo name={insurer} className="w-full h-full object-contain" />
+                   </div>
+                   <span className="truncate text-center leading-tight">{label}</span>
+                 </TabsTrigger>
+               ))}
             </TabsList>
 
             {results.map((r, i) => (
