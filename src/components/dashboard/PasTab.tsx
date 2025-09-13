@@ -343,19 +343,19 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
                   
                   <div>
                     <Label htmlFor={`payment-${idx}`} className="text-sm">{t('payment')}</Label>
-                    <Select 
-                      value={editData.payment_method || ''} 
-                      onValueChange={(v) => updateEditField('payment_method', v)}
-                    >
+                     <Select 
+                       value={editData.payment_method || 'cenraza'} 
+                       onValueChange={(v) => updateEditField('payment_method', v)}
+                     >
                       <SelectTrigger className="mt-1">
                         <SelectValue placeholder="Select payment method" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="monthly">Monthly</SelectItem>
-                        <SelectItem value="quarterly">Quarterly</SelectItem>
-                        <SelectItem value="annually">Annually</SelectItem>
-                        <SelectItem value="one-time">One-time</SelectItem>
-                      </SelectContent>
+                       <SelectContent>
+                         <SelectItem value="cenraza">Cenrāža programma</SelectItem>
+                         <SelectItem value="100-percent-full">100% apmaksa līgumiestādēs un ja pakalpojums ir nopirkts</SelectItem>
+                         <SelectItem value="100-percent">100% apmaksa līgumiestādēs</SelectItem>
+                         <SelectItem value="procentuala">Procentuāla programma</SelectItem>
+                       </SelectContent>
                     </Select>
                   </div>
 
@@ -430,12 +430,10 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
   };
 
   const tabMeta = results.map((r, i) => {
-    const p = r.programs?.[0];
-    const label = p
-      ? `${(p.insurer || '').toUpperCase()} — ${p.program_code || ''}`.trim()
-      : r.source_file || `Result ${i + 1}`;
-    return { id: `r${i}`, label, insurer: p?.insurer, file: r.source_file };
-  });
+     const p = r.programs?.[0];
+     const label = p?.insurer || r.source_file || `Result ${i + 1}`;
+     return { id: `r${i}`, label, insurer: p?.insurer, file: r.source_file };
+   });
 
   return (
     <div className="space-y-6">
