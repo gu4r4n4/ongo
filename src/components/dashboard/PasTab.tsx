@@ -11,7 +11,7 @@ import { InsurerLogo } from "@/components/InsurerLogo";
 import { useAsyncOffers } from "@/hooks/useAsyncOffers";
 import { ComparisonMatrix } from "./ComparisonMatrix";
 import MedicalServicesHeader from "@/components/MedicalServicesHeader";
-// Supabase is not needed on the FE for this flow
+import { supabase } from "@/integrations/supabase/client";
 import { BACKEND_URL } from "@/config";
 
 type Insurer = 'BTA' | 'Balta' | 'BAN' | 'Compensa' | 'ERGO' | 'Gjensidige' | 'If' | 'Seesam';
