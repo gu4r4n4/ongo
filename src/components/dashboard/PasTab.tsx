@@ -6,10 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Language, useTranslation } from "@/utils/translations";
 import { toast } from "sonner";
-import { Trash2, Check, Minus, Share2, Edit, Save, X } from "lucide-react"; // replaced Download with Share2
+import { Trash2, Check, Minus, Share2 } from "lucide-react";
 import { InsurerLogo } from "@/components/InsurerLogo";
 
 type Insurer = 'BTA' | 'Balta' | 'BAN' | 'Compensa' | 'ERGO' | 'Gjensidige' | 'If' | 'Seesam';
@@ -52,13 +51,6 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
 
   // Each element in results corresponds to one uploaded file's ApiResponse
   const [results, setResults] = useState<ApiResponse[]>([]);
-  const [activeTab, setActiveTab] = useState<string | undefined>(undefined);
-
-  const handleResultSave = (resultIndex: number, updatedData: ApiResponse) => {
-    setResults(prev => prev.map((result, idx) => 
-      idx === resultIndex ? updatedData : result
-    ));
-  };
 
   const onFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -136,7 +128,6 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
 
     setIsUploading(true);
     setResults([]);
-    setActiveTab(undefined);
 
     try {
       // If Inquiry ID is present, save metadata first
@@ -162,9 +153,6 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
       try {
         const allResults = await uploadMultipleOffers(items, inquiryId || undefined);
         setResults(allResults);
-        if (!activeTab && allResults.length > 0) {
-          setActiveTab('r0');
-        }
       } catch (err: any) {
         toast.error(`${t('failed') || 'Failed'}: ${err?.message || 'Upload error'}`);
       }
@@ -213,227 +201,6 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
       toast.error(`${t('failed') || 'Failed'}: ${err?.message || 'Share error'}`);
     }
   };
-
-  const ResultCard = ({ data, onSave }: { data: ApiResponse; onSave: (updatedData: ApiResponse) => void }) => {
-    const [editingProgram, setEditingProgram] = useState<number | null>(null);
-    const [editData, setEditData] = useState<Program | null>(null);
-
-    // If any program is BTA/BTA2, show the LV title; else default i18n title
-    const usesBTA = data.programs.some(p => p.insurer === 'BTA' || p.insurer === 'BTA2');
-    const cardTitle = usesBTA ? 'Veselības apdrošināšana' : t('processingResults');
-
-    const startEdit = (programIdx: number) => {
-      setEditingProgram(programIdx);
-      setEditData({ ...data.programs[programIdx] });
-    };
-
-    const cancelEdit = () => {
-      setEditingProgram(null);
-      setEditData(null);
-    };
-
-    const saveEdit = async () => {
-      if (editingProgram === null || !editData) return;
-
-      try {
-        const updatedPrograms = [...data.programs];
-        updatedPrograms[editingProgram] = editData;
-        const updatedData = { ...data, programs: updatedPrograms };
-        
-        onSave(updatedData);
-        setEditingProgram(null);
-        setEditData(null);
-        toast.success('Program updated successfully');
-      } catch (error) {
-        toast.error('Failed to save changes');
-      }
-    };
-
-    const updateEditField = (field: keyof Program, value: any) => {
-      if (!editData) return;
-      setEditData({ ...editData, [field]: value });
-    };
-
-    const updateFeature = (key: string, value: any) => {
-      if (!editData) return;
-      setEditData({
-        ...editData,
-        features: { ...editData.features, [key]: value }
-      });
-    };
-
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>{cardTitle}</CardTitle>
-          <CardDescription>
-            {t('file')}: {data.source_file} • {data.programs?.length || 0} {t('programsFound')}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {data.programs.map((program, idx) => (
-            <div key={idx} className="p-4 border rounded-lg space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline">{program.insurer}</Badge>
-                  <Badge>{program.program_code}</Badge>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="text-right">
-                    <div className="text-sm text-muted-foreground">{t('premium')}</div>
-                    <div className="font-semibold">€{program.premium_eur}</div>
-                  </div>
-                  {editingProgram === idx ? (
-                    <div className="flex gap-1">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={saveEdit}
-                        className="h-8 w-8 p-0 text-green-600 hover:text-green-700"
-                      >
-                        <Save className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={cancelEdit}
-                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ) : (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => startEdit(idx)}
-                      className="h-8 w-8 p-0 text-blue-600 hover:text-blue-700"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              </div>
-
-              {editingProgram === idx && editData ? (
-                // Edit mode
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor={`base-sum-${idx}`} className="text-sm">{t('baseSum')}</Label>
-                      <Input
-                        id={`base-sum-${idx}`}
-                        type="number"
-                        value={editData.base_sum_eur || ''}
-                        onChange={(e) => updateEditField('base_sum_eur', parseFloat(e.target.value) || 0)}
-                        className="mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor={`premium-${idx}`} className="text-sm">{t('premium')}</Label>
-                      <Input
-                        id={`premium-${idx}`}
-                        type="number"
-                        value={editData.premium_eur || ''}
-                        onChange={(e) => updateEditField('premium_eur', parseFloat(e.target.value) || 0)}
-                        className="mt-1"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor={`payment-${idx}`} className="text-sm">{t('payment')}</Label>
-                     <Select 
-                       value={editData.payment_method || 'cenraza'} 
-                       onValueChange={(v) => updateEditField('payment_method', v)}
-                     >
-                      <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="Select payment method" />
-                      </SelectTrigger>
-                       <SelectContent>
-                         <SelectItem value="cenraza">Cenrāža programma</SelectItem>
-                         <SelectItem value="100-percent-full">100% apmaksa līgumiestādēs un ja pakalpojums ir nopirkts</SelectItem>
-                         <SelectItem value="100-percent">100% apmaksa līgumiestādēs</SelectItem>
-                         <SelectItem value="procentuala">Procentuāla programma</SelectItem>
-                       </SelectContent>
-                    </Select>
-                  </div>
-
-                  {editData.features && Object.keys(editData.features).length > 0 && (
-                    <>
-                      <Separator />
-                      <div>
-                        <div className="text-sm font-medium mb-2">{t('features')}:</div>
-                        <div className="grid grid-cols-1 gap-3">
-                           {Object.entries(editData.features).map(([k, v]) => (
-                            <div key={k} className="flex items-center gap-2">
-                              <Label className="text-sm flex-1">{k}:</Label>
-                              <Input
-                                type="text"
-                                value={String(v)}
-                                onChange={(e) => updateFeature(k, e.target.value)}
-                                className="w-32"
-                                placeholder="Enter value"
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
-              ) : (
-                // View mode
-                <>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="text-muted-foreground">{t('baseSum')}:</span>
-                      <span className="ml-2 font-medium">€{program.base_sum_eur?.toLocaleString?.() ?? program.base_sum_eur}</span>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">{t('payment')}:</span>
-                      <span className="ml-2 font-medium capitalize">{program.payment_method || '-'}</span>
-                    </div>
-                  </div>
-
-                  {program.features && Object.keys(program.features).length > 0 && (
-                    <>
-                      <Separator />
-                      <div>
-                        <div className="text-sm font-medium mb-2">{t('features')}:</div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                          {Object.entries(program.features).map(([k, v]) => (
-                            <div key={k} className="flex justify-between">
-                              <span className="text-muted-foreground">{k}:</span>
-                              <span className={v === 'Yes' || v === 'v' || v === true ? 'text-green-600' : v === 'No' || v === '-' || v === false ? 'text-red-600' : ''}>
-                                {v === 'v' || v === 'Yes' || v === true ? (
-                                  <Check className="h-4 w-4 text-green-600" />
-                                ) : v === '-' || v === 'No' || v === false ? (
-                                  <Minus className="h-4 w-4 text-red-600" />
-                                ) : (
-                                  String(v)
-                                )}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </>
-              )}
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-    );
-  };
-
-  const tabMeta = results.map((r, i) => {
-     const p = r.programs?.[0];
-     const label = p?.insurer || r.source_file || `Result ${i + 1}`;
-     return { id: `r${i}`, label, insurer: p?.insurer, file: r.source_file };
-   });
 
   return (
     <div className="space-y-6">
@@ -583,29 +350,96 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
             </Button>
           </div>
 
-          {/* Tabs */}
-          <Tabs value={activeTab ?? tabMeta[0]?.id} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-wrap gap-1 h-auto p-1">
-               {tabMeta.map(({ id, insurer, label }) => (
-                 <TabsTrigger 
-                   key={id} 
-                   value={id} 
-                   className="flex flex-col items-center gap-1 text-xs sm:text-sm p-3 h-auto min-w-[80px]"
-                 >
-                   <div className="w-8 h-8 flex items-center justify-center">
-                     <InsurerLogo name={insurer} className="w-full h-full object-contain" />
-                   </div>
-                   <span className="truncate text-center leading-tight">{label}</span>
-                 </TabsTrigger>
-               ))}
-            </TabsList>
+          {/* Side-by-side Comparison Grid */}
+          <div className="rounded-lg border bg-card">
+            <div className="overflow-x-auto">
+              <div className="min-w-fit">
+                {/* Header Row */}
+                <div className="flex border-b bg-muted/50">
+                  {/* Sticky Feature Names Column */}
+                  <div className="sticky left-0 min-w-[240px] bg-muted/50 border-r p-4 z-10">
+                    <div className="font-semibold text-sm">{t('features')}</div>
+                  </div>
+                  
+                  {/* Program Columns Headers */}
+                  {(() => {
+                    const allPrograms: Program[] = [];
+                    results.forEach(result => {
+                      result.programs.forEach(program => {
+                        allPrograms.push(program);
+                      });
+                    });
+                    
+                    return allPrograms.map((program, idx) => (
+                      <div key={idx} className="min-w-[240px] p-4 border-r last:border-r-0 bg-card">
+                        <div className="flex flex-col items-center text-center space-y-2">
+                          <div className="w-12 h-12 flex items-center justify-center">
+                            <InsurerLogo name={program.insurer} className="w-full h-full object-contain" />
+                          </div>
+                          <div className="font-semibold text-sm">{program.insurer}</div>
+                          <Badge variant="outline" className="text-xs">{program.program_code}</Badge>
+                          <div className="text-xs space-y-1">
+                            <div><span className="text-muted-foreground">{t('baseSum')}:</span> €{program.base_sum_eur?.toLocaleString?.() ?? program.base_sum_eur}</div>
+                            <div><span className="text-muted-foreground">{t('premium')}:</span> €{program.premium_eur?.toLocaleString?.() ?? program.premium_eur}</div>
+                            <div><span className="text-muted-foreground">{t('payment')}:</span> {program.payment_method || '-'}</div>
+                          </div>
+                        </div>
+                      </div>
+                    ));
+                  })()}
+                </div>
 
-            {results.map((r, i) => (
-              <TabsContent key={i} value={`r${i}`} className="mt-4">
-                <ResultCard data={r} onSave={(updatedData) => handleResultSave(i, updatedData)} />
-              </TabsContent>
-            ))}
-          </Tabs>
+                {/* Feature Rows */}
+                {(() => {
+                  // Get all unique feature keys from all programs
+                  const allFeatureKeys = new Set<string>();
+                  results.forEach(result => {
+                    result.programs.forEach(program => {
+                      if (program.features) {
+                        Object.keys(program.features).forEach(key => allFeatureKeys.add(key));
+                      }
+                    });
+                  });
+
+                  const allPrograms: Program[] = [];
+                  results.forEach(result => {
+                    result.programs.forEach(program => {
+                      allPrograms.push(program);
+                    });
+                  });
+
+                  return Array.from(allFeatureKeys).map(featureKey => (
+                    <div key={featureKey} className="flex border-b last:border-b-0">
+                      {/* Sticky Feature Name */}
+                      <div className="sticky left-0 min-w-[240px] bg-card border-r p-4 z-10">
+                        <div className="text-sm font-medium">{featureKey}</div>
+                      </div>
+                      
+                      {/* Feature Values */}
+                      {allPrograms.map((program, idx) => {
+                        const value = program.features?.[featureKey];
+                        let displayValue: React.ReactNode = '-';
+                        
+                        if (value === 'Yes' || value === 'v' || value === true) {
+                          displayValue = <Check className="h-4 w-4 text-green-600 mx-auto" />;
+                        } else if (value === 'No' || value === '-' || value === false || value === null || value === undefined) {
+                          displayValue = <Minus className="h-4 w-4 text-red-600 mx-auto" />;
+                        } else if (value !== null && value !== undefined) {
+                          displayValue = <span className="text-sm">{String(value)}</span>;
+                        }
+                        
+                        return (
+                          <div key={idx} className="min-w-[240px] p-4 border-r last:border-r-0 flex items-center justify-center">
+                            {displayValue}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ));
+                })()}
+              </div>
+            </div>
+          </div>
 
           {/* Static Info Footer */}
           <div className="mt-8">
