@@ -84,13 +84,19 @@ export function useAsyncOffers({ backendUrl, jobId, documentIds, pollMs = 2000 }
     console.log('Dependencies changed:', { backendUrl, jobId, documentIds });
     
     stopRef.current = false;
-    setOffers([]);
-    setJob(null);
-
+    
+    // CRITICAL: Clear all state when jobId is null
     if (!jobId && !documentIds?.length) {
-      console.log('No jobId or documentIds, exiting early');
+      console.log('No jobId or documentIds, clearing all state');
+      setOffers([]);
+      setJob(null);
+      setIsLoading(false);
       return;
     }
+
+    // Only initialize state for new jobs
+    setOffers([]);
+    setJob(null);
 
     let t: any;
     const loop = async () => {

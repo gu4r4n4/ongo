@@ -39,11 +39,19 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
   const [currentJobId, setCurrentJobId] = useState<string | null>(null);
   const [docIds, setDocIds] = useState<string[]>([]);
 
-  // Clear any cached results on component mount
+  // Clear any cached results on component mount and force refresh
   useEffect(() => {
     console.log('PasTab mounted - clearing any cached results');
     setCurrentJobId(null);
     setDocIds([]);
+    setItems([]);
+    // Force component refresh to clear any lingering state
+    window.location.hash = '#clear';
+    setTimeout(() => {
+      if (window.location.hash === '#clear') {
+        window.location.hash = '';
+      }
+    }, 100);
   }, []);
 
   // Use the async offers hook
