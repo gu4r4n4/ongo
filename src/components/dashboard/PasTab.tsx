@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,9 +35,16 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
   const [items, setItems] = useState<UploadItem[]>([]);
   const [isUploading, setIsUploading] = useState(false);
 
-  // Async processing state
+  // Async processing state - Initialize as null to ensure clean state
   const [currentJobId, setCurrentJobId] = useState<string | null>(null);
   const [docIds, setDocIds] = useState<string[]>([]);
+
+  // Clear any cached results on component mount
+  useEffect(() => {
+    console.log('PasTab mounted - clearing any cached results');
+    setCurrentJobId(null);
+    setDocIds([]);
+  }, []);
 
   // Use the async offers hook
   const { offers, job, columns, allFeatureKeys, isLoading } =
