@@ -214,43 +214,146 @@ export type Database = {
         }
         Relationships: []
       }
-      offers: {
+      offer_feature_values: {
         Row: {
-          company_hint: string
-          error_text: string | null
-          file_key: string
-          filename: string | null
-          id: string
-          inquiry_id: number | null
-          programs: Json
-          status: string
-          uploaded_at: string
+          confidence: number | null
+          created_at: string
+          feature_key: string
+          id: number
+          offer_id: number
+          provenance: Json | null
+          updated_at: string
+          value_num: number | null
+          value_text: string | null
         }
         Insert: {
-          company_hint: string
-          error_text?: string | null
-          file_key: string
-          filename?: string | null
-          id?: string
-          inquiry_id?: number | null
-          programs?: Json
-          status?: string
-          uploaded_at?: string
+          confidence?: number | null
+          created_at?: string
+          feature_key: string
+          id?: number
+          offer_id: number
+          provenance?: Json | null
+          updated_at?: string
+          value_num?: number | null
+          value_text?: string | null
         }
         Update: {
-          company_hint?: string
-          error_text?: string | null
-          file_key?: string
+          confidence?: number | null
+          created_at?: string
+          feature_key?: string
+          id?: number
+          offer_id?: number
+          provenance?: Json | null
+          updated_at?: string
+          value_num?: number | null
+          value_text?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offer_feature_values_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "offers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      offers: {
+        Row: {
+          base_sum_eur: number | null
+          company_hint: string | null
+          company_name: string | null
+          created_at: string | null
+          employee_count: number | null
+          error: string | null
+          features: Json
+          filename: string | null
+          id: number
+          inquiry_id: number | null
+          insurer: string | null
+          payment_method: string | null
+          premium_eur: number | null
+          program_code: string | null
+          raw_json: Json | null
+          source: string | null
+          status: string | null
+        }
+        Insert: {
+          base_sum_eur?: number | null
+          company_hint?: string | null
+          company_name?: string | null
+          created_at?: string | null
+          employee_count?: number | null
+          error?: string | null
+          features?: Json
           filename?: string | null
-          id?: string
+          id?: number
           inquiry_id?: number | null
-          programs?: Json
-          status?: string
-          uploaded_at?: string
+          insurer?: string | null
+          payment_method?: string | null
+          premium_eur?: number | null
+          program_code?: string | null
+          raw_json?: Json | null
+          source?: string | null
+          status?: string | null
+        }
+        Update: {
+          base_sum_eur?: number | null
+          company_hint?: string | null
+          company_name?: string | null
+          created_at?: string | null
+          employee_count?: number | null
+          error?: string | null
+          features?: Json
+          filename?: string | null
+          id?: number
+          inquiry_id?: number | null
+          insurer?: string | null
+          payment_method?: string | null
+          premium_eur?: number | null
+          program_code?: string | null
+          raw_json?: Json | null
+          source?: string | null
+          status?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "offers_inquiry_fk"
+            columns: ["inquiry_id"]
+            isOneToOne: false
+            referencedRelation: "insurance_inquiries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      share_links: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: number
+          inquiry_id: number | null
+          payload: Json
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: number
+          inquiry_id?: number | null
+          payload?: Json
+          token: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: number
+          inquiry_id?: number | null
+          payload?: Json
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "share_links_inquiry_id_fkey"
             columns: ["inquiry_id"]
             isOneToOne: false
             referencedRelation: "insurance_inquiries"
@@ -263,7 +366,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      cleanup_expired_share_links: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      upsert_offer_with_features: {
+        Args: { p: Json }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never
