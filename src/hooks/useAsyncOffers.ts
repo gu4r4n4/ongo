@@ -217,16 +217,11 @@ export const useAsyncOffers = (inquiryId?: number, jobId?: string) => {
     if (inquiryId && !jobId) {
       console.log('Fetching existing offers for inquiry:', inquiryId);
       pollOffers(inquiryId);
-    } else if (!inquiryId && !jobId) {
-      console.log('No inquiryId, fetching recent offers');
-      pollOffers(0);
     }
+    // Removed automatic fetching of recent offers when no inquiryId
   }, [inquiryId, jobId]);
 
   useEffect(() => {
-    // Fetch recent offers on component mount to show existing data
-    console.log('Component mounted, fetching recent offers');
-    pollOffers(0);
     return clearIntervals;
   }, []);
 

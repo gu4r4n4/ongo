@@ -198,13 +198,13 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                 const isEditing = editingColumn === column.id;
                 
                 return (
-                  <div key={column.id} className="min-w-[240px] p-4 border-r last:border-r-0 bg-card">
+                  <div key={column.id} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 bg-card">
                     <div className="flex flex-col items-center text-center space-y-2">
                       <div className="w-12 h-12 flex items-center justify-center rounded-md bg-muted/30">
                         <InsurerLogo name={column.insurer} className="w-10 h-10 object-contain" />
                       </div>
-                      <div className="font-semibold text-sm">{column.insurer}</div>
-                      <Badge variant="outline" className="text-xs">{column.program_code}</Badge>
+                      <div className="font-semibold text-sm truncate w-full">{column.insurer}</div>
+                      <Badge variant="outline" className="text-xs truncate max-w-full">{column.program_code}</Badge>
                       
                       {isEditing ? (
                         <div className="w-full space-y-2">
@@ -229,7 +229,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                         </div>
                       ) : (
                         <div className="space-y-1">
-                          <div className="text-lg font-bold text-primary">
+                          <div className="text-lg font-bold text-primary truncate">
                             €{column.premium_eur?.toLocaleString() || '—'}
                           </div>
                           {canEdit && (
@@ -265,7 +265,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                   const value = (column as any)[row.key];
                   
                   return (
-                    <div key={column.id} className="min-w-[240px] p-4 border-r last:border-r-0 flex items-center justify-center">
+                    <div key={column.id} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 flex items-center justify-center">
                       {isEditing && row.key === 'payment_method' ? (
                         <Select
                           value={editFormData.payment_method || ''}
@@ -324,7 +324,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                   const value = column.features[featureKey];
                   
                   return (
-                    <div key={column.id} className="min-w-[240px] p-4 border-r last:border-r-0 flex items-center justify-center">
+                    <div key={column.id} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 flex items-center justify-center">
                       {isEditing ? (
                         <Input
                           value={editFormData.features?.[featureKey] || ''}
