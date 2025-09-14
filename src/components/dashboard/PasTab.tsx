@@ -42,6 +42,12 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
   const { offers, job, columns, allFeatureKeys, isLoading } =
     useAsyncOffers({ backendUrl: BACKEND_URL, jobId: currentJobId });
 
+  // Debug logging
+  console.log('PasTab debug:', { currentJobId, docIds, offers, job });
+
+  // Force component to re-render with new key when jobId changes
+  const componentKey = `pastab-${currentJobId || 'initial'}`;
+
   const onFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
