@@ -66,14 +66,14 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
       color: 'bg-teal-100 text-teal-800',
       services: [
         'Psihologs, psihoterapeits',
-        'Psihiatrs (pēc ćēkeniem)'
+        'Psihiatrs (pēc čekiem)'
       ]
     },
     {
       title: 'Attālintas',
       color: 'bg-red-100 text-red-800',
       services: [
-        'Attālinatas ārstu konsultācijas'
+        'Attālinātas ārstu konsultācijas'
       ]
     }
   ];
@@ -81,31 +81,41 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
   return (
     <div className="bg-gradient-to-br from-primary/5 via-background to-secondary/5 border border-border rounded-xl p-6 mb-8 shadow-sm">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Patient Payment Section */}
-          <div>
-            <h3 className="text-lg font-semibold text-foreground mb-3">
-              {t('patientPayment')}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-foreground">
+              PACIENTA IEMAKSA
             </h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              {t('patientPaymentDesc')}
-            </p>
             <p className="text-sm text-muted-foreground">
-              Ārsniecības iestāžu saraksts un valsts apmaksātie ambulatorie pakalpojumi →
+              Maksājums, kuru pacients veic, saņemot valsts apmaksātus veselības aprūpes pakalpojumus
             </p>
+            <a 
+              href="https://www.vmnvd.gov.lv/lv/veselibas-aprupes-pakalpojumi/ambulatoras-iestades-un-arsti-specialisti"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-blue-600 hover:text-blue-800 underline block"
+            >
+              Ārstniecības iestāžu saraksts un valsts apmaksātie ambulatorie pakalpojumi →
+            </a>
           </div>
 
           {/* Paid Services Section */}
-          <div>
-            <h3 className="text-lg font-semibold text-foreground mb-3">
-              {t('paidServices')}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-foreground">
+              MAKSAS AMBULATORIE PAKALPOJUMI
             </h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              {t('paidServicesDesc')}
+            <p className="text-sm text-muted-foreground">
+              Privāti apmaksāti medicīnas pakalpojumi
             </p>
-            <p className="text-sm text-muted-foreground mb-2">
+            <a 
+              href="https://registri.vi.gov.lv/air"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-blue-600 hover:text-blue-800 underline block mb-4"
+            >
               Maksas pakalpojuma saņemšanai iespējams izvēlēties pakalpojuma sniedzēju →
-            </p>
+            </a>
             <ul className="text-sm text-muted-foreground space-y-1">
               <li>• Maksas diagnostiskajiem pakalpojumiem nepieciešams ārsta nosūtījums</li>
               <li>• Tiek piemērots apdrošinātāja pakalpojuma apmaksas cenrādis</li>
@@ -114,32 +124,32 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
           </div>
 
           {/* Doctor Visits Section */}  
-          <div>
-            <h3 className="text-lg font-semibold text-foreground mb-3">
-              {t('doctorVisits')}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-foreground">
+              Ārsta vizītes
             </h3>
             <p className="text-sm text-muted-foreground mb-6">
-              {t('doctorVisitsDesc')}
+              Pieejamie medicīnas speciālisti un pakalpojumi
             </p>
-          </div>
-        </div>
-
-        {/* Medical Categories Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {medicalCategories.map((category, index) => (
-            <div key={index} className="space-y-3">
-              <Badge className={category.color}>
-                {category.title}
-              </Badge>
-              <ul className="space-y-1">
-                {category.services.map((service, serviceIndex) => (
-                  <li key={serviceIndex} className="text-sm text-muted-foreground">
-                    • {service}
-                  </li>
-                ))}
-              </ul>
+            
+            {/* Medical Categories Grid - organized in columns */}
+            <div className="grid grid-cols-1 gap-4">
+              {medicalCategories.map((category, index) => (
+                <div key={index} className="space-y-2">
+                  <Badge className={category.color} variant="secondary">
+                    {category.title}
+                  </Badge>
+                  <ul className="space-y-1 ml-2">
+                    {category.services.map((service, serviceIndex) => (
+                      <li key={serviceIndex} className="text-sm text-muted-foreground">
+                        • {service}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
       </div>
     </div>
