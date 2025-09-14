@@ -113,12 +113,18 @@ export const useAsyncOffers = (inquiryId?: number, jobId?: string) => {
     try {
       console.log('Polling offers for inquiry:', currentInquiryId);
       
-      // Fetch offers from Supabase - get parsed records with actual data
-      const { data: offersData, error } = await supabase
-        .from('offers')
-        .select('*')
-        .eq('inquiry_id', currentInquiryId)
-        .eq('status', 'parsed');
+      // Fetch offers from Supabase - get all records for this inquiry, or recent ones if inquiry_id is null
+      let query = supabase.from('offers').select('*');
+      
+      if (currentInquiryId) {
+        query = query.eq('inquiry_id', currentInquiryId);
+      } else {
+        // If no inquiry_id, get recent records (last hour)
+        const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+        query = query.gte('created_at', oneHourAgo);
+      }
+      
+      const { data: offersData, error } = await query.in('status', ['parsed', 'processing']);
 
       if (error) {
         console.error('Error fetching offers:', error);
@@ -127,31 +133,49 @@ export const useAsyncOffers = (inquiryId?: number, jobId?: string) => {
 
       console.log('Raw offers data from Supabase:', offersData);
 
+      // Group records by filename to merge processing and parsed data
+      const groupedByFilename: Record<string, any[]> = {};
+      offersData?.forEach(offer => {
+        const filename = offer.filename || 'unknown.pdf';
+        if (!groupedByFilename[filename]) {
+          groupedByFilename[filename] = [];
+        }
+        groupedByFilename[filename].push(offer);
+      });
+
       // Transform Supabase data to match the expected OfferResult format
       const transformedOffers: OfferResult[] = [];
       const groupedByFile: Record<string, Program[]> = {};
 
-      offersData?.forEach(offer => {
-        const filename = offer.filename || 'unknown.pdf';
-        if (!groupedByFile[filename]) {
-          groupedByFile[filename] = [];
-        }
+      Object.entries(groupedByFilename).forEach(([filename, records]) => {
+        // Find the parsed record (with actual data) and processing record (with insurer info)
+        const parsedRecord = records.find(r => r.status === 'parsed' && (r.premium_eur || r.base_sum_eur));
+        const processingRecord = records.find(r => r.status === 'processing' || r.company_hint);
         
-        groupedByFile[filename].push({
-          insurer: offer.insurer || offer.company_hint || '',
-          program_code: offer.program_code || 'Standard',
-          base_sum_eur: offer.base_sum_eur,
-          premium_eur: offer.premium_eur,
-          payment_method: offer.payment_method,
-          features: (offer.features as Record<string, any>) || {}
-        });
+        if (parsedRecord) {
+          // Use insurer info from processing record if available, otherwise from parsed record
+          const insurer = processingRecord?.insurer || processingRecord?.company_hint || parsedRecord.insurer || parsedRecord.company_hint || '';
+          
+          if (!groupedByFile[filename]) {
+            groupedByFile[filename] = [];
+          }
+          
+          groupedByFile[filename].push({
+            insurer: insurer,
+            program_code: parsedRecord.program_code || 'Standard',
+            base_sum_eur: parsedRecord.base_sum_eur,
+            premium_eur: parsedRecord.premium_eur,
+            payment_method: parsedRecord.payment_method,
+            features: (parsedRecord.features as Record<string, any>) || {}
+          });
+        }
       });
 
       // Convert grouped data to OfferResult format
       Object.entries(groupedByFile).forEach(([filename, programs]) => {
         transformedOffers.push({
           source_file: filename,
-          inquiry_id: currentInquiryId,
+          inquiry_id: currentInquiryId || 0, // Use 0 if no inquiry_id
           programs
         });
       });
@@ -187,6 +211,9 @@ export const useAsyncOffers = (inquiryId?: number, jobId?: string) => {
     if (inquiryId && !jobId) {
       // Just fetch once if we don't have an active job
       pollOffers(inquiryId);
+    } else if (!inquiryId && !jobId) {
+      // If no inquiryId at all, fetch recent offers
+      pollOffers(0);
     }
   }, [inquiryId, jobId]);
 
