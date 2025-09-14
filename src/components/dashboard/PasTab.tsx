@@ -10,6 +10,7 @@ import { Trash2 } from "lucide-react";
 import { InsurerLogo } from "@/components/InsurerLogo";
 import { useAsyncOffers } from "@/hooks/useAsyncOffers";
 import { ComparisonMatrix } from "./ComparisonMatrix";
+import { supabase } from "@/integrations/supabase/client";
 
 type Insurer = 'BTA' | 'Balta' | 'BAN' | 'Compensa' | 'ERGO' | 'Gjensidige' | 'If' | 'Seesam';
 
@@ -138,6 +139,26 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
         console.log('Starting async processing with files:', items.map(i => ({ name: i.file.name, hint: i.hint })));
         const { job_id, inquiry_id } = await startAsyncProcessing(items, inquiryId || undefined);
         console.log('Async processing started:', { job_id, inquiry_id });
+        
+        // Save file-to-insurer mapping in Supabase for later use
+        try {
+          const fileInsurerMappings = items.map(item => ({
+            inquiry_id: inquiry_id,
+            filename: item.file.name,
+            insurer: item.hint,
+            company_hint: item.hint,
+            source: 'upload',
+            status: 'processing'
+          }));
+
+          for (const mapping of fileInsurerMappings) {
+            await supabase.from('offers').insert(mapping);
+          }
+          console.log('Saved file-insurer mappings:', fileInsurerMappings);
+        } catch (mappingError) {
+          console.warn('Failed to save file-insurer mappings:', mappingError);
+        }
+
         setCurrentJobId(job_id);
         setCurrentInquiryId(inquiry_id);
         toast.success('Processing started...');
