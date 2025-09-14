@@ -331,8 +331,8 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
         </CardContent>
       </Card>
 
-      {/* Medical Services Header - Only show when processing starts */}
-      {(isUploading || isLoading || columns.length > 0) && (
+      {/* Medical Services Header - Only show when there are actual results */}
+      {columns.length > 0 && (
         <MedicalServicesHeader currentLanguage={currentLanguage} />
       )}
 
