@@ -10,11 +10,10 @@ import { Trash2 } from "lucide-react";
 import { InsurerLogo } from "@/components/InsurerLogo";
 import { useAsyncOffers } from "@/hooks/useAsyncOffers";
 import { ComparisonMatrix } from "./ComparisonMatrix";
-import { supabase } from "@/integrations/supabase/client";
+// Supabase is not needed on the FE for this flow
+import { BACKEND_URL } from "@/config";
 
 type Insurer = 'BTA' | 'Balta' | 'BAN' | 'Compensa' | 'ERGO' | 'Gjensidige' | 'If' | 'Seesam';
-
-const BACKEND_URL = 'https://gpt-vis.onrender.com';
 
 interface PasTabProps {
   currentLanguage: Language;
@@ -37,13 +36,11 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
 
   // Async processing state
   const [currentJobId, setCurrentJobId] = useState<string | null>(null);
-  const [currentInquiryId, setCurrentInquiryId] = useState<number | null>(null);
+  const [docIds, setDocIds] = useState<string[]>([]);
 
   // Use the async offers hook
-  const { offers, job, columns, allFeatureKeys, isLoading } = useAsyncOffers(
-    currentInquiryId || undefined,
-    currentJobId || undefined
-  );
+  const { offers, job, columns, allFeatureKeys, isLoading } =
+    useAsyncOffers({ backendUrl: BACKEND_URL, jobId: currentJobId });
 
   const onFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -70,7 +67,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     setItems((prev) => prev.filter((_, i) => i !== idx));
   };
 
-  async function startAsyncProcessing(files: UploadItem[], inquiryId?: string): Promise<{ job_id: string; inquiry_id: number }> {
+  async function startAsyncProcessing(files: UploadItem[], inquiryId?: string): Promise<{ job_id: string; documents: string[] }> {
     console.log('Creating FormData with files:', files.length);
     const form = new FormData();
     
@@ -103,7 +100,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
 
     const response = await res.json();
     console.log('Upload response:', response);
-    return { job_id: response.job_id, inquiry_id: response.inquiry_id };
+    return { job_id: response.job_id, documents: response.documents || [] };
   }
 
   const handleSubmit = async () => {
@@ -121,7 +118,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     console.log('Starting upload with items:', items);
     setIsUploading(true);
     setCurrentJobId(null);
-    setCurrentInquiryId(null);
+    setDocIds([]);
 
     try {
       // Start async processing directly - no separate metadata save needed
@@ -129,13 +126,13 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
       // Start async processing
       try {
         console.log('Starting async processing with files:', items.map(i => ({ name: i.file.name, hint: i.hint })));
-        const { job_id, inquiry_id } = await startAsyncProcessing(items, inquiryId || undefined);
-        console.log('Async processing started:', { job_id, inquiry_id });
+        const { job_id, documents } = await startAsyncProcessing(items, inquiryId || undefined);
+        console.log('Async processing started:', { job_id, documents });
         
         // Note: Backend will create the offer records when processing completes
 
         setCurrentJobId(job_id);
-        setCurrentInquiryId(inquiry_id);
+        setDocIds(documents);
         toast.success('Processing started...');
       } catch (err: any) {
         console.error('Async processing failed:', err);
@@ -150,27 +147,24 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
 
   // Share functionality
   const shareResults = async () => {
-    if (!currentInquiryId) {
-      toast.error('No inquiry ID available for sharing.');
+    if (!docIds.length) {
+      toast.error('No documents to share yet.');
       return;
     }
 
     try {
-      // Use secure Supabase Edge Function for share creation
-      const response = await fetch('/functions/v1/create-share', {
+      // Live view (keeps updating while backend finishes remaining files):
+      const response = await fetch(`${BACKEND_URL}/shares`, {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          inquiry_id: currentInquiryId,
           title: "Piedāvājums",
-          payload: {
-            company_name: companyName,
-            employees_count: employeesCount
-          },
-          expires_in_hours: 168 // 7 days
+          company_name: companyName,
+          employees_count: employeesCount,
+          document_ids: docIds,          // live-by-documents mode
+          // If you want a frozen snapshot instead, send:
+          // results: offers,
+          expires_in_hours: 168
         }),
       });
 

@@ -8,7 +8,7 @@ import { ComparisonMatrix } from '@/components/dashboard/ComparisonMatrix';
 import { OfferResult, Column } from '@/hooks/useAsyncOffers';
 import { supabase } from '@/integrations/supabase/client';
 
-const BACKEND_URL = 'https://gpt-vis.onrender.com';
+import { BACKEND_URL } from "@/config";
 
 interface ShareData {
   ok: boolean;
@@ -144,13 +144,15 @@ const Share = () => {
   const columns: Column[] = shareData.offers.flatMap(offer =>
     offer.programs.map(program => ({
       id: `${offer.source_file}::${program.insurer}::${program.program_code}`,
+      label: program.insurer || offer.source_file,
       source_file: offer.source_file,
       insurer: program.insurer,
       program_code: program.program_code,
       premium_eur: program.premium_eur,
       base_sum_eur: program.base_sum_eur,
       payment_method: program.payment_method,
-      features: program.features,
+      features: program.features || {},
+      group: offer,
     }))
   );
 
