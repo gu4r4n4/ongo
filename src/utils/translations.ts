@@ -181,6 +181,9 @@ export const translations = {
     // Share functionality
     share: 'Dalīties',
     
+    // Processing status
+    processedFiles: 'Apstrādāti faili',
+    
     // Share page content
     includedInPolicy: 'iekļauts polises segumā',
     notIncludedInPolicy: 'nav iekļauts polises segumā',
@@ -368,6 +371,9 @@ export const translations = {
     
     // Share functionality
     share: 'Share',
+    
+    // Processing status
+    processedFiles: 'Processed Files',
     
     // Share page content
     includedInPolicy: 'included in policy coverage',

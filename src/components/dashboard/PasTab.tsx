@@ -1,36 +1,22 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Language, useTranslation } from "@/utils/translations";
 import { toast } from "sonner";
-import { Trash2, Check, Minus, Share2, Edit, Save, X } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { InsurerLogo } from "@/components/InsurerLogo";
+import { useAsyncOffers } from "@/hooks/useAsyncOffers";
+import { ComparisonMatrix } from "./ComparisonMatrix";
 
 type Insurer = 'BTA' | 'Balta' | 'BAN' | 'Compensa' | 'ERGO' | 'Gjensidige' | 'If' | 'Seesam';
 
+const BACKEND_URL = 'https://gpt-vis.onrender.com';
+
 interface PasTabProps {
   currentLanguage: Language;
-}
-
-interface Program {
-  insurer: string;
-  program_code: string;
-  base_sum_eur: number;
-  premium_eur: number;
-  payment_method?: string | null;
-  features: Record<string, any>;
-}
-
-interface ApiResponse {
-  source_file: string;
-  programs: Program[];
-  inquiry_id?: number;
-  offer_ids?: number[];
 }
 
 interface UploadItem {
@@ -41,70 +27,22 @@ interface UploadItem {
 const PasTab = ({ currentLanguage }: PasTabProps) => {
   const { t } = useTranslation(currentLanguage);
 
-  // --- NEW: extra form fields ---
+  // Form fields
   const [companyName, setCompanyName] = useState<string>("LDZ");
   const [employeesCount, setEmployeesCount] = useState<number>(45);
-
   const [inquiryId, setInquiryId] = useState<string>('');
   const [items, setItems] = useState<UploadItem[]>([]);
   const [isUploading, setIsUploading] = useState(false);
 
-  // Each element in results corresponds to one uploaded file's ApiResponse
-  const [results, setResults] = useState<ApiResponse[]>([]);
+  // Async processing state
+  const [currentJobId, setCurrentJobId] = useState<string | null>(null);
+  const [currentInquiryId, setCurrentInquiryId] = useState<number | null>(null);
 
-  // Edit mode state
-  const [editingProgram, setEditingProgram] = useState<{ resultIdx: number; programIdx: number } | null>(null);
-  const [editFormData, setEditFormData] = useState<Partial<Program>>({});
-
-  // Drag scrolling functionality
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [scrollLeft, setScrollLeft] = useState(0);
-
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-
-    const handleMouseDown = (e: MouseEvent) => {
-      setIsDragging(true);
-      setStartX(e.pageX - container.offsetLeft);
-      setScrollLeft(container.scrollLeft);
-      container.style.cursor = 'grabbing';
-    };
-
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isDragging) return;
-      e.preventDefault();
-      const x = e.pageX - container.offsetLeft;
-      const walk = (x - startX) * 2;
-      container.scrollLeft = scrollLeft - walk;
-    };
-
-    const handleMouseUp = () => {
-      setIsDragging(false);
-      container.style.cursor = 'grab';
-    };
-
-    const handleMouseLeave = () => {
-      setIsDragging(false);
-      container.style.cursor = 'grab';
-    };
-
-    container.addEventListener('mousedown', handleMouseDown);
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-    container.addEventListener('mouseleave', handleMouseLeave);
-
-    container.style.cursor = 'grab';
-
-    return () => {
-      container.removeEventListener('mousedown', handleMouseDown);
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-      container.removeEventListener('mouseleave', handleMouseLeave);
-    };
-  }, [isDragging, startX, scrollLeft]);
+  // Use the async offers hook
+  const { offers, job, columns, allFeatureKeys, isLoading } = useAsyncOffers(
+    currentInquiryId || undefined,
+    currentJobId || undefined
+  );
 
   const onFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -131,7 +69,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     setItems((prev) => prev.filter((_, i) => i !== idx));
   };
 
-  async function uploadMultipleOffers(files: UploadItem[], inquiryId?: string): Promise<ApiResponse[]> {
+  async function startAsyncProcessing(files: UploadItem[], inquiryId?: string): Promise<{ job_id: string; inquiry_id: number }> {
     const form = new FormData();
     
     // Add all files
@@ -147,7 +85,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     form.append('insured_count', employeesCount.toString());
     if (inquiryId) form.append('inquiry_id', inquiryId);
 
-    const res = await fetch('https://gpt-vis.onrender.com/extract/multiple', {
+    const res = await fetch(`${BACKEND_URL}/extract/multiple-async`, {
       method: 'POST',
       body: form
     });
@@ -158,14 +96,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     }
 
     const response = await res.json();
-    
-    // Convert response to match expected ApiResponse format
-    if (Array.isArray(response)) {
-      return response;
-    } else {
-      // If single response, wrap in array
-      return [response];
-    }
+    return { job_id: response.job_id, inquiry_id: response.inquiry_id };
   }
 
   const handleSubmit = async () => {
@@ -181,7 +112,8 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     }
 
     setIsUploading(true);
-    setResults([]);
+    setCurrentJobId(null);
+    setCurrentInquiryId(null);
 
     try {
       // If Inquiry ID is present, save metadata first
@@ -203,71 +135,40 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
         }
       }
 
-      // Upload all files at once using the new multiple endpoint
+      // Start async processing
       try {
-        const allResults = await uploadMultipleOffers(items, inquiryId || undefined);
-        setResults(allResults);
+        const { job_id, inquiry_id } = await startAsyncProcessing(items, inquiryId || undefined);
+        setCurrentJobId(job_id);
+        setCurrentInquiryId(inquiry_id);
+        toast.success('Processing started...');
       } catch (err: any) {
         toast.error(`${t('failed') || 'Failed'}: ${err?.message || 'Upload error'}`);
+        setIsUploading(false);
       }
-      toast.success(t('finishedProcessing') || 'Finished processing selected files.');
-    } finally {
+    } catch (error) {
       setIsUploading(false);
     }
   };
 
-  // Edit functionality
-  const startEdit = (resultIdx: number, programIdx: number) => {
-    const program = results[resultIdx].programs[programIdx];
-    setEditingProgram({ resultIdx, programIdx });
-    setEditFormData({ ...program });
-  };
-
-  const cancelEdit = () => {
-    setEditingProgram(null);
-    setEditFormData({});
-  };
-
-  const saveEdit = () => {
-    if (!editingProgram) return;
-    
-    const { resultIdx, programIdx } = editingProgram;
-    const updatedResults = [...results];
-    updatedResults[resultIdx].programs[programIdx] = {
-      ...updatedResults[resultIdx].programs[programIdx],
-      ...editFormData
-    };
-    
-    setResults(updatedResults);
-    setEditingProgram(null);
-    setEditFormData({});
-    toast.success('Program updated successfully');
-  };
-
-  // ----- Share: snapshot current results and open public link -----
+  // Share functionality
   const shareResults = async () => {
-    if (results.length === 0) {
-      toast.error(t('selectFiles') || 'Please process results before sharing.');
+    if (!currentInquiryId) {
+      toast.error('No inquiry ID available for sharing.');
       return;
     }
 
-    const snapshot = {
-      company_name: companyName || null,
-      employees_count: Number.isFinite(Number(employeesCount)) ? Number(employeesCount) : null,
-      document_ids: results.map(r => r.source_file),
-      title: "Piedāvājums",
-      results: results.map(r => ({
-        source_file: r.source_file,
-        programs: r.programs, // matches backend Program
-      })),
-      // expires_in_hours: 720, // optional (default 30 days)
-    };
-
     try {
-      const res = await fetch('https://visbrokerhouse.onrender.com/shares', {
+      const res = await fetch(`${BACKEND_URL}/shares`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(snapshot),
+        body: JSON.stringify({
+          inquiry_id: currentInquiryId,
+          title: "Piedāvājums",
+          payload: {
+            company_name: companyName,
+            employees_count: employeesCount
+          }
+        }),
       });
 
       if (!res.ok) {
@@ -275,14 +176,18 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
         throw new Error(data?.detail || `Failed (${res.status})`);
       }
 
-      const { token } = await res.json();
-      const url = `${window.location.origin}/share/${encodeURIComponent(token)}`;
+      const { url } = await res.json();
       window.open(url, '_blank', 'noopener,noreferrer');
       toast.success('Share link created');
     } catch (err: any) {
       toast.error(`${t('failed') || 'Failed'}: ${err?.message || 'Share error'}`);
     }
   };
+
+  // Stop uploading when job is complete
+  if (isUploading && job && job.done >= job.total) {
+    setIsUploading(false);
+  }
 
   return (
     <div className="space-y-6">
@@ -293,7 +198,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid gap-4">
-            {/* NEW: Kompānija */}
+            {/* Company */}
             <div>
               <Label htmlFor="company">{t('company')}</Label>
               <Input
@@ -304,7 +209,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
               />
             </div>
 
-            {/* NEW: Nodarbināto skaits */}
+            {/* Employee Count */}
             <div>
               <Label htmlFor="emp">{t('employeeCount')}</Label>
               <Input
@@ -329,7 +234,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
               />
             </div>
 
-            {/* File picker + docx→pdf */}
+            {/* File picker */}
             <div>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
                 <Label>{t('offerUpload')} — {t('multipleAllowed')}</Label>
@@ -386,350 +291,29 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
             </div>
           </div>
 
-          <Button onClick={handleSubmit} className="w-full" disabled={isUploading}>
-            {isUploading ? (t('processing') || 'Processing…') : `${t('uploadProcess')} (${items.length || 0} ${t('files')})`}
+          <Button onClick={handleSubmit} className="w-full" disabled={isUploading || isLoading}>
+            {isUploading || isLoading ? (t('processing') || 'Processing…') : `${t('uploadProcess')} (${items.length || 0} ${t('files')})`}
           </Button>
+          
+          {/* Processing Status */}
+          {job && (
+            <div className="text-sm text-muted-foreground text-center">
+              Processed {job.done}/{job.total} files...
+            </div>
+          )}
         </CardContent>
       </Card>
 
       {/* Results */}
-      {results.length > 0 && (
-        <div className="space-y-4">
-          {/* NEW: results header panel */}
-          <div className="grid gap-4 sm:grid-cols-2 p-4 border rounded-lg bg-card">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Check className="h-4 w-4 text-green-600" />
-                <span className="text-sm text-muted-foreground">iekļauts polises segumā</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Minus className="h-4 w-4 text-red-600" />
-                <span className="text-sm text-muted-foreground">nav iekļauts polises segumā</span>
-              </div>
-            </div>
-            <div className="space-y-1">
-              <div className="text-sm">
-                <span className="text-muted-foreground">{t('company')}:</span>
-                <span className="ml-2 font-medium">{companyName || '—'}</span>
-              </div>
-              <div className="text-sm">
-                <span className="text-muted-foreground">{t('employeeCount')}:</span>
-                <span className="ml-2 font-medium">{employeesCount || '—'}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* title + SHARE */}
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">{t('processingResults')}</h3>
-            <Button
-              variant="outline"
-              onClick={shareResults}
-              className="flex items-center gap-2"
-            >
-              <Share2 className="h-4 w-4" />
-              {t('share')}
-            </Button>
-          </div>
-
-          {/* Side-by-side Comparison Grid */}
-          <div className="rounded-lg border bg-card">
-            <div ref={scrollContainerRef} className="overflow-x-auto select-none">
-              <div className="min-w-fit">
-                {/* Header Row */}
-                <div className="flex border-b bg-muted/50">
-                  {/* Sticky Feature Names Column */}
-                  <div className="sticky left-0 w-[280px] bg-card border-r p-4 z-10">
-                    <div className="font-semibold text-sm">{t('features')}</div>
-                  </div>
-                  
-                  {/* Program Columns Headers */}
-                  {(() => {
-                    const allPrograms: { program: Program; resultIdx: number; programIdx: number }[] = [];
-                    results.forEach((result, resultIdx) => {
-                      result.programs.forEach((program, programIdx) => {
-                        allPrograms.push({ program, resultIdx, programIdx });
-                      });
-                    });
-                    
-                    return allPrograms.map(({ program, resultIdx, programIdx }, idx) => {
-                      const isEditing = editingProgram?.resultIdx === resultIdx && editingProgram?.programIdx === programIdx;
-                      
-                      return (
-                        <div key={idx} className="min-w-[240px] p-4 border-r last:border-r-0 bg-card">
-                          <div className="flex flex-col items-center text-center space-y-2">
-                            <div className="w-12 h-12 flex items-center justify-center rounded-md bg-muted/30">
-                              <InsurerLogo name={program.insurer} className="w-10 h-10 object-contain" />
-                            </div>
-                            <div className="font-semibold text-sm">{program.insurer}</div>
-                            <Badge variant="outline" className="text-xs">{program.program_code}</Badge>
-                            
-                            {isEditing ? (
-                              <div className="w-full space-y-2">
-                                <div className="text-xs">
-                                  <Label className="text-[10px]">{t('baseSum')}</Label>
-                                  <Input
-                                    type="number"
-                                    value={editFormData.base_sum_eur || ''}
-                                    onChange={(e) => setEditFormData(prev => ({ ...prev, base_sum_eur: Number(e.target.value) }))}
-                                    className="h-6 text-xs"
-                                  />
-                                </div>
-                                <div className="text-xs">
-                                  <Label className="text-[10px]">{t('premium')}</Label>
-                                  <Input
-                                    type="number"
-                                    value={editFormData.premium_eur || ''}
-                                    onChange={(e) => setEditFormData(prev => ({ ...prev, premium_eur: Number(e.target.value) }))}
-                                    className="h-6 text-xs"
-                                  />
-                                </div>
-                                <div className="text-xs">
-                                  <Label className="text-[10px]">{t('payment')}</Label>
-                                  <Select 
-                                    value={editFormData.payment_method || ''} 
-                                    onValueChange={(value) => setEditFormData(prev => ({ ...prev, payment_method: value }))}
-                                  >
-                                    <SelectTrigger className="h-6 text-xs">
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="Cenrāža programma">Cenrāža programma</SelectItem>
-                                      <SelectItem value="100% apmaksa līgumiestādēs un ja pakalpojums ir nopirkts">100% apmaksa līgumiestādēs un ja pakalpojums ir nopirkts</SelectItem>
-                                      <SelectItem value="100% apmaksa līgumiestādēs">100% apmaksa līgumiestādēs</SelectItem>
-                                      <SelectItem value="Procentuāla programma">Procentuāla programma</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                                <div className="flex gap-1">
-                                  <Button size="sm" onClick={saveEdit} className="h-6 px-2 text-xs">
-                                    <Save className="h-3 w-3" />
-                                  </Button>
-                                  <Button size="sm" variant="outline" onClick={cancelEdit} className="h-6 px-2 text-xs">
-                                    <X className="h-3 w-3" />
-                                  </Button>
-                                </div>
-                              </div>
-                            ) : (
-                              <>
-                                <div className="text-xs space-y-1">
-                                  <div><span className="text-muted-foreground">{t('baseSum')}:</span> €{program.base_sum_eur?.toLocaleString?.() ?? program.base_sum_eur}</div>
-                                  <div><span className="text-muted-foreground">{t('premium')}:</span> €{program.premium_eur?.toLocaleString?.() ?? program.premium_eur}</div>
-                                  <div><span className="text-muted-foreground">{t('payment')}:</span> {program.payment_method || '-'}</div>
-                                </div>
-                                <Button 
-                                  size="sm" 
-                                  variant="outline" 
-                                  onClick={() => startEdit(resultIdx, programIdx)}
-                                  className="h-6 px-2 text-xs"
-                                >
-                                  <Edit className="h-3 w-3" />
-                                </Button>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    });
-                  })()}
-                </div>
-
-                {/* Feature Rows */}
-                {(() => {
-                  // Get all unique feature keys from all programs
-                  const allFeatureKeys = new Set<string>();
-                  results.forEach(result => {
-                    result.programs.forEach(program => {
-                      if (program.features) {
-                        Object.keys(program.features).forEach(key => allFeatureKeys.add(key));
-                      }
-                    });
-                  });
-
-                  const allPrograms: Program[] = [];
-                  results.forEach(result => {
-                    result.programs.forEach(program => {
-                      allPrograms.push(program);
-                    });
-                  });
-
-                  return Array.from(allFeatureKeys).map((featureKey, rowIdx) => (
-                    <div key={featureKey} className={`flex border-b last:border-b-0 ${rowIdx % 2 === 0 ? 'bg-muted/20' : 'bg-card'}`}>
-                      {/* Sticky Feature Name */}
-                      <div className={`sticky left-0 w-[280px] border-r p-4 z-10 ${rowIdx % 2 === 0 ? 'bg-muted/20' : 'bg-card'}`}>
-                        <div className="text-sm font-medium leading-relaxed pr-2">{featureKey}</div>
-                      </div>
-                      
-                      {/* Feature Values */}
-                      {allPrograms.map((program, idx) => {
-                        const value = program.features?.[featureKey];
-                        let displayValue: React.ReactNode = '-';
-                        
-                        if (value === 'Yes' || value === 'v' || value === true) {
-                          displayValue = <Check className="h-4 w-4 text-green-600 mx-auto" />;
-                        } else if (value === 'No' || value === '-' || value === false || value === null || value === undefined) {
-                          displayValue = <Minus className="h-4 w-4 text-red-600 mx-auto" />;
-                        } else if (value !== null && value !== undefined) {
-                          displayValue = <span className="text-sm text-center block">{String(value)}</span>;
-                        }
-                        
-                        return (
-                          <div key={idx} className="min-w-[240px] p-4 border-r last:border-r-0 flex items-center justify-center min-h-[3rem]">
-                            {displayValue}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ));
-                })()}
-              </div>
-            </div>
-          </div>
-
-          {/* Static Info Footer */}
-          <div className="mt-8">
-            <Separator />
-            
-            <div className="grid gap-6 mt-6 md:grid-cols-2">
-              {/* Patient Payment Card */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">
-                    PACIENTA IEMAKSA
-                  </CardTitle>
-                  <CardDescription>
-                    Maksājums, kuru pacients veic, saņemot valsts apmaksātus veselības aprūpes pakalpojumus
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <a
-                    href="http://www.vmnvd.gov.lv/lv/veselibas-aprupes-pakalpojumi/ambulatoras-iestades-un-arsti-specialisti"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline text-sm"
-                  >
-                    Ārstniecības iestāžu saraksts un valsts apmaksātie ambulatorie pakalpojumi →
-                  </a>
-                </CardContent>
-              </Card>
-
-              {/* Paid Services Card */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">
-                    MAKSAS AMBULATORIE PAKALPOJUMI
-                  </CardTitle>
-                  <CardDescription>
-                    Privāti apmaksāti medicīnas pakalpojumi
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <a
-                    href="http://www.vi.gov.lv/lv/air"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline text-sm block"
-                  >
-                    Maksas pakalpojuma saņemšanai iespējams izvēlēties pakalpojuma sniedzēju →
-                  </a>
-                  
-                  <div className="space-y-2 text-sm text-muted-foreground">
-                    <p>• Maksas diagnostiskajiem pakalpojumiem nepieciešams ārsta nosūtījums</p>
-                    <p>• Tiek piemērots apdrošinātāja pakalpojuma apmaksas cenrādis</p>
-                    <p>• Par neapmaksāto daļu iespējams saņemt pārmaksāto IIN</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Doctor Visits Card */}
-            <Card className="mt-6">
-              <CardHeader>
-                <CardTitle className="text-base">Ārsta vizītes</CardTitle>
-                <CardDescription>Pieejamie medicīnas speciālisti un pakalpojumi</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {/* General */}
-                  <div className="space-y-2">
-                    <Badge variant="secondary" className="mb-2 bg-badge-category text-black hover:bg-badge-category hover:text-black">{t('general')}</Badge>
-                    <div className="space-y-1 text-sm text-muted-foreground">
-                      <p>• Ģimenes ārsts (maksas)</p>
-                    </div>
-                  </div>
-
-                  {/* Specialists */}
-                  <div className="space-y-2">
-                    <Badge variant="outline" className="mb-2 bg-badge-category text-black">{t('specialist')}</Badge>
-                    <div className="space-y-1 text-sm text-muted-foreground">
-                      <p>• Kardiologs, LOR, neirologs</p>
-                      <p>• Ginekologs, urologs u.c.</p>
-                    </div>
-                  </div>
-
-                  {/* Skin */}
-                  <div className="space-y-2">
-                    <Badge variant="outline" className="mb-2 bg-badge-category text-black">{t('skin')}</Badge>
-                    <div className="space-y-1 text-sm text-muted-foreground">
-                      <p>• Dermatologs</p>
-                    </div>
-                  </div>
-
-                  {/* Alternative */}
-                  <div className="space-y-2">
-                    <Badge variant="outline" className="mb-2 bg-badge-category text-black">{t('alternative')}</Badge>
-                    <div className="space-y-1 text-sm text-muted-foreground">
-                      <p>• Homeopāts</p>
-                      <p>• Osteopāts</p>
-                    </div>
-                  </div>
-
-                  {/* Sports */}
-                  <div className="space-y-2">
-                    <Badge variant="outline" className="mb-2 bg-badge-category text-black">{t('sports')}</Badge>
-                    <div className="space-y-1 text-sm text-muted-foreground">
-                      <p>• Sporta ārsts</p>
-                    </div>
-                  </div>
-
-                  {/* Therapy */}
-                  <div className="space-y-2">
-                    <Badge variant="outline" className="mb-2 bg-badge-category text-black">{t('therapy')}</Badge>
-                    <div className="space-y-1 text-sm text-muted-foreground">
-                      <p>• Fizikālās terapijas ārsts</p>
-                      <p>• Rehabilitologs, fizioterapeits</p>
-                    </div>
-                  </div>
-
-                  {/* Academic */}
-                  <div className="space-y-2">
-                    <Badge variant="outline" className="mb-2 bg-badge-category text-black">{t('academic')}</Badge>
-                    <div className="space-y-1 text-sm text-muted-foreground">
-                      <p>• Docenta konsultācija</p>
-                    </div>
-                  </div>
-
-                  {/* Mental Health */}
-                  <div className="space-y-2">
-                    <Badge variant="outline" className="mb-2 bg-badge-category text-black">{t('mental')}</Badge>
-                    <div className="space-y-1 text-sm text-muted-foreground">
-                      <p>• Psihologs, psihoterapeits</p>
-                      <p>• Psihiatrs (pēc čekiem)</p>
-                    </div>
-                  </div>
-
-                  {/* Remote */}
-                  <div className="space-y-2">
-                    <Badge variant="outline" className="mb-2 bg-badge-category text-black">{t('remote')}</Badge>
-                    <div className="space-y-1 text-sm text-muted-foreground">
-                      <p>• Attālinātas ārstu konsultācijas</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+      {columns.length > 0 && (
+        <ComparisonMatrix
+          columns={columns}
+          allFeatureKeys={allFeatureKeys}
+          currentLanguage={currentLanguage}
+          onShare={shareResults}
+          companyName={companyName}
+          employeesCount={employeesCount}
+        />
       )}
     </div>
   );
