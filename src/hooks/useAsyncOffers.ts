@@ -113,18 +113,19 @@ export const useAsyncOffers = (inquiryId?: number, jobId?: string) => {
     try {
       console.log('Polling offers for inquiry:', currentInquiryId);
       
-      // Fetch offers from Supabase - only get parsed records with actual data
+      // Fetch offers from Supabase - get parsed records with actual data
       const { data: offersData, error } = await supabase
         .from('offers')
         .select('*')
         .eq('inquiry_id', currentInquiryId)
-        .eq('status', 'parsed')
-        .not('program_code', 'is', null);
+        .eq('status', 'parsed');
 
       if (error) {
         console.error('Error fetching offers:', error);
         return;
       }
+
+      console.log('Raw offers data from Supabase:', offersData);
 
       // Transform Supabase data to match the expected OfferResult format
       const transformedOffers: OfferResult[] = [];
@@ -137,8 +138,8 @@ export const useAsyncOffers = (inquiryId?: number, jobId?: string) => {
         }
         
         groupedByFile[filename].push({
-          insurer: offer.insurer || '',
-          program_code: offer.program_code || '',
+          insurer: offer.insurer || offer.company_hint || '',
+          program_code: offer.program_code || 'Standard',
           base_sum_eur: offer.base_sum_eur,
           premium_eur: offer.premium_eur,
           payment_method: offer.payment_method,
