@@ -71,10 +71,12 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
   };
 
   async function startAsyncProcessing(files: UploadItem[], inquiryId?: string): Promise<{ job_id: string; inquiry_id: number }> {
+    console.log('Creating FormData with files:', files.length);
     const form = new FormData();
     
     // Add all files with their individual hints
     files.forEach((item, index) => {
+      console.log(`Adding file ${index}: ${item.file.name} with insurer: ${item.hint}`);
       form.append('files', item.file);
       form.append(`file_${index}_insurer`, item.hint);
     });
@@ -84,17 +86,23 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     form.append('insured_count', employeesCount.toString());
     if (inquiryId) form.append('inquiry_id', inquiryId);
 
+    console.log('Making request to:', `${BACKEND_URL}/extract/multiple-async`);
+    
     const res = await fetch(`${BACKEND_URL}/extract/multiple-async`, {
       method: 'POST',
       body: form
     });
 
+    console.log('Response status:', res.status);
+    
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
+      console.error('Upload failed with data:', data);
       throw new Error(data?.error || `Upload failed (${res.status})`);
     }
 
     const response = await res.json();
+    console.log('Upload response:', response);
     return { job_id: response.job_id, inquiry_id: response.inquiry_id };
   }
 
@@ -110,6 +118,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
       return;
     }
 
+    console.log('Starting upload with items:', items);
     setIsUploading(true);
     setCurrentJobId(null);
     setCurrentInquiryId(null);
@@ -118,6 +127,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
       // If Inquiry ID is present, save metadata first
       if (inquiryId) {
         try {
+          console.log('Saving inquiry metadata for ID:', inquiryId);
           await fetch(`https://visbrokerhouse.onrender.com/inquiries/${inquiryId}/meta`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
@@ -128,8 +138,11 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
           }).then(r => {
             if (!r.ok) throw new Error('Failed to save inquiry meta');
           });
+          console.log('Inquiry metadata saved successfully');
         } catch (err: any) {
+          console.error('Failed to save inquiry metadata:', err);
           toast.error(`Failed to save inquiry metadata: ${err?.message || 'Unknown error'}`);
+          setIsUploading(false);
           return;
         }
       }
@@ -151,6 +164,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
         setIsUploading(false);
       }
     } catch (error) {
+      console.error('General upload error:', error);
       setIsUploading(false);
     }
   };
