@@ -10,7 +10,7 @@ import { Trash2 } from "lucide-react";
 import { InsurerLogo } from "@/components/InsurerLogo";
 import { useAsyncOffers } from "@/hooks/useAsyncOffers";
 import { ComparisonMatrix } from "./ComparisonMatrix";
-import Footer from "@/components/Footer";
+import MedicalServicesHeader from "@/components/MedicalServicesHeader";
 // Supabase is not needed on the FE for this flow
 import { BACKEND_URL } from "@/config";
 
@@ -58,6 +58,10 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
   const componentKey = `pastab-${currentJobId || 'initial'}`;
 
   const onFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // CLEAR OLD RESULTS IMMEDIATELY when new files selected
+    setCurrentJobId(null);
+    setDocIds([]);
+    
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
 
@@ -136,9 +140,13 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     console.log('Starting upload with items:', items);
     setIsUploading(true);
     
-    // Force clear all old data
+    // FORCE CLEAR ALL OLD DATA - CRITICAL FOR NEW SESSION
     setCurrentJobId(null);
     setDocIds([]);
+    
+    // Force clear the useAsyncOffers hook by removing jobId completely
+    await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure state updates
+    
     console.log('Cleared old data - jobId and docIds reset');
 
     try {
@@ -323,31 +331,21 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
         </CardContent>
       </Card>
 
-      {/* Results Header - Only show when processing starts */}
+      {/* Medical Services Header - Only show when processing starts */}
       {(isUploading || isLoading || columns.length > 0) && (
-        <Footer currentLanguage={currentLanguage} />
+        <MedicalServicesHeader currentLanguage={currentLanguage} />
       )}
 
       {/* Results */}
       {columns.length > 0 && (
-        <>
-          <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded">
-            <h3 className="font-semibold">Debug Info:</h3>
-            <p>Columns length: {columns.length}</p>
-            <p>Offers length: {offers.length}</p>
-            <p>Job ID: {currentJobId || 'null'}</p>
-            <p>First column insurer: {columns[0]?.insurer || 'unknown'}</p>
-            <p>First column source: {columns[0]?.source_file || 'unknown'}</p>
-          </div>
-          <ComparisonMatrix
-            columns={columns}
-            allFeatureKeys={allFeatureKeys}
-            currentLanguage={currentLanguage}
-            onShare={shareResults}
-            companyName={companyName}
-            employeesCount={employeesCount}
-          />
-        </>
+        <ComparisonMatrix
+          columns={columns}
+          allFeatureKeys={allFeatureKeys}
+          currentLanguage={currentLanguage}
+          onShare={shareResults}
+          companyName={companyName}
+          employeesCount={employeesCount}
+        />
       )}
     </div>
   );

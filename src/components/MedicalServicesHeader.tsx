@@ -1,11 +1,11 @@
 import { Language, useTranslation } from "@/utils/translations";
 import { Badge } from "@/components/ui/badge";
 
-interface FooterProps {
+interface MedicalServicesHeaderProps {
   currentLanguage: Language;
 }
 
-const Footer = ({ currentLanguage }: FooterProps) => {
+const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) => {
   const { t } = useTranslation(currentLanguage);
 
   const medicalCategories = [
@@ -79,8 +79,8 @@ const Footer = ({ currentLanguage }: FooterProps) => {
   ];
 
   return (
-    <footer className="bg-muted/50 border-t border-border mt-16">
-      <div className="container mx-auto p-6 max-w-7xl">
+    <div className="bg-gradient-to-br from-primary/5 via-background to-secondary/5 border border-border rounded-xl p-6 mb-8 shadow-sm">
+      <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
           {/* Patient Payment Section */}
           <div>
@@ -142,8 +142,8 @@ const Footer = ({ currentLanguage }: FooterProps) => {
           ))}
         </div>
       </div>
-    </footer>
+    </div>
   );
 };
 
-export default Footer;
+export default MedicalServicesHeader;
