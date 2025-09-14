@@ -255,8 +255,8 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
             {metaRows.map((row) => (
               <div key={row.key} className="flex border-b">
                 {/* Sticky Feature Name */}
-                <div className="sticky left-0 w-[280px] bg-card border-r p-4 z-10 bg-muted/20">
-                  <div className="font-medium text-sm">{row.label}</div>
+                <div className="sticky left-0 w-[280px] bg-black border-r p-4 z-10 shadow-lg">
+                  <div className="font-medium text-sm text-white">{row.label}</div>
                 </div>
                 
                 {/* Values */}
@@ -314,9 +314,8 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                 className={`flex border-b ${index % 2 === 0 ? 'bg-muted/10' : ''}`}
               >
                 {/* Sticky Feature Name */}
-                <div className="sticky left-0 w-[280px] bg-card border-r p-4 z-10" 
-                     style={{ backgroundColor: index % 2 === 0 ? 'hsl(var(--muted) / 0.1)' : 'hsl(var(--card))' }}>
-                  <div className="text-sm font-medium">{featureKey}</div>
+                <div className="sticky left-0 w-[280px] bg-black border-r p-4 z-10 shadow-lg">
+                  <div className="text-sm font-medium text-white">{featureKey}</div>
                 </div>
                 
                 {/* Feature Values */}

@@ -62,9 +62,11 @@ export const useAsyncOffers = (inquiryId?: number, jobId?: string) => {
 
   const pollJob = async (currentJobId: string) => {
     try {
+      console.log('Polling job:', currentJobId);
       const response = await fetch(`${BACKEND_URL}/jobs/${currentJobId}`);
       if (response.ok) {
         const jobData: JobStatus = await response.json();
+        console.log('Job data:', jobData);
         setJob(jobData);
         
         if (jobData.done >= jobData.total) {
@@ -82,6 +84,8 @@ export const useAsyncOffers = (inquiryId?: number, jobId?: string) => {
             setIsLoading(false);
           }, 6000);
         }
+      } else {
+        console.error('Job polling failed:', response.status, response.statusText);
       }
     } catch (err) {
       console.error('Failed to poll job:', err);
@@ -90,10 +94,14 @@ export const useAsyncOffers = (inquiryId?: number, jobId?: string) => {
 
   const pollOffers = async (currentInquiryId: number) => {
     try {
+      console.log('Polling offers for inquiry:', currentInquiryId);
       const response = await fetch(`${BACKEND_URL}/offers/by-inquiry/${currentInquiryId}`);
       if (response.ok) {
         const offersData: OfferResult[] = await response.json();
+        console.log('Offers data:', offersData);
         setOffers(offersData);
+      } else {
+        console.error('Offers polling failed:', response.status, response.statusText);
       }
     } catch (err) {
       console.error('Failed to poll offers:', err);

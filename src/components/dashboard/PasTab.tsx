@@ -72,15 +72,13 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
   async function startAsyncProcessing(files: UploadItem[], inquiryId?: string): Promise<{ job_id: string; inquiry_id: number }> {
     const form = new FormData();
     
-    // Add all files
-    files.forEach((item) => {
+    // Add all files with their individual hints
+    files.forEach((item, index) => {
       form.append('files', item.file);
+      form.append(`file_${index}_insurer`, item.hint);
     });
     
-    // Add metadata (using the first item's hint as the insurer)
-    if (files.length > 0) {
-      form.append('insurer', files[0].hint);
-    }
+    // Add metadata
     form.append('company', companyName);
     form.append('insured_count', employeesCount.toString());
     if (inquiryId) form.append('inquiry_id', inquiryId);
@@ -137,11 +135,14 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
 
       // Start async processing
       try {
+        console.log('Starting async processing with files:', items.map(i => ({ name: i.file.name, hint: i.hint })));
         const { job_id, inquiry_id } = await startAsyncProcessing(items, inquiryId || undefined);
+        console.log('Async processing started:', { job_id, inquiry_id });
         setCurrentJobId(job_id);
         setCurrentInquiryId(inquiry_id);
         toast.success('Processing started...');
       } catch (err: any) {
+        console.error('Async processing failed:', err);
         toast.error(`${t('failed') || 'Failed'}: ${err?.message || 'Upload error'}`);
         setIsUploading(false);
       }
