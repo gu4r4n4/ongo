@@ -159,28 +159,34 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     }
 
     try {
-      const res = await fetch(`${BACKEND_URL}/shares`, {
+      // Use secure Supabase Edge Function for share creation
+      const response = await fetch('/functions/v1/create-share', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
+        },
         body: JSON.stringify({
           inquiry_id: currentInquiryId,
           title: "Piedāvājums",
           payload: {
             company_name: companyName,
             employees_count: employeesCount
-          }
+          },
+          expires_in_hours: 168 // 7 days
         }),
       });
 
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data?.detail || `Failed (${res.status})`);
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data?.error || `Failed (${response.status})`);
       }
 
-      const { url } = await res.json();
+      const { url } = await response.json();
       window.open(url, '_blank', 'noopener,noreferrer');
       toast.success('Share link created');
     } catch (err: any) {
+      console.error('Share creation error:', err);
       toast.error(`${t('failed') || 'Failed'}: ${err?.message || 'Share error'}`);
     }
   };

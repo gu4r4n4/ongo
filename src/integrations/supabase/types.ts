@@ -370,6 +370,39 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      get_feature_values_for_shared_inquiry: {
+        Args: { share_token: string }
+        Returns: {
+          feature_key: string
+          offer_id: number
+          value_num: number
+          value_text: string
+        }[]
+      }
+      get_offers_for_shared_inquiry: {
+        Args: { share_token: string }
+        Returns: {
+          base_sum_eur: number
+          created_at: string
+          features: Json
+          filename: string
+          id: number
+          inquiry_id: number
+          insurer: string
+          payment_method: string
+          premium_eur: number
+          program_code: string
+        }[]
+      }
+      get_share_by_token: {
+        Args: { share_token: string }
+        Returns: {
+          created_at: string
+          expires_at: string
+          inquiry_id: number
+          payload: Json
+        }[]
+      }
       upsert_offer_with_features: {
         Args: { p: Json }
         Returns: number
