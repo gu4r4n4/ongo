@@ -67,6 +67,45 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     setAllFeatureKeys(Array.from(featureSet).sort());
   }
 
+  // Save offers to Supabase database
+  async function saveOffersToDatabase(offersData: any[]) {
+    const { supabase } = await import('@/integrations/supabase/client');
+    
+    for (const group of offersData) {
+      for (const program of group.programs || []) {
+        // Find the corresponding insurer hint from the original file selection
+        const sourceFile = group.source_file;
+        const originalItem = items.find(item => sourceFile.includes(item.file.name));
+        const company_hint = originalItem?.hint || program.insurer;
+        
+        const offerData = {
+          filename: sourceFile,
+          insurer: program.insurer,
+          company_hint: company_hint,
+          program_code: program.program_code,
+          base_sum_eur: program.base_sum_eur,
+          premium_eur: program.premium_eur,
+          payment_method: program.payment_method,
+          features: program.features || {},
+          company_name: companyName,
+          employee_count: employeesCount,
+          inquiry_id: inquiryId ? parseInt(inquiryId) : null
+        };
+
+        try {
+          const { error } = await supabase.rpc('upsert_offer_with_features', { 
+            p: offerData 
+          });
+          if (error) {
+            console.error('Error saving offer to database:', error);
+          }
+        } catch (err) {
+          console.error('Failed to save offer:', err);
+        }
+      }
+    }
+  }
+
   // Polling by document IDs
   function startOffersPolling(ids: string[]) {
     if (!ids || ids.length === 0) return;
@@ -83,6 +122,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     .then(data => {
       setOffers(data || []);
       buildMatrix(data || []);
+      saveOffersToDatabase(data || []); // Save to database
       setIsLoading(false);
     })
     .catch(() => { 
@@ -100,6 +140,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
         const data = await r.json();
         setOffers(data || []);
         buildMatrix(data || []);
+        saveOffersToDatabase(data || []); // Save to database
       } catch {}
     }, 2500);
 
