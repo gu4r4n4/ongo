@@ -8,10 +8,8 @@ import { Language, useTranslation } from "@/utils/translations";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
 import { InsurerLogo } from "@/components/InsurerLogo";
-import { useAsyncOffers } from "@/hooks/useAsyncOffers";
 import { ComparisonMatrix } from "./ComparisonMatrix";
 import MedicalServicesHeader from "@/components/MedicalServicesHeader";
-// (remove supabase import)
 import { BACKEND_URL } from "@/config";
 
 type Insurer = 'BTA' | 'Balta' | 'BAN' | 'Compensa' | 'ERGO' | 'Gjensidige' | 'If' | 'Seesam';
@@ -35,18 +33,115 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
   const [items, setItems] = useState<UploadItem[]>([]);
   const [isUploading, setIsUploading] = useState(false);
 
-  // Async processing state - Initialize as null to ensure clean state
+  // New state for document-based polling
   const [currentJobId, setCurrentJobId] = useState<string | null>(null);
   const [docIds, setDocIds] = useState<string[]>([]);
+  const [offers, setOffers] = useState<any[]>([]);
+  const [columns, setColumns] = useState<any[]>([]);
+  const [allFeatureKeys, setAllFeatureKeys] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [job, setJob] = useState<{ total: number; done: number; errors: any[] } | null>(null);
 
-  // Use the async offers hook
-  const { offers, job, columns, allFeatureKeys, isLoading } =
-    useAsyncOffers({ backendUrl: BACKEND_URL, jobId: currentJobId });
+  // Build matrix from offers data
+  function buildMatrix(grouped: any[]) {
+    const cols = grouped.flatMap((g) =>
+      g.programs.map((program: any) => ({
+        id: `${g.source_file}::${program.insurer}::${program.program_code}`,
+        label: program.insurer || g.source_file,
+        source_file: g.source_file,
+        insurer: program.insurer,
+        program_code: program.program_code,
+        premium_eur: program.premium_eur,
+        base_sum_eur: program.base_sum_eur,
+        payment_method: program.payment_method,
+        features: program.features || {},
+        group: g,
+      }))
+    );
+    setColumns(cols);
+
+    const featureSet = new Set<string>();
+    for (const col of cols) {
+      Object.keys(col.features || {}).forEach((k) => featureSet.add(k));
+    }
+    setAllFeatureKeys(Array.from(featureSet).sort());
+  }
+
+  // Polling by document IDs
+  function startOffersPolling(ids: string[]) {
+    if (!ids || ids.length === 0) return;
+
+    setIsLoading(true);
+
+    // Immediate fetch
+    fetch(`${BACKEND_URL}/offers/by-documents`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ document_ids: ids })
+    })
+    .then(r => r.json())
+    .then(data => {
+      setOffers(data || []);
+      buildMatrix(data || []);
+      setIsLoading(false);
+    })
+    .catch(() => { 
+      setIsLoading(false);
+    });
+
+    // Interval polling
+    const timer = setInterval(async () => {
+      try {
+        const r = await fetch(`${BACKEND_URL}/offers/by-documents`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ document_ids: ids })
+        });
+        const data = await r.json();
+        setOffers(data || []);
+        buildMatrix(data || []);
+      } catch {}
+    }, 2500);
+
+    return () => clearInterval(timer);
+  }
+
+  // Optional job progress tracking
+  useEffect(() => {
+    if (!currentJobId) return;
+    let alive = true;
+    const tick = async () => {
+      try {
+        const r = await fetch(`${BACKEND_URL}/jobs/${currentJobId}`);
+        if (r.ok) {
+          const j = await r.json();
+          setJob(j);
+          // Stop loading when job is complete
+          if (j.done >= j.total) {
+            setIsUploading(false);
+          }
+        }
+      } catch {}
+      if (alive) setTimeout(tick, 2500);
+    };
+    tick();
+    return () => { alive = false; };
+  }, [currentJobId]);
+
+  // Start polling when docIds change
+  useEffect(() => {
+    if (!docIds.length) return;
+    return startOffersPolling(docIds);
+  }, [docIds]);
 
   const onFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // CLEAR OLD RESULTS IMMEDIATELY when new files selected
-    setCurrentJobId(null);
+    // Clear old results immediately when new files selected
+    setOffers([]);
+    setColumns([]);
+    setAllFeatureKeys([]);
     setDocIds([]);
+    setCurrentJobId(null);
+    setJob(null);
     
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
@@ -104,9 +199,14 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
       return;
     }
 
-    setIsUploading(true);
-    setCurrentJobId(null);
+    // Clear previous state before starting new upload
+    setOffers([]);
+    setColumns([]);
+    setAllFeatureKeys([]);
     setDocIds([]);
+    setCurrentJobId(null);
+    setJob(null);
+    setIsUploading(true);
 
     try {
       const { job_id, documents } = await startAsyncProcessing(items, inquiryId || undefined);
@@ -122,7 +222,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
   // Share functionality
   const shareResults = async () => {
     if (!docIds.length) {
-      toast.error('No documents to share yet.');
+      toast.error('No processed results to share.');
       return;
     }
 
@@ -131,18 +231,16 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          // LIVE by documents (keeps updating as backend finishes)
-          document_ids: docIds,
           title: "Piedāvājums",
           company_name: companyName,
           employees_count: employeesCount,
-          expires_in_hours: 168
+          document_ids: docIds
         }),
       });
 
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
-        throw new Error(data?.error || `Failed (${response.status})`);
+        throw new Error(data?.detail || `Failed (${response.status})`);
       }
 
       const { url } = await response.json();
@@ -152,11 +250,6 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
       toast.error(`${t('failed') || 'Failed'}: ${err?.message || 'Share error'}`);
     }
   };
-
-  // Stop uploading when job is complete
-  if (isUploading && job && job.done >= job.total) {
-    setIsUploading(false);
-  }
 
   return (
     <div className="space-y-6">
