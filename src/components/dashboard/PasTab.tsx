@@ -357,7 +357,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
                 {/* Header Row */}
                 <div className="flex border-b bg-muted/50">
                   {/* Sticky Feature Names Column */}
-                  <div className="sticky left-0 min-w-[240px] bg-muted/50 border-r p-4 z-10">
+                  <div className="sticky left-0 w-[280px] bg-muted/50 border-r p-4 z-10">
                     <div className="font-semibold text-sm">{t('features')}</div>
                   </div>
                   
@@ -373,8 +373,8 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
                     return allPrograms.map((program, idx) => (
                       <div key={idx} className="min-w-[240px] p-4 border-r last:border-r-0 bg-card">
                         <div className="flex flex-col items-center text-center space-y-2">
-                          <div className="w-12 h-12 flex items-center justify-center">
-                            <InsurerLogo name={program.insurer} className="w-full h-full object-contain" />
+                          <div className="w-12 h-12 flex items-center justify-center rounded-md bg-muted/30">
+                            <InsurerLogo name={program.insurer} className="w-10 h-10 object-contain" />
                           </div>
                           <div className="font-semibold text-sm">{program.insurer}</div>
                           <Badge variant="outline" className="text-xs">{program.program_code}</Badge>
@@ -408,11 +408,11 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
                     });
                   });
 
-                  return Array.from(allFeatureKeys).map(featureKey => (
-                    <div key={featureKey} className="flex border-b last:border-b-0">
+                  return Array.from(allFeatureKeys).map((featureKey, rowIdx) => (
+                    <div key={featureKey} className={`flex border-b last:border-b-0 ${rowIdx % 2 === 0 ? 'bg-muted/20' : 'bg-card'}`}>
                       {/* Sticky Feature Name */}
-                      <div className="sticky left-0 min-w-[240px] bg-card border-r p-4 z-10">
-                        <div className="text-sm font-medium">{featureKey}</div>
+                      <div className="sticky left-0 w-[280px] bg-inherit border-r p-4 z-10">
+                        <div className="text-sm font-medium leading-relaxed pr-2">{featureKey}</div>
                       </div>
                       
                       {/* Feature Values */}
@@ -425,11 +425,11 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
                         } else if (value === 'No' || value === '-' || value === false || value === null || value === undefined) {
                           displayValue = <Minus className="h-4 w-4 text-red-600 mx-auto" />;
                         } else if (value !== null && value !== undefined) {
-                          displayValue = <span className="text-sm">{String(value)}</span>;
+                          displayValue = <span className="text-sm text-center block">{String(value)}</span>;
                         }
                         
                         return (
-                          <div key={idx} className="min-w-[240px] p-4 border-r last:border-r-0 flex items-center justify-center">
+                          <div key={idx} className="min-w-[240px] p-4 border-r last:border-r-0 flex items-center justify-center min-h-[3rem]">
                             {displayValue}
                           </div>
                         );
