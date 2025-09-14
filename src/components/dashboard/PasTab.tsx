@@ -228,12 +228,13 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
 
   async function startAsyncProcessing(files: UploadItem[], inquiryId?: string): Promise<{ job_id: string; documents: string[] }> {
     const form = new FormData();
-    files.forEach((item, index) => {
-      form.append('files', item.file);
-      form.append(`file_${index}_insurer`, item.hint);
+    files.forEach((item) => {
+      form.append('files', item.file);      // repeats – order matters
+      form.append('insurers', item.hint);   // repeats – same order as files
     });
     form.append('company', companyName);
-    form.append('insured_count', employeesCount.toString());
+    form.append('insured_count', String(employeesCount));
+    // inquiry_id is optional; only include it if you actually have one
     if (inquiryId) form.append('inquiry_id', inquiryId);
     const res = await fetch(`${BACKEND_URL}/extract/multiple-async`, { method: 'POST', body: form });
     if (!res.ok) {
