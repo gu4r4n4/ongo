@@ -144,40 +144,36 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
       return;
     }
 
-    console.log('=== STARTING UPLOAD ===');
+    console.log('=== STARTING NEW SESSION ===');
     console.log('Starting upload with items:', items);
-    setIsUploading(true);
     
-    // FORCE CLEAR ALL OLD DATA - CRITICAL FOR NEW SESSION
+    // CRITICAL: Force complete state reset for new session
+    setIsUploading(true);
     setCurrentJobId(null);
     setDocIds([]);
     
-    // Force clear the useAsyncOffers hook by removing jobId completely
-    await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to ensure state updates
+    // Generate session identifier to prevent confusion with old jobs
+    const sessionId = Date.now().toString();
+    console.log('New session ID:', sessionId);
     
-    console.log('Cleared old data - jobId and docIds reset');
+    // Give React time to process state updates
+    await new Promise(resolve => setTimeout(resolve, 200));
+    
+    console.log('State cleared - starting fresh processing');
 
     try {
-      // Start async processing directly - no separate metadata save needed
-
       // Start async processing
-      try {
-        console.log('Starting async processing with files:', items.map(i => ({ name: i.file.name, hint: i.hint })));
-        const { job_id, documents } = await startAsyncProcessing(items, inquiryId || undefined);
-        console.log('Async processing started:', { job_id, documents });
-        
-        // Note: Backend will create the offer records when processing completes
-
-        setCurrentJobId(job_id);
-        setDocIds(documents);
-        toast.success('Processing started...');
-      } catch (err: any) {
-        console.error('Async processing failed:', err);
-        toast.error(`${t('failed') || 'Failed'}: ${err?.message || 'Upload error'}`);
-        setIsUploading(false);
-      }
-    } catch (error) {
-      console.error('General upload error:', error);
+      console.log('Starting async processing with files:', items.map(i => ({ name: i.file.name, hint: i.hint })));
+      const { job_id, documents } = await startAsyncProcessing(items, inquiryId || undefined);
+      console.log('New async processing started:', { job_id, documents, sessionId });
+      
+      // Only set the new job ID after successful start
+      setCurrentJobId(job_id);
+      setDocIds(documents);
+      toast.success('Processing started...');
+    } catch (err: any) {
+      console.error('Async processing failed:', err);
+      toast.error(`${t('failed') || 'Failed'}: ${err?.message || 'Upload error'}`);
       setIsUploading(false);
     }
   };

@@ -83,59 +83,79 @@ export function useAsyncOffers({ backendUrl, jobId, documentIds, pollMs = 2000 }
     console.log('=== useAsyncOffers useEffect triggered ===');
     console.log('Dependencies changed:', { backendUrl, jobId, documentIds });
     
-    stopRef.current = false;
+    // Always stop previous polling first
+    stopRef.current = true;
     
-    // CRITICAL: Clear all state when jobId is null
+    // Reset to clean state immediately
+    setOffers([]);
+    setJob(null);
+    setIsLoading(false);
+    
+    // If no jobId or documentIds, stay in clean state
     if (!jobId && !documentIds?.length) {
-      console.log('No jobId or documentIds, clearing all state');
-      setOffers([]);
-      setJob(null);
-      setIsLoading(false);
+      console.log('No jobId or documentIds, maintaining clean state');
       return;
     }
 
-    // Only initialize state for new jobs
-    setOffers([]);
-    setJob(null);
+    // Small delay to allow cleanup, then start fresh polling
+    const startFreshPolling = async () => {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      stopRef.current = false;
+      console.log('Starting fresh polling for jobId:', jobId);
 
-    let t: any;
-    const loop = async () => {
-      try {
-        setIsLoading(true);
-        if (jobId) {
-          // 1) get job status
-          const j = await fetchJob(jobId);
-          if (stopRef.current) return;
-          setJob(j);
+      let t: any;
+      const loop = async () => {
+        try {
+          setIsLoading(true);
+          if (jobId && !stopRef.current) {
+            // 1) get job status
+            const j = await fetchJob(jobId);
+            if (stopRef.current) return;
+            setJob(j);
 
-          // 2) get offers for that job
-          const o = await fetchOffersByJob(jobId);
-          if (stopRef.current) return;
-          setOffers(o);
+            // 2) get offers for that job
+            const o = await fetchOffersByJob(jobId);
+            if (stopRef.current) return;
+            setOffers(o);
 
-          // stop when done, else keep polling
-          if (j.done >= j.total) {
+            // stop when done, else keep polling
+            if (j.done >= j.total) {
+              setIsLoading(false);
+              return;
+            }
+          } else if (documentIds?.length && !stopRef.current) {
+            const o = await fetchOffersByDocs(documentIds);
+            if (stopRef.current) return;
+            setOffers(o);
             setIsLoading(false);
             return;
           }
-        } else if (documentIds?.length) {
-          const o = await fetchOffersByDocs(documentIds);
-          if (stopRef.current) return;
-          setOffers(o);
+        } catch (error) {
+          console.error('Polling error:', error);
+          // keep polling; transient errors happen while background tasks run
+        } finally {
+          if (!stopRef.current && (jobId || documentIds?.length)) {
+            t = setTimeout(loop, pollMs);
+          } else {
+            setIsLoading(false);
+          }
         }
-      } catch {
-        // keep polling; transient errors happen while background tasks run
-      } finally {
-        if (!stopRef.current && (jobId || documentIds?.length)) {
-          t = setTimeout(loop, pollMs);
-        }
-      }
-    };
+      };
 
-    loop();
+      loop();
+      
+      return () => {
+        stopRef.current = true;
+        if (t) clearTimeout(t);
+        setIsLoading(false);
+      };
+    };
+    
+    startFreshPolling();
+    
     return () => {
       stopRef.current = true;
-      if (t) clearTimeout(t);
     };
   }, [backendUrl, jobId, JSON.stringify(documentIds), pollMs]);
 
