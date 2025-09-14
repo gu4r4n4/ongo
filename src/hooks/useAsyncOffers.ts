@@ -141,9 +141,9 @@ export function useAsyncOffers({ backendUrl, jobId, documentIds, pollMs = 2000 }
 
   // build columns & feature keys for ComparisonMatrix
   const { columns, allFeatureKeys } = useMemo(() => {
-    const cols = offers.flatMap((g) =>
-      g.programs.map((program) => ({
-        id: `${g.source_file}::${program.insurer}::${program.program_code}`,
+    const cols = offers.flatMap((g, groupIndex) =>
+      g.programs.map((program, programIndex) => ({
+        id: `${g.source_file}::${program.insurer}::${program.program_code}::${groupIndex}::${programIndex}`,
         label: program.insurer || g.source_file,
         source_file: g.source_file,
         insurer: program.insurer,
