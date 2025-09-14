@@ -132,10 +132,12 @@ export const useAsyncOffers = (inquiryId?: number, jobId?: string) => {
       }
 
       console.log('Raw offers data from Supabase:', offersData);
+      console.log('Number of records found:', offersData?.length || 0);
 
       // Group records by filename to merge processing and parsed data
       const groupedByFilename: Record<string, any[]> = {};
       offersData?.forEach(offer => {
+        console.log('Processing offer:', offer.id, offer.filename, offer.status, offer.insurer, offer.company_hint);
         const filename = offer.filename || 'unknown.pdf';
         if (!groupedByFilename[filename]) {
           groupedByFilename[filename] = [];
@@ -155,6 +157,8 @@ export const useAsyncOffers = (inquiryId?: number, jobId?: string) => {
         if (parsedRecord) {
           // Use insurer info from processing record if available, otherwise from parsed record
           const insurer = processingRecord?.insurer || processingRecord?.company_hint || parsedRecord.insurer || parsedRecord.company_hint || '';
+          
+          console.log('Creating program for', filename, 'with insurer:', insurer, 'from records:', records.length);
           
           if (!groupedByFile[filename]) {
             groupedByFile[filename] = [];
@@ -190,6 +194,7 @@ export const useAsyncOffers = (inquiryId?: number, jobId?: string) => {
   useEffect(() => {
     if (!jobId || !inquiryId) return;
 
+    console.log('Starting polling with jobId:', jobId, 'inquiryId:', inquiryId);
     setIsLoading(true);
     setError(null);
 
@@ -208,16 +213,20 @@ export const useAsyncOffers = (inquiryId?: number, jobId?: string) => {
 
   // Also fetch offers when only inquiryId is available (for existing data)
   useEffect(() => {
+    console.log('Effect triggered with inquiryId:', inquiryId, 'jobId:', jobId);
     if (inquiryId && !jobId) {
-      // Just fetch once if we don't have an active job
+      console.log('Fetching existing offers for inquiry:', inquiryId);
       pollOffers(inquiryId);
     } else if (!inquiryId && !jobId) {
-      // If no inquiryId at all, fetch recent offers
+      console.log('No inquiryId, fetching recent offers');
       pollOffers(0);
     }
   }, [inquiryId, jobId]);
 
   useEffect(() => {
+    // Fetch recent offers on component mount to show existing data
+    console.log('Component mounted, fetching recent offers');
+    pollOffers(0);
     return clearIntervals;
   }, []);
 
