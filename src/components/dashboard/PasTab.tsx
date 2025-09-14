@@ -124,28 +124,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     setCurrentInquiryId(null);
 
     try {
-      // If Inquiry ID is present, save metadata first
-      if (inquiryId) {
-        try {
-          console.log('Saving inquiry metadata for ID:', inquiryId);
-          await fetch(`https://visbrokerhouse.onrender.com/inquiries/${inquiryId}/meta`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              company_name: companyName || null,
-              employees_count: !employeesCount ? null : Number(employeesCount)
-            }),
-          }).then(r => {
-            if (!r.ok) throw new Error('Failed to save inquiry meta');
-          });
-          console.log('Inquiry metadata saved successfully');
-        } catch (err: any) {
-          console.error('Failed to save inquiry metadata:', err);
-          toast.error(`Failed to save inquiry metadata: ${err?.message || 'Unknown error'}`);
-          setIsUploading(false);
-          return;
-        }
-      }
+      // Start async processing directly - no separate metadata save needed
 
       // Start async processing
       try {
