@@ -139,7 +139,7 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
             {/* Column 1 */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Badge className="bg-teal-100 text-teal-800" variant="secondary">
+                <Badge className="text-black" variant="secondary" style={{ backgroundColor: '#81d8d0' }}>
                   Vispārīgs
                 </Badge>
                 <ul className="space-y-1 ml-2">
@@ -148,7 +148,7 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
               </div>
 
               <div className="space-y-2">
-                <Badge className="bg-teal-100 text-teal-800" variant="secondary">
+                <Badge className="text-black" variant="secondary" style={{ backgroundColor: '#81d8d0' }}>
                   Alternatīvs
                 </Badge>
                 <ul className="space-y-1 ml-2">
@@ -158,7 +158,7 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
               </div>
 
               <div className="space-y-2">
-                <Badge className="bg-teal-100 text-teal-800" variant="secondary">
+                <Badge className="text-black" variant="secondary" style={{ backgroundColor: '#81d8d0' }}>
                   Akadēmisks
                 </Badge>
                 <ul className="space-y-1 ml-2">
@@ -170,7 +170,7 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
             {/* Column 2 */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Badge className="bg-teal-100 text-teal-800" variant="secondary">
+                <Badge className="text-black" variant="secondary" style={{ backgroundColor: '#81d8d0' }}>
                   Speciālists
                 </Badge>
                 <ul className="space-y-1 ml-2">
@@ -180,7 +180,7 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
               </div>
 
               <div className="space-y-2">
-                <Badge className="bg-teal-100 text-teal-800" variant="secondary">
+                <Badge className="text-black" variant="secondary" style={{ backgroundColor: '#81d8d0' }}>
                   Sports
                 </Badge>
                 <ul className="space-y-1 ml-2">
@@ -189,7 +189,7 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
               </div>
 
               <div className="space-y-2">
-                <Badge className="bg-teal-100 text-teal-800" variant="secondary">
+                <Badge className="text-black" variant="secondary" style={{ backgroundColor: '#81d8d0' }}>
                   Mentāls
                 </Badge>
                 <ul className="space-y-1 ml-2">
@@ -202,8 +202,8 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
             {/* Column 3 */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Badge className="bg-red-100 text-red-800" variant="secondary">
-                  Ādas
+                <Badge className="text-black" variant="secondary" style={{ backgroundColor: '#81d8d0' }}>
+                  Āda
                 </Badge>
                 <ul className="space-y-1 ml-2">
                   <li className="text-sm text-muted-foreground">• Dermatologs</li>
@@ -211,7 +211,7 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
               </div>
 
               <div className="space-y-2">
-                <Badge className="bg-red-100 text-red-800" variant="secondary">
+                <Badge className="text-black" variant="secondary" style={{ backgroundColor: '#81d8d0' }}>
                   Terapija
                 </Badge>
                 <ul className="space-y-1 ml-2">
@@ -221,7 +221,7 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
               </div>
 
               <div className="space-y-2">
-                <Badge className="bg-red-100 text-red-800" variant="secondary">
+                <Badge className="text-black" variant="secondary" style={{ backgroundColor: '#81d8d0' }}>
                   Attālināts
                 </Badge>
                 <ul className="space-y-1 ml-2">
