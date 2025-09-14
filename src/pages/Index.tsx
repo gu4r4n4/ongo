@@ -9,6 +9,7 @@ import InquiriesTab from "@/components/dashboard/InquiriesTab";
 import LeadsTab from "@/components/dashboard/LeadsTab";
 import ApiConnectionTab from "@/components/dashboard/ApiConnectionTab";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import Footer from "@/components/Footer";
 import { Language, useTranslation } from "@/utils/translations";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -94,6 +95,7 @@ const Index = () => {
           </TabsContent>
         </Tabs>
       </div>
+      <Footer currentLanguage={currentLanguage} />
     </div>
   );
 };
