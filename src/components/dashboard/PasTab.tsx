@@ -10,6 +10,7 @@ import { Trash2 } from "lucide-react";
 import { InsurerLogo } from "@/components/InsurerLogo";
 import { useAsyncOffers } from "@/hooks/useAsyncOffers";
 import { ComparisonMatrix } from "./ComparisonMatrix";
+import Footer from "@/components/Footer";
 // Supabase is not needed on the FE for this flow
 import { BACKEND_URL } from "@/config";
 
@@ -321,6 +322,11 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
           )}
         </CardContent>
       </Card>
+
+      {/* Results Header - Only show when processing starts */}
+      {(isUploading || isLoading || columns.length > 0) && (
+        <Footer currentLanguage={currentLanguage} />
+      )}
 
       {/* Results */}
       {columns.length > 0 && (

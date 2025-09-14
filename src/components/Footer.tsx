@@ -79,34 +79,34 @@ const Footer = ({ currentLanguage }: FooterProps) => {
   ];
 
   return (
-    <footer className="bg-gradient-to-r from-slate-50 to-slate-100 border-t border-slate-200 mt-20">
-      <div className="container mx-auto p-8 max-w-7xl">
+    <div className="bg-gradient-to-br from-primary/5 via-background to-secondary/5 border border-border rounded-xl p-6 mb-8 shadow-sm">
+      <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
           {/* Patient Payment Section */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">
+            <h3 className="text-lg font-semibold text-foreground mb-3">
               {t('patientPayment')}
             </h3>
-            <p className="text-sm text-blue-600 mb-4">
+            <p className="text-sm text-muted-foreground mb-4">
               {t('patientPaymentDesc')}
             </p>
-            <p className="text-sm text-blue-600">
+            <p className="text-sm text-muted-foreground">
               Ārsniecības iestāžu saraksts un valsts apmaksātie ambulatorie pakalpojumi →
             </p>
           </div>
 
           {/* Paid Services Section */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">
+            <h3 className="text-lg font-semibold text-foreground mb-3">
               {t('paidServices')}
             </h3>
-            <p className="text-sm text-blue-600 mb-4">
+            <p className="text-sm text-muted-foreground mb-4">
               {t('paidServicesDesc')}
             </p>
-            <p className="text-sm text-blue-600 mb-2">
+            <p className="text-sm text-muted-foreground mb-2">
               Maksas pakalpojuma saņemšanai iespējams izvēlēties pakalpojuma sniedzēju →
             </p>
-            <ul className="text-sm text-blue-600 space-y-1">
+            <ul className="text-sm text-muted-foreground space-y-1">
               <li>• Maksas diagnostiskajiem pakalpojumiem nepieciešams ārsta nosūtījums</li>
               <li>• Tiek piemērots apdrošinātāja pakalpojuma apmaksas cenrādis</li>
               <li>• Par neapmaksāto daļu iespējams saņemt pārmaksāto IIN</li>
@@ -115,10 +115,10 @@ const Footer = ({ currentLanguage }: FooterProps) => {
 
           {/* Doctor Visits Section */}  
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">
+            <h3 className="text-lg font-semibold text-foreground mb-3">
               {t('doctorVisits')}
             </h3>
-            <p className="text-sm text-blue-600 mb-6">
+            <p className="text-sm text-muted-foreground mb-6">
               {t('doctorVisitsDesc')}
             </p>
           </div>
@@ -133,7 +133,7 @@ const Footer = ({ currentLanguage }: FooterProps) => {
               </Badge>
               <ul className="space-y-1">
                 {category.services.map((service, serviceIndex) => (
-                  <li key={serviceIndex} className="text-sm text-gray-600">
+                  <li key={serviceIndex} className="text-sm text-muted-foreground">
                     • {service}
                   </li>
                 ))}
@@ -142,7 +142,7 @@ const Footer = ({ currentLanguage }: FooterProps) => {
           ))}
         </div>
       </div>
-    </footer>
+    </div>
   );
 };
 
