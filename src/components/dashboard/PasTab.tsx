@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Language, useTranslation } from "@/utils/translations";
 import { toast } from "sonner";
-import { Trash2, Check, Minus, Share2 } from "lucide-react";
+import { Trash2, Check, Minus, Share2, Edit, Save, X } from "lucide-react";
 import { InsurerLogo } from "@/components/InsurerLogo";
 
 type Insurer = 'BTA' | 'Balta' | 'BAN' | 'Compensa' | 'ERGO' | 'Gjensidige' | 'If' | 'Seesam';
@@ -51,6 +51,60 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
 
   // Each element in results corresponds to one uploaded file's ApiResponse
   const [results, setResults] = useState<ApiResponse[]>([]);
+
+  // Edit mode state
+  const [editingProgram, setEditingProgram] = useState<{ resultIdx: number; programIdx: number } | null>(null);
+  const [editFormData, setEditFormData] = useState<Partial<Program>>({});
+
+  // Drag scrolling functionality
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const handleMouseDown = (e: MouseEvent) => {
+      setIsDragging(true);
+      setStartX(e.pageX - container.offsetLeft);
+      setScrollLeft(container.scrollLeft);
+      container.style.cursor = 'grabbing';
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging) return;
+      e.preventDefault();
+      const x = e.pageX - container.offsetLeft;
+      const walk = (x - startX) * 2;
+      container.scrollLeft = scrollLeft - walk;
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      container.style.cursor = 'grab';
+    };
+
+    const handleMouseLeave = () => {
+      setIsDragging(false);
+      container.style.cursor = 'grab';
+    };
+
+    container.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    container.addEventListener('mouseleave', handleMouseLeave);
+
+    container.style.cursor = 'grab';
+
+    return () => {
+      container.removeEventListener('mousedown', handleMouseDown);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      container.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, [isDragging, startX, scrollLeft]);
 
   const onFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -160,6 +214,34 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     } finally {
       setIsUploading(false);
     }
+  };
+
+  // Edit functionality
+  const startEdit = (resultIdx: number, programIdx: number) => {
+    const program = results[resultIdx].programs[programIdx];
+    setEditingProgram({ resultIdx, programIdx });
+    setEditFormData({ ...program });
+  };
+
+  const cancelEdit = () => {
+    setEditingProgram(null);
+    setEditFormData({});
+  };
+
+  const saveEdit = () => {
+    if (!editingProgram) return;
+    
+    const { resultIdx, programIdx } = editingProgram;
+    const updatedResults = [...results];
+    updatedResults[resultIdx].programs[programIdx] = {
+      ...updatedResults[resultIdx].programs[programIdx],
+      ...editFormData
+    };
+    
+    setResults(updatedResults);
+    setEditingProgram(null);
+    setEditFormData({});
+    toast.success('Program updated successfully');
   };
 
   // ----- Share: snapshot current results and open public link -----
@@ -352,40 +434,103 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
 
           {/* Side-by-side Comparison Grid */}
           <div className="rounded-lg border bg-card">
-            <div className="overflow-x-auto">
+            <div ref={scrollContainerRef} className="overflow-x-auto select-none">
               <div className="min-w-fit">
                 {/* Header Row */}
                 <div className="flex border-b bg-muted/50">
                   {/* Sticky Feature Names Column */}
-                  <div className="sticky left-0 w-[280px] bg-muted/50 border-r p-4 z-10">
+                  <div className="sticky left-0 w-[280px] bg-card border-r p-4 z-10">
                     <div className="font-semibold text-sm">{t('features')}</div>
                   </div>
                   
                   {/* Program Columns Headers */}
                   {(() => {
-                    const allPrograms: Program[] = [];
-                    results.forEach(result => {
-                      result.programs.forEach(program => {
-                        allPrograms.push(program);
+                    const allPrograms: { program: Program; resultIdx: number; programIdx: number }[] = [];
+                    results.forEach((result, resultIdx) => {
+                      result.programs.forEach((program, programIdx) => {
+                        allPrograms.push({ program, resultIdx, programIdx });
                       });
                     });
                     
-                    return allPrograms.map((program, idx) => (
-                      <div key={idx} className="min-w-[240px] p-4 border-r last:border-r-0 bg-card">
-                        <div className="flex flex-col items-center text-center space-y-2">
-                          <div className="w-12 h-12 flex items-center justify-center rounded-md bg-muted/30">
-                            <InsurerLogo name={program.insurer} className="w-10 h-10 object-contain" />
-                          </div>
-                          <div className="font-semibold text-sm">{program.insurer}</div>
-                          <Badge variant="outline" className="text-xs">{program.program_code}</Badge>
-                          <div className="text-xs space-y-1">
-                            <div><span className="text-muted-foreground">{t('baseSum')}:</span> €{program.base_sum_eur?.toLocaleString?.() ?? program.base_sum_eur}</div>
-                            <div><span className="text-muted-foreground">{t('premium')}:</span> €{program.premium_eur?.toLocaleString?.() ?? program.premium_eur}</div>
-                            <div><span className="text-muted-foreground">{t('payment')}:</span> {program.payment_method || '-'}</div>
+                    return allPrograms.map(({ program, resultIdx, programIdx }, idx) => {
+                      const isEditing = editingProgram?.resultIdx === resultIdx && editingProgram?.programIdx === programIdx;
+                      
+                      return (
+                        <div key={idx} className="min-w-[240px] p-4 border-r last:border-r-0 bg-card">
+                          <div className="flex flex-col items-center text-center space-y-2">
+                            <div className="w-12 h-12 flex items-center justify-center rounded-md bg-muted/30">
+                              <InsurerLogo name={program.insurer} className="w-10 h-10 object-contain" />
+                            </div>
+                            <div className="font-semibold text-sm">{program.insurer}</div>
+                            <Badge variant="outline" className="text-xs">{program.program_code}</Badge>
+                            
+                            {isEditing ? (
+                              <div className="w-full space-y-2">
+                                <div className="text-xs">
+                                  <Label className="text-[10px]">{t('baseSum')}</Label>
+                                  <Input
+                                    type="number"
+                                    value={editFormData.base_sum_eur || ''}
+                                    onChange={(e) => setEditFormData(prev => ({ ...prev, base_sum_eur: Number(e.target.value) }))}
+                                    className="h-6 text-xs"
+                                  />
+                                </div>
+                                <div className="text-xs">
+                                  <Label className="text-[10px]">{t('premium')}</Label>
+                                  <Input
+                                    type="number"
+                                    value={editFormData.premium_eur || ''}
+                                    onChange={(e) => setEditFormData(prev => ({ ...prev, premium_eur: Number(e.target.value) }))}
+                                    className="h-6 text-xs"
+                                  />
+                                </div>
+                                <div className="text-xs">
+                                  <Label className="text-[10px]">{t('payment')}</Label>
+                                  <Select 
+                                    value={editFormData.payment_method || ''} 
+                                    onValueChange={(value) => setEditFormData(prev => ({ ...prev, payment_method: value }))}
+                                  >
+                                    <SelectTrigger className="h-6 text-xs">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="Cenrāža programma">Cenrāža programma</SelectItem>
+                                      <SelectItem value="100% apmaksa līgumiestādēs un ja pakalpojums ir nopirkts">100% apmaksa līgumiestādēs un ja pakalpojums ir nopirkts</SelectItem>
+                                      <SelectItem value="100% apmaksa līgumiestādēs">100% apmaksa līgumiestādēs</SelectItem>
+                                      <SelectItem value="Procentuāla programma">Procentuāla programma</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div className="flex gap-1">
+                                  <Button size="sm" onClick={saveEdit} className="h-6 px-2 text-xs">
+                                    <Save className="h-3 w-3" />
+                                  </Button>
+                                  <Button size="sm" variant="outline" onClick={cancelEdit} className="h-6 px-2 text-xs">
+                                    <X className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : (
+                              <>
+                                <div className="text-xs space-y-1">
+                                  <div><span className="text-muted-foreground">{t('baseSum')}:</span> €{program.base_sum_eur?.toLocaleString?.() ?? program.base_sum_eur}</div>
+                                  <div><span className="text-muted-foreground">{t('premium')}:</span> €{program.premium_eur?.toLocaleString?.() ?? program.premium_eur}</div>
+                                  <div><span className="text-muted-foreground">{t('payment')}:</span> {program.payment_method || '-'}</div>
+                                </div>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline" 
+                                  onClick={() => startEdit(resultIdx, programIdx)}
+                                  className="h-6 px-2 text-xs"
+                                >
+                                  <Edit className="h-3 w-3" />
+                                </Button>
+                              </>
+                            )}
                           </div>
                         </div>
-                      </div>
-                    ));
+                      );
+                    });
                   })()}
                 </div>
 
@@ -411,7 +556,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
                   return Array.from(allFeatureKeys).map((featureKey, rowIdx) => (
                     <div key={featureKey} className={`flex border-b last:border-b-0 ${rowIdx % 2 === 0 ? 'bg-muted/20' : 'bg-card'}`}>
                       {/* Sticky Feature Name */}
-                      <div className="sticky left-0 w-[280px] bg-inherit border-r p-4 z-10">
+                      <div className={`sticky left-0 w-[280px] border-r p-4 z-10 ${rowIdx % 2 === 0 ? 'bg-muted/20' : 'bg-card'}`}>
                         <div className="text-sm font-medium leading-relaxed pr-2">{featureKey}</div>
                       </div>
                       
