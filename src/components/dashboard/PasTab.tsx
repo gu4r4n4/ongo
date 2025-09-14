@@ -273,12 +273,22 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
         </CardContent>
       </Card>
 
-      {/* Medical Services Header - Only show when there are actual results */}
+      {/* Results Header - Company info and instructions */}
       {currentJobId && columns.length > 0 && (
-        <MedicalServicesHeader currentLanguage={currentLanguage} />
+        <Card>
+          <CardHeader>
+            <CardTitle>Results</CardTitle>
+            <CardDescription>
+              <div className="space-y-1">
+                <div><strong>{t('company')}:</strong> {companyName}</div>
+                <div><strong>{t('employeeCount')}:</strong> {employeesCount}</div>
+              </div>
+            </CardDescription>
+          </CardHeader>
+        </Card>
       )}
 
-      {/* Results */}
+      {/* Results Matrix */}
       {currentJobId && columns.length > 0 && (
         <ComparisonMatrix
           key={currentJobId}               // forces a fresh matrix per run
@@ -289,6 +299,11 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
           companyName={companyName}
           employeesCount={employeesCount}
         />
+      )}
+
+      {/* Medical Services Footer - Legend */}
+      {currentJobId && columns.length > 0 && (
+        <MedicalServicesHeader currentLanguage={currentLanguage} />
       )}
     </div>
   );
