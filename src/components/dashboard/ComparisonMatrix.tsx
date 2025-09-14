@@ -40,6 +40,9 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
   const [scrollLeft, setScrollLeft] = useState(0);
 
   useEffect(() => {
+    console.log('=== ComparisonMatrix useEffect ===');
+    console.log('New columns received:', columns.length);
+    console.log('Columns data:', columns);
     setLocalColumns(columns);
   }, [columns]);
 

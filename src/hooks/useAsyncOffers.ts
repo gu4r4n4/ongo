@@ -46,6 +46,15 @@ export function useAsyncOffers({ backendUrl, jobId, documentIds, pollMs = 2000 }
   const [isLoading, setIsLoading] = useState(false);
   const stopRef = useRef(false);
 
+  // Debug logging
+  console.log('=== useAsyncOffers Debug ===');
+  console.log('backendUrl:', backendUrl);
+  console.log('jobId:', jobId);
+  console.log('documentIds:', documentIds);
+  console.log('offers.length:', offers.length);
+  console.log('job:', job);
+  console.log('=== End useAsyncOffers Debug ===');
+
   // fetch helpers
   const fetchJob = async (id: string) => {
     const res = await fetch(`${backendUrl}/jobs/${encodeURIComponent(id)}`);
@@ -71,11 +80,17 @@ export function useAsyncOffers({ backendUrl, jobId, documentIds, pollMs = 2000 }
 
   // polling
   useEffect(() => {
+    console.log('=== useAsyncOffers useEffect triggered ===');
+    console.log('Dependencies changed:', { backendUrl, jobId, documentIds });
+    
     stopRef.current = false;
     setOffers([]);
     setJob(null);
 
-    if (!jobId && !documentIds?.length) return;
+    if (!jobId && !documentIds?.length) {
+      console.log('No jobId or documentIds, exiting early');
+      return;
+    }
 
     let t: any;
     const loop = async () => {

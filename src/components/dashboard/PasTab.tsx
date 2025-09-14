@@ -42,8 +42,16 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
   const { offers, job, columns, allFeatureKeys, isLoading } =
     useAsyncOffers({ backendUrl: BACKEND_URL, jobId: currentJobId });
 
-  // Debug logging
-  console.log('PasTab debug:', { currentJobId, docIds, offers, job });
+  // Debug logging - this should appear in console
+  console.log('=== PasTab Debug ===');
+  console.log('currentJobId:', currentJobId);
+  console.log('docIds:', docIds);
+  console.log('offers:', offers);
+  console.log('job:', job);
+  console.log('BACKEND_URL:', BACKEND_URL);
+  console.log('isLoading:', isLoading);
+  console.log('columns.length:', columns.length);
+  console.log('=== End Debug ===');
 
   // Force component to re-render with new key when jobId changes
   const componentKey = `pastab-${currentJobId || 'initial'}`;
@@ -121,10 +129,14 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
       return;
     }
 
+    console.log('=== STARTING UPLOAD ===');
     console.log('Starting upload with items:', items);
     setIsUploading(true);
+    
+    // Force clear all old data
     setCurrentJobId(null);
     setDocIds([]);
+    console.log('Cleared old data - jobId and docIds reset');
 
     try {
       // Start async processing directly - no separate metadata save needed
@@ -310,14 +322,24 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
 
       {/* Results */}
       {columns.length > 0 && (
-        <ComparisonMatrix
-          columns={columns}
-          allFeatureKeys={allFeatureKeys}
-          currentLanguage={currentLanguage}
-          onShare={shareResults}
-          companyName={companyName}
-          employeesCount={employeesCount}
-        />
+        <>
+          <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded">
+            <h3 className="font-semibold">Debug Info:</h3>
+            <p>Columns length: {columns.length}</p>
+            <p>Offers length: {offers.length}</p>
+            <p>Job ID: {currentJobId || 'null'}</p>
+            <p>First column insurer: {columns[0]?.insurer || 'unknown'}</p>
+            <p>First column source: {columns[0]?.source_file || 'unknown'}</p>
+          </div>
+          <ComparisonMatrix
+            columns={columns}
+            allFeatureKeys={allFeatureKeys}
+            currentLanguage={currentLanguage}
+            onShare={shareResults}
+            companyName={companyName}
+            employeesCount={employeesCount}
+          />
+        </>
       )}
     </div>
   );
