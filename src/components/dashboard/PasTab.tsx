@@ -273,20 +273,6 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
         </CardContent>
       </Card>
 
-      {/* Results Header - Company info and instructions */}
-      {currentJobId && columns.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Results</CardTitle>
-            <CardDescription>
-              <div className="space-y-1">
-                <div><strong>{t('company')}:</strong> {companyName}</div>
-                <div><strong>{t('employeeCount')}:</strong> {employeesCount}</div>
-              </div>
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      )}
 
       {/* Results Matrix */}
       {currentJobId && columns.length > 0 && (
