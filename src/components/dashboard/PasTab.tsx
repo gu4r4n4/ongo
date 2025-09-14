@@ -11,7 +11,7 @@ import { InsurerLogo } from "@/components/InsurerLogo";
 import { useAsyncOffers } from "@/hooks/useAsyncOffers";
 import { ComparisonMatrix } from "./ComparisonMatrix";
 import MedicalServicesHeader from "@/components/MedicalServicesHeader";
-import { supabase } from "@/integrations/supabase/client";
+// (remove supabase import)
 import { BACKEND_URL } from "@/config";
 
 type Insurer = 'BTA' | 'Balta' | 'BAN' | 'Compensa' | 'ERGO' | 'Gjensidige' | 'If' | 'Seesam';
@@ -39,31 +39,9 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
   const [currentJobId, setCurrentJobId] = useState<string | null>(null);
   const [docIds, setDocIds] = useState<string[]>([]);
 
-  // Clear any cached results on component mount
-  useEffect(() => {
-    console.log('PasTab mounted - clearing any cached results');
-    setCurrentJobId(null);
-    setDocIds([]);
-    setItems([]);
-  }, []);
-
   // Use the async offers hook
   const { offers, job, columns, allFeatureKeys, isLoading } =
     useAsyncOffers({ backendUrl: BACKEND_URL, jobId: currentJobId });
-
-  // Debug logging - this should appear in console
-  console.log('=== PasTab Debug ===');
-  console.log('currentJobId:', currentJobId);
-  console.log('docIds:', docIds);
-  console.log('offers:', offers);
-  console.log('job:', job);
-  console.log('BACKEND_URL:', BACKEND_URL);
-  console.log('isLoading:', isLoading);
-  console.log('columns.length:', columns.length);
-  console.log('=== End Debug ===');
-
-  // Force component to re-render with new key when jobId changes
-  const componentKey = `pastab-${currentJobId || 'initial'}`;
 
   const onFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // CLEAR OLD RESULTS IMMEDIATELY when new files selected
@@ -97,38 +75,20 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
   };
 
   async function startAsyncProcessing(files: UploadItem[], inquiryId?: string): Promise<{ job_id: string; documents: string[] }> {
-    console.log('Creating FormData with files:', files.length);
     const form = new FormData();
-    
-    // Add all files with their individual hints
     files.forEach((item, index) => {
-      console.log(`Adding file ${index}: ${item.file.name} with insurer: ${item.hint}`);
       form.append('files', item.file);
       form.append(`file_${index}_insurer`, item.hint);
     });
-    
-    // Add metadata
     form.append('company', companyName);
     form.append('insured_count', employeesCount.toString());
     if (inquiryId) form.append('inquiry_id', inquiryId);
-
-    console.log('Making request to:', `${BACKEND_URL}/extract/multiple-async`);
-    
-    const res = await fetch(`${BACKEND_URL}/extract/multiple-async`, {
-      method: 'POST',
-      body: form
-    });
-
-    console.log('Response status:', res.status);
-    
+    const res = await fetch(`${BACKEND_URL}/extract/multiple-async`, { method: 'POST', body: form });
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      console.error('Upload failed with data:', data);
       throw new Error(data?.error || `Upload failed (${res.status})`);
     }
-
     const response = await res.json();
-    console.log('Upload response:', response);
     return { job_id: response.job_id, documents: response.documents || [] };
   }
 
@@ -144,35 +104,16 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
       return;
     }
 
-    console.log('=== STARTING NEW SESSION ===');
-    console.log('Starting upload with items:', items);
-    
-    // CRITICAL: Force complete state reset for new session
     setIsUploading(true);
     setCurrentJobId(null);
     setDocIds([]);
-    
-    // Generate session identifier to prevent confusion with old jobs
-    const sessionId = Date.now().toString();
-    console.log('New session ID:', sessionId);
-    
-    // Give React time to process state updates
-    await new Promise(resolve => setTimeout(resolve, 200));
-    
-    console.log('State cleared - starting fresh processing');
 
     try {
-      // Start async processing
-      console.log('Starting async processing with files:', items.map(i => ({ name: i.file.name, hint: i.hint })));
       const { job_id, documents } = await startAsyncProcessing(items, inquiryId || undefined);
-      console.log('New async processing started:', { job_id, documents, sessionId });
-      
-      // Only set the new job ID after successful start
       setCurrentJobId(job_id);
       setDocIds(documents);
       toast.success('Processing started...');
     } catch (err: any) {
-      console.error('Async processing failed:', err);
       toast.error(`${t('failed') || 'Failed'}: ${err?.message || 'Upload error'}`);
       setIsUploading(false);
     }
@@ -186,17 +127,15 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     }
 
     try {
-      // Live view (keeps updating while backend finishes remaining files):
       const response = await fetch(`${BACKEND_URL}/shares`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          // LIVE by documents (keeps updating as backend finishes)
+          document_ids: docIds,
           title: "Piedāvājums",
           company_name: companyName,
           employees_count: employeesCount,
-          document_ids: docIds,          // live-by-documents mode
-          // If you want a frozen snapshot instead, send:
-          // results: offers,
           expires_in_hours: 168
         }),
       });
@@ -210,7 +149,6 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
       window.open(url, '_blank', 'noopener,noreferrer');
       toast.success('Share link created');
     } catch (err: any) {
-      console.error('Share creation error:', err);
       toast.error(`${t('failed') || 'Failed'}: ${err?.message || 'Share error'}`);
     }
   };
@@ -336,13 +274,14 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
       </Card>
 
       {/* Medical Services Header - Only show when there are actual results */}
-      {columns.length > 0 && (
+      {currentJobId && columns.length > 0 && (
         <MedicalServicesHeader currentLanguage={currentLanguage} />
       )}
 
       {/* Results */}
-      {columns.length > 0 && (
+      {currentJobId && columns.length > 0 && (
         <ComparisonMatrix
+          key={currentJobId}               // forces a fresh matrix per run
           columns={columns}
           allFeatureKeys={allFeatureKeys}
           currentLanguage={currentLanguage}

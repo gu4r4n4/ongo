@@ -30,12 +30,11 @@ export type Column = {
   group: OfferGroup;
 };
 
-type Job = { total: number; done: number; errors: Array<{ document_id: string; error: string }>; docs?: string[] };
+type Job = { total: number; done: number; errors: Array<{ document_id: string; error: string }> };
 
 type UseAsyncOffersArgs = {
   backendUrl: string;
   jobId?: string | null;
-  // optional: if you want to pull by known documents instead of job:
   documentIds?: string[] | null;
   pollMs?: number;
 };
@@ -46,16 +45,6 @@ export function useAsyncOffers({ backendUrl, jobId, documentIds, pollMs = 2000 }
   const [isLoading, setIsLoading] = useState(false);
   const stopRef = useRef(false);
 
-  // Debug logging
-  console.log('=== useAsyncOffers Debug ===');
-  console.log('backendUrl:', backendUrl);
-  console.log('jobId:', jobId);
-  console.log('documentIds:', documentIds);
-  console.log('offers.length:', offers.length);
-  console.log('job:', job);
-  console.log('=== End useAsyncOffers Debug ===');
-
-  // fetch helpers
   const fetchJob = async (id: string) => {
     const res = await fetch(`${backendUrl}/jobs/${encodeURIComponent(id)}`);
     if (!res.ok) throw new Error(`Job fetch failed (${res.status})`);
@@ -63,7 +52,7 @@ export function useAsyncOffers({ backendUrl, jobId, documentIds, pollMs = 2000 }
   };
 
   const fetchOffersByJob = async (id: string) => {
-    const res = await fetch(`${backendUrl}/offers/by-job/${encodeURIComponent(id)}`, { method: "GET" });
+    const res = await fetch(`${backendUrl}/offers/by-job/${encodeURIComponent(id)}`);
     if (!res.ok) throw new Error(`Offers fetch failed (${res.status})`);
     return (await res.json()) as OfferGroup[];
   };
@@ -78,92 +67,57 @@ export function useAsyncOffers({ backendUrl, jobId, documentIds, pollMs = 2000 }
     return (await res.json()) as OfferGroup[];
   };
 
-  // polling
   useEffect(() => {
-    console.log('=== useAsyncOffers useEffect triggered ===');
-    console.log('Dependencies changed:', { backendUrl, jobId, documentIds });
-    
-    // Always stop previous polling first
-    stopRef.current = true;
-    
-    // Reset to clean state immediately
+    stopRef.current = false;
     setOffers([]);
     setJob(null);
-    setIsLoading(false);
-    
-    // If no jobId or documentIds, stay in clean state
-    if (!jobId && !documentIds?.length) {
-      console.log('No jobId or documentIds, maintaining clean state');
-      return;
-    }
 
-    // Small delay to allow cleanup, then start fresh polling
-    const startFreshPolling = async () => {
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      stopRef.current = false;
-      console.log('Starting fresh polling for jobId:', jobId);
+    // IMPORTANT: no jobId AND no docs => do not fetch anything
+    if (!jobId && !documentIds?.length) return;
 
-      let t: any;
-      const loop = async () => {
-        try {
-          setIsLoading(true);
-          if (jobId && !stopRef.current) {
-            // 1) get job status
-            const j = await fetchJob(jobId);
-            if (stopRef.current) return;
-            setJob(j);
+    let t: any;
+    const loop = async () => {
+      try {
+        setIsLoading(true);
 
-            // 2) get offers for that job
-            const o = await fetchOffersByJob(jobId);
-            if (stopRef.current) return;
-            setOffers(o);
+        if (jobId) {
+          const j = await fetchJob(jobId);
+          if (stopRef.current) return;
+          setJob(j);
 
-            // stop when done, else keep polling
-            if (j.done >= j.total) {
-              setIsLoading(false);
-              return;
-            }
-          } else if (documentIds?.length && !stopRef.current) {
-            const o = await fetchOffersByDocs(documentIds);
-            if (stopRef.current) return;
-            setOffers(o);
+          const o = await fetchOffersByJob(jobId);
+          if (stopRef.current) return;
+          setOffers(o);
+
+          if (j.done >= j.total) {
             setIsLoading(false);
-            return;
+            return; // stop polling when done
           }
-        } catch (error) {
-          console.error('Polling error:', error);
-          // keep polling; transient errors happen while background tasks run
-        } finally {
-          if (!stopRef.current && (jobId || documentIds?.length)) {
-            t = setTimeout(loop, pollMs);
-          } else {
-            setIsLoading(false);
-          }
+        } else if (documentIds?.length) {
+          const o = await fetchOffersByDocs(documentIds);
+          if (stopRef.current) return;
+          setOffers(o);
         }
-      };
-
-      loop();
-      
-      return () => {
-        stopRef.current = true;
-        if (t) clearTimeout(t);
-        setIsLoading(false);
-      };
+      } catch {
+        // ignore transient errors during background processing
+      } finally {
+        if (!stopRef.current && (jobId || documentIds?.length)) {
+          t = setTimeout(loop, pollMs);
+        }
+      }
     };
-    
-    startFreshPolling();
-    
+
+    loop();
     return () => {
       stopRef.current = true;
+      if (t) clearTimeout(t);
     };
   }, [backendUrl, jobId, JSON.stringify(documentIds), pollMs]);
 
-  // build columns & feature keys for ComparisonMatrix
   const { columns, allFeatureKeys } = useMemo(() => {
-    const cols = offers.flatMap((g, groupIndex) =>
-      g.programs.map((program, programIndex) => ({
-        id: `${g.source_file}::${program.insurer}::${program.program_code}::${groupIndex}::${programIndex}`,
+    const cols = offers.flatMap((g) =>
+      g.programs.map((program) => ({
+        id: `${g.source_file}::${program.insurer}::${program.program_code}`,
         label: program.insurer || g.source_file,
         source_file: g.source_file,
         insurer: program.insurer,
