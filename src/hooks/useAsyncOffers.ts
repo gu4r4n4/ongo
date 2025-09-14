@@ -113,11 +113,13 @@ export const useAsyncOffers = (inquiryId?: number, jobId?: string) => {
     try {
       console.log('Polling offers for inquiry:', currentInquiryId);
       
-      // Fetch offers from Supabase
+      // Fetch offers from Supabase - only get parsed records with actual data
       const { data: offersData, error } = await supabase
         .from('offers')
         .select('*')
-        .eq('inquiry_id', currentInquiryId);
+        .eq('inquiry_id', currentInquiryId)
+        .eq('status', 'parsed')
+        .not('program_code', 'is', null);
 
       if (error) {
         console.error('Error fetching offers:', error);
