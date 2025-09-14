@@ -74,7 +74,9 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
   };
 
   const setItemHint = (idx: number, value: Insurer) => {
+    console.log(`Setting hint for file ${idx} to: ${value}`);
     setItems((prev) => prev.map((it, i) => (i === idx ? { ...it, hint: value } : it)));
+    console.log('Updated items after hint change:', items.map(it => ({ name: it.file.name, hint: it.hint })));
   };
 
   const removeItem = (idx: number) => {

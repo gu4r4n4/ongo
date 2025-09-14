@@ -79,8 +79,8 @@ const Footer = ({ currentLanguage }: FooterProps) => {
   ];
 
   return (
-    <footer className="bg-white border-t border-gray-200 mt-12">
-      <div className="container mx-auto p-6 max-w-7xl">
+    <footer className="bg-gradient-to-r from-slate-50 to-slate-100 border-t border-slate-200 mt-20">
+      <div className="container mx-auto p-8 max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
           {/* Patient Payment Section */}
           <div>

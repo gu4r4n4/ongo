@@ -95,7 +95,9 @@ const Index = () => {
           </TabsContent>
         </Tabs>
       </div>
-      <Footer currentLanguage={currentLanguage} />
+      <div className="mt-16">
+        <Footer currentLanguage={currentLanguage} />
+      </div>
     </div>
   );
 };
