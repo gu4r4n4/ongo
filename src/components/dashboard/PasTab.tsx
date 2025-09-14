@@ -73,10 +73,26 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     
     for (const group of offersData) {
       for (const program of group.programs || []) {
-        // Find the corresponding insurer hint from the original file selection
+        // Extract filename from document ID (format: job_id::n::filename)
         const sourceFile = group.source_file;
-        const originalItem = items.find(item => sourceFile.includes(item.file.name));
-        const company_hint = originalItem?.hint || program.insurer;
+        const filenamePart = sourceFile.split('::').pop(); // Get the last part after ::
+        
+        // Find the corresponding insurer hint from the original file selection
+        const originalItem = items.find(item => 
+          item.file.name === filenamePart || 
+          filenamePart?.includes(item.file.name) ||
+          item.file.name.includes(filenamePart || '')
+        );
+        
+        const company_hint = originalItem?.hint || null;
+        
+        console.log('Saving offer with:', {
+          sourceFile,
+          filenamePart, 
+          originalFileName: originalItem?.file.name,
+          company_hint,
+          insurer: program.insurer
+        });
         
         const offerData = {
           filename: sourceFile,
