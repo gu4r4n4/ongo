@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-
-const BACKEND_URL = 'https://gpt-vis.onrender.com';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface Program {
   insurer: string;
@@ -63,9 +62,29 @@ export const useAsyncOffers = (inquiryId?: number, jobId?: string) => {
   const pollJob = async (currentJobId: string) => {
     try {
       console.log('Polling job:', currentJobId);
-      const response = await fetch(`${BACKEND_URL}/jobs/${currentJobId}`);
-      if (response.ok) {
-        const jobData: JobStatus = await response.json();
+      
+      // Since we're using Supabase now, we'll simulate job completion
+      // In a real implementation, you might store job status in Supabase too
+      // For now, we'll check if offers exist for the inquiry
+      if (inquiryId) {
+        const { data: existingOffers, error } = await supabase
+          .from('offers')
+          .select('id')
+          .eq('inquiry_id', inquiryId);
+
+        if (error) {
+          console.error('Error checking job status:', error);
+          return;
+        }
+
+        const offerCount = existingOffers?.length || 0;
+        const jobData: JobStatus = {
+          inquiry_id: inquiryId,
+          total: 1, // Simplified for now
+          done: offerCount > 0 ? 1 : 0,
+          errors: []
+        };
+
         console.log('Job data:', jobData);
         setJob(jobData);
         
@@ -75,17 +94,15 @@ export const useAsyncOffers = (inquiryId?: number, jobId?: string) => {
             jobIntervalRef.current = null;
           }
           
-          // Continue polling offers for 6 more seconds to catch last writes
+          // Continue polling offers for 2 more seconds to catch last writes
           extraPollingTimeoutRef.current = setTimeout(() => {
             if (offersIntervalRef.current) {
               clearInterval(offersIntervalRef.current);
               offersIntervalRef.current = null;
             }
             setIsLoading(false);
-          }, 6000);
+          }, 2000);
         }
-      } else {
-        console.error('Job polling failed:', response.status, response.statusText);
       }
     } catch (err) {
       console.error('Failed to poll job:', err);
@@ -95,14 +112,49 @@ export const useAsyncOffers = (inquiryId?: number, jobId?: string) => {
   const pollOffers = async (currentInquiryId: number) => {
     try {
       console.log('Polling offers for inquiry:', currentInquiryId);
-      const response = await fetch(`${BACKEND_URL}/offers/by-inquiry/${currentInquiryId}`);
-      if (response.ok) {
-        const offersData: OfferResult[] = await response.json();
-        console.log('Offers data:', offersData);
-        setOffers(offersData);
-      } else {
-        console.error('Offers polling failed:', response.status, response.statusText);
+      
+      // Fetch offers from Supabase
+      const { data: offersData, error } = await supabase
+        .from('offers')
+        .select('*')
+        .eq('inquiry_id', currentInquiryId);
+
+      if (error) {
+        console.error('Error fetching offers:', error);
+        return;
       }
+
+      // Transform Supabase data to match the expected OfferResult format
+      const transformedOffers: OfferResult[] = [];
+      const groupedByFile: Record<string, Program[]> = {};
+
+      offersData?.forEach(offer => {
+        const filename = offer.filename || 'unknown.pdf';
+        if (!groupedByFile[filename]) {
+          groupedByFile[filename] = [];
+        }
+        
+        groupedByFile[filename].push({
+          insurer: offer.insurer || '',
+          program_code: offer.program_code || '',
+          base_sum_eur: offer.base_sum_eur,
+          premium_eur: offer.premium_eur,
+          payment_method: offer.payment_method,
+          features: (offer.features as Record<string, any>) || {}
+        });
+      });
+
+      // Convert grouped data to OfferResult format
+      Object.entries(groupedByFile).forEach(([filename, programs]) => {
+        transformedOffers.push({
+          source_file: filename,
+          inquiry_id: currentInquiryId,
+          programs
+        });
+      });
+
+      console.log('Transformed offers data:', transformedOffers);
+      setOffers(transformedOffers);
     } catch (err) {
       console.error('Failed to poll offers:', err);
     }
@@ -126,6 +178,14 @@ export const useAsyncOffers = (inquiryId?: number, jobId?: string) => {
 
     return clearIntervals;
   }, [jobId, inquiryId]);
+
+  // Also fetch offers when only inquiryId is available (for existing data)
+  useEffect(() => {
+    if (inquiryId && !jobId) {
+      // Just fetch once if we don't have an active job
+      pollOffers(inquiryId);
+    }
+  }, [inquiryId, jobId]);
 
   useEffect(() => {
     return clearIntervals;
