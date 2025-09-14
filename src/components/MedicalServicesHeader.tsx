@@ -123,7 +123,7 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
             </ul>
           </div>
 
-          {/* Doctor Visits Section */}  
+          {/* Doctor Visits Section - 3 Column Grid Layout */}  
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-foreground">
               Ārsta vizītes
@@ -132,22 +132,101 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
               Pieejamie medicīnas speciālisti un pakalpojumi
             </p>
             
-            {/* Medical Categories Grid - organized in columns */}
-            <div className="grid grid-cols-1 gap-4">
-              {medicalCategories.map((category, index) => (
-                <div key={index} className="space-y-2">
-                  <Badge className={category.color} variant="secondary">
-                    {category.title}
+            {/* Medical Categories - 3 Column Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Column 1 */}
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Badge className="bg-teal-100 text-teal-800" variant="secondary">
+                    Vispārīgs
                   </Badge>
                   <ul className="space-y-1 ml-2">
-                    {category.services.map((service, serviceIndex) => (
-                      <li key={serviceIndex} className="text-sm text-muted-foreground">
-                        • {service}
-                      </li>
-                    ))}
+                    <li className="text-sm text-muted-foreground">• Ģimenes ārsts (maksas)</li>
                   </ul>
                 </div>
-              ))}
+
+                <div className="space-y-2">
+                  <Badge className="bg-teal-100 text-teal-800" variant="secondary">
+                    Alternatīvs
+                  </Badge>
+                  <ul className="space-y-1 ml-2">
+                    <li className="text-sm text-muted-foreground">• Homeopāts</li>
+                    <li className="text-sm text-muted-foreground">• Osteopāts</li>
+                  </ul>
+                </div>
+
+                <div className="space-y-2">
+                  <Badge className="bg-teal-100 text-teal-800" variant="secondary">
+                    Akadēmisks
+                  </Badge>
+                  <ul className="space-y-1 ml-2">
+                    <li className="text-sm text-muted-foreground">• Docenta konsultācija</li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Column 2 */}
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Badge className="bg-teal-100 text-teal-800" variant="secondary">
+                    Speciālists
+                  </Badge>
+                  <ul className="space-y-1 ml-2">
+                    <li className="text-sm text-muted-foreground">• Kardiologs, LOR, neirologs</li>
+                    <li className="text-sm text-muted-foreground">• Ginekologs, urologs u.c.</li>
+                  </ul>
+                </div>
+
+                <div className="space-y-2">
+                  <Badge className="bg-teal-100 text-teal-800" variant="secondary">
+                    Sports
+                  </Badge>
+                  <ul className="space-y-1 ml-2">
+                    <li className="text-sm text-muted-foreground">• Sporta ārsts</li>
+                  </ul>
+                </div>
+
+                <div className="space-y-2">
+                  <Badge className="bg-teal-100 text-teal-800" variant="secondary">
+                    Mentāls
+                  </Badge>
+                  <ul className="space-y-1 ml-2">
+                    <li className="text-sm text-muted-foreground">• Psihologs, psihoterapeits</li>
+                    <li className="text-sm text-muted-foreground">• Psihiatrs (pēc čekiem)</li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Column 3 */}
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Badge className="bg-red-100 text-red-800" variant="secondary">
+                    Ādas
+                  </Badge>
+                  <ul className="space-y-1 ml-2">
+                    <li className="text-sm text-muted-foreground">• Dermatologs</li>
+                  </ul>
+                </div>
+
+                <div className="space-y-2">
+                  <Badge className="bg-red-100 text-red-800" variant="secondary">
+                    Terapija
+                  </Badge>
+                  <ul className="space-y-1 ml-2">
+                    <li className="text-sm text-muted-foreground">• Fizikālās terapijas ārsts</li>
+                    <li className="text-sm text-muted-foreground">• Rehabilitologs, fizioterapeits</li>
+                  </ul>
+                </div>
+
+                <div className="space-y-2">
+                  <Badge className="bg-red-100 text-red-800" variant="secondary">
+                    Attālināts
+                  </Badge>
+                  <ul className="space-y-1 ml-2">
+                    <li className="text-sm text-muted-foreground">• Attālinātas ārstu konsultācijas</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         </div>
