@@ -11,6 +11,27 @@ import { Language, useTranslation } from '@/utils/translations';
 import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
 
+// Feature name translation utility
+const translateFeatureName = (featureKey: string, t: (key: any) => string): string => {
+  // Common feature translations - you can expand this mapping
+  const featureTranslations: Record<string, string> = {
+    // English to translation key mappings
+    'Doctor visits': t('doctorVisits'),
+    'General practitioner': t('familyDoctorPaid'),
+    'Specialist': t('specialist'),
+    'Dermatologist': t('dermatologist'),
+    'Cardiologist': t('cardiologistEtc'),
+    'Psychologist': t('psychologistTherapist'),
+    'Sports doctor': t('sportsDoctor'),
+    'Physical therapy': t('physicalTherapyDoctor'),
+    'Remote consultations': t('remoteDoctorConsultations'),
+    // Add more feature translations as needed
+  };
+  
+  // Return translation if exists, otherwise return original key
+  return featureTranslations[featureKey] || featureKey;
+};
+
 interface ComparisonMatrixProps {
   columns: Column[];
   allFeatureKeys: string[];
@@ -362,7 +383,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
               >
                 {/* Sticky Feature Name */}
                 <div className={`w-[280px] bg-black border-r p-4 z-10 shadow-lg ${isMobile ? '' : 'sticky left-0'}`}>
-                  <div className="text-sm font-medium text-white">{featureKey}</div>
+                  <div className="text-sm font-medium text-white">{translateFeatureName(featureKey, t)}</div>
                 </div>
                 
                 {/* Feature Values */}

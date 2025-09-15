@@ -206,6 +206,21 @@ export const translations = {
     academic: 'Akadēmisks',
     mental: 'Mentāls',
     remote: 'Attālināts',
+    
+    // Medical services translations
+    familyDoctorPaid: 'Ģimenes ārsts (maksas)',
+    cardiologistEtc: 'Kardiologs, LOR, neirologs',
+    gynecologistEtc: 'Ginekologs, urologs u.c.',
+    dermatologist: 'Dermatologs',
+    homeopath: 'Homeopāts',
+    osteopath: 'Osteopāts',
+    sportsDoctor: 'Sporta ārsts',
+    physicalTherapyDoctor: 'Fizikālās terapijas ārsts',
+    rehabilitationPhysio: 'Rehabilitologs, fizioterapeits',
+    docentConsultation: 'Docenta konsultācija',
+    psychologistTherapist: 'Psihologs, psihoterapeits',
+    psychiatristReceipts: 'Psihiatrs (pēc čekiem)',
+    remoteDoctorConsultations: 'Attālinātas ārstu konsultācijas',
   },
   en: {
     // Header
@@ -398,6 +413,21 @@ export const translations = {
     academic: 'Academic',
     mental: 'Mental',
     remote: 'Remote',
+    
+    // Medical services translations
+    familyDoctorPaid: 'Family Doctor (paid)',
+    cardiologistEtc: 'Cardiologist, ENT, neurologist',
+    gynecologistEtc: 'Gynecologist, urologist, etc.',
+    dermatologist: 'Dermatologist',
+    homeopath: 'Homeopath',
+    osteopath: 'Osteopath',
+    sportsDoctor: 'Sports doctor',
+    physicalTherapyDoctor: 'Physical therapy doctor',
+    rehabilitationPhysio: 'Rehabilitation specialist, physiotherapist',
+    docentConsultation: 'Professor consultation',
+    psychologistTherapist: 'Psychologist, psychotherapist',
+    psychiatristReceipts: 'Psychiatrist (with receipts)',
+    remoteDoctorConsultations: 'Remote doctor consultations',
   },
   ru: {
     // Header
@@ -590,6 +620,21 @@ export const translations = {
     academic: 'Академический',
     mental: 'Ментальный',
     remote: 'Удаленный',
+    
+    // Medical services translations
+    familyDoctorPaid: 'Семейный врач (платный)',
+    cardiologistEtc: 'Кардиолог, ЛОР, невролог',
+    gynecologistEtc: 'Гинеколог, уролог и др.',
+    dermatologist: 'Дерматолог',
+    homeopath: 'Гомеопат',
+    osteopath: 'Остеопат',
+    sportsDoctor: 'Спортивный врач',
+    physicalTherapyDoctor: 'Врач физической терапии',
+    rehabilitationPhysio: 'Реабилитолог, физиотерапевт',
+    docentConsultation: 'Консультация доцента',
+    psychologistTherapist: 'Психолог, психотерапевт',
+    psychiatristReceipts: 'Психиатр (по чекам)',
+    remoteDoctorConsultations: 'Удаленные консультации врача',
   },
   et: {
     // Header
@@ -764,6 +809,21 @@ export const translations = {
     academic: 'Akadeemiline',
     mental: 'Vaimne',
     remote: 'Kaugel',
+    
+    // Medical services translations
+    familyDoctorPaid: 'Perearst (tasuline)',
+    cardiologistEtc: 'Kardioloog, ENT, neuroloog',
+    gynecologistEtc: 'Günekoloog, uroloog jms',
+    dermatologist: 'Dermatoloog',
+    homeopath: 'Homeopaat',
+    osteopath: 'Osteopaat',
+    sportsDoctor: 'Spordiarst',
+    physicalTherapyDoctor: 'Füsioterapeut',
+    rehabilitationPhysio: 'Rehabilitatsioonispetsialist, füsioterapeut',
+    docentConsultation: 'Dotsendi konsultatsioon',
+    psychologistTherapist: 'Psühholoog, psühhoterapeut',
+    psychiatristReceipts: 'Psühhiaater (tšekkidega)',
+    remoteDoctorConsultations: 'Kaugkonsultatsioonid',
   },
   lt: {
     // Header
@@ -938,6 +998,21 @@ export const translations = {
     academic: 'Akademinis',
     mental: 'Psichikos',
     remote: 'Nuotolinis',
+    
+    // Medical services translations
+    familyDoctorPaid: 'Šeimos gydytojas (mokamas)',
+    cardiologistEtc: 'Kardiologas, LOR, neurologas',
+    gynecologistEtc: 'Ginekologas, urologas ir kt.',
+    dermatologist: 'Dermatologas',
+    homeopath: 'Homeopatas',
+    osteopath: 'Osteopatas',
+    sportsDoctor: 'Sporto gydytojas',
+    physicalTherapyDoctor: 'Fizioterapijos gydytojas',
+    rehabilitationPhysio: 'Reabilitologas, fizioterapeutas',
+    docentConsultation: 'Docento konsultacija',
+    psychologistTherapist: 'Psichologas, psichoterapeutas',
+    psychiatristReceipts: 'Psichiuatras (pagal čekius)',
+    remoteDoctorConsultations: 'Nuotolinės gydytojų konsultacijos',
   },
   no: {
     // Header
@@ -1098,6 +1173,21 @@ export const translations = {
     academic: 'Akademisk',
     mental: 'Mental',
     remote: 'Ekstern',
+    
+    // Medical services translations
+    familyDoctorPaid: 'Fastlege (betalt)',
+    cardiologistEtc: 'Kardiolog, ØNH, nevrolog',
+    gynecologistEtc: 'Gynekolog, urolog osv.',
+    dermatologist: 'Dermatolog',
+    homeopath: 'Homeopat',
+    osteopath: 'Osteopat',
+    sportsDoctor: 'Idrettslege',
+    physicalTherapyDoctor: 'Fysioterapilege',
+    rehabilitationPhysio: 'Rehabiliteringsspesialist, fysioterapeut',
+    docentConsultation: 'Dosentkonsultasjon',
+    psychologistTherapist: 'Psykolog, psykoterapeut',
+    psychiatristReceipts: 'Psykiater (med kvitteringer)',
+    remoteDoctorConsultations: 'Fjernkonsultasjoner',
   },
   sv: {
     // Header
@@ -1272,6 +1362,21 @@ export const translations = {
     academic: 'Akademisk',
     mental: 'Mental',
     remote: 'Fjärr',
+    
+    // Medical services translations
+    familyDoctorPaid: 'Husläkare (betalning)',
+    cardiologistEtc: 'Kardiolog, ÖNH, neurolog',
+    gynecologistEtc: 'Gynekolog, urolog osv.',
+    dermatologist: 'Dermatolog',
+    homeopath: 'Homeopat',
+    osteopath: 'Osteopat',
+    sportsDoctor: 'Idrottsläkare',
+    physicalTherapyDoctor: 'Fysioterapeut',
+    rehabilitationPhysio: 'Rehabiliteringsspecialist, fysioterapeut',
+    docentConsultation: 'Docentkonsultation',
+    psychologistTherapist: 'Psykolog, psykoterapeut',
+    psychiatristReceipts: 'Psykiater (med kvitton)',
+    remoteDoctorConsultations: 'Fjärrkonsultationer',
   },
   da: {
     // Header
@@ -1446,6 +1551,21 @@ export const translations = {
     academic: 'Akademisk',
     mental: 'Mental',
     remote: 'Fjern',
+    
+    // Medical services translations
+    familyDoctorPaid: 'Familielæge (betalt)',
+    cardiologistEtc: 'Kardiolog, ØNH, neurolog',
+    gynecologistEtc: 'Gynækolog, urolog osv.',
+    dermatologist: 'Dermatolog',
+    homeopath: 'Homøopat',
+    osteopath: 'Osteopat',
+    sportsDoctor: 'Sportslæge',
+    physicalTherapyDoctor: 'Fysioterapilæge',
+    rehabilitationPhysio: 'Rehabiliteringsspecialist, fysioterapeut',
+    docentConsultation: 'Docentkonsultation',
+    psychologistTherapist: 'Psykolog, psykoterapeut',
+    psychiatristReceipts: 'Psykiater (med kvitteringer)',
+    remoteDoctorConsultations: 'Fjernkonsultationer',
   },
   fr: {
     // Header
@@ -1606,6 +1726,21 @@ export const translations = {
     academic: 'Académique',
     mental: 'Mental',
     remote: 'Distant',
+    
+    // Medical services translations
+    familyDoctorPaid: 'Médecin de famille (payant)',
+    cardiologistEtc: 'Cardiologue, ORL, neurologue',
+    gynecologistEtc: 'Gynécologue, urologue, etc.',
+    dermatologist: 'Dermatologue',
+    homeopath: 'Homéopathe',
+    osteopath: 'Ostéopathe',
+    sportsDoctor: 'Médecin du sport',
+    physicalTherapyDoctor: 'Médecin de physiothérapie',
+    rehabilitationPhysio: 'Spécialiste en réadaptation, physiothérapeute',
+    docentConsultation: 'Consultation de professeur',
+    psychologistTherapist: 'Psychologue, psychothérapeute',
+    psychiatristReceipts: 'Psychiatre (avec reçus)',
+    remoteDoctorConsultations: 'Consultations médicales à distance',
   },
   de: {
     // Header
@@ -1780,6 +1915,21 @@ export const translations = {
     academic: 'Akademisch',
     mental: 'Mental',
     remote: 'Fern',
+    
+    // Medical services translations
+    familyDoctorPaid: 'Hausarzt (kostenpflichtig)',
+    cardiologistEtc: 'Kardiologe, HNO, Neurologe',
+    gynecologistEtc: 'Gynäkologe, Urologe usw.',
+    dermatologist: 'Dermatologe',
+    homeopath: 'Homöopath',
+    osteopath: 'Osteopath',
+    sportsDoctor: 'Sportarzt',
+    physicalTherapyDoctor: 'Physiotherapeut',
+    rehabilitationPhysio: 'Rehabilitationsspezialist, Physiotherapeut',
+    docentConsultation: 'Dozentenkonsultation',
+    psychologistTherapist: 'Psychologe, Psychotherapeut',
+    psychiatristReceipts: 'Psychiater (mit Belegen)',
+    remoteDoctorConsultations: 'Fernkonsultationen',
   },
   es: {
     // Header
@@ -1954,6 +2104,21 @@ export const translations = {
     academic: 'Académico',
     mental: 'Mental',
     remote: 'Remoto',
+    
+    // Medical services translations
+    familyDoctorPaid: 'Médico de familia (pagado)',
+    cardiologistEtc: 'Cardiólogo, ORL, neurólogo',
+    gynecologistEtc: 'Ginecólogo, urólogo, etc.',
+    dermatologist: 'Dermatólogo',
+    homeopath: 'Homeópata',
+    osteopath: 'Osteópata',
+    sportsDoctor: 'Médico deportivo',
+    physicalTherapyDoctor: 'Médico de fisioterapia',
+    rehabilitationPhysio: 'Especialista en rehabilitación, fisioterapeuta',
+    docentConsultation: 'Consulta de profesor',
+    psychologistTherapist: 'Psicólogo, psicoterapeuta',
+    psychiatristReceipts: 'Psiquiatra (con recibos)',
+    remoteDoctorConsultations: 'Consultas médicas remotas',
   },
 };
 

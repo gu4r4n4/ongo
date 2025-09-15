@@ -86,10 +86,10 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
           {/* Patient Payment Section */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-foreground">
-              PACIENTA IEMAKSA
+              {t('patientPayment')}
             </h3>
             <p className="text-sm text-muted-foreground">
-              Maksājums, kuru pacients veic, saņemot valsts apmaksātus veselības aprūpes pakalpojumus
+              {t('patientPaymentDesc')}
             </p>
             <a 
               href="https://www.vmnvd.gov.lv/lv/veselibas-aprupes-pakalpojumi/ambulatoras-iestades-un-arsti-specialisti"
@@ -104,10 +104,10 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
           {/* Paid Services Section */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-foreground">
-              MAKSAS AMBULATORIE PAKALPOJUMI
+              {t('paidServices')}
             </h3>
             <p className="text-sm text-muted-foreground">
-              Privāti apmaksāti medicīnas pakalpojumi
+              {t('paidServicesDesc')}
             </p>
             <a 
               href="https://registri.vi.gov.lv/air"
@@ -128,10 +128,10 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
         {/* Bottom Row - Full Width Doctor Visits Section */}
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-foreground">
-            Ārsta vizītes
+            {t('doctorVisits')}
           </h3>
           <p className="text-sm text-muted-foreground mb-6">
-            Pieejamie medicīnas speciālisti un pakalpojumi
+            {t('doctorVisitsDesc')}
           </p>
           
           {/* Medical Categories - 3 Column Grid */}
@@ -140,29 +140,29 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
             <div className="space-y-4">
               <div className="space-y-2">
                 <Badge className="text-black" variant="secondary" style={{ backgroundColor: '#81d8d0' }}>
-                  Vispārīgs
+                  {t('general')}
                 </Badge>
                 <ul className="space-y-1 ml-2">
-                  <li className="text-sm text-muted-foreground">• Ģimenes ārsts (maksas)</li>
+                  <li className="text-sm text-muted-foreground">• {t('familyDoctorPaid')}</li>
                 </ul>
               </div>
 
               <div className="space-y-2">
                 <Badge className="text-black" variant="secondary" style={{ backgroundColor: '#81d8d0' }}>
-                  Alternatīvs
+                  {t('alternative')}
                 </Badge>
                 <ul className="space-y-1 ml-2">
-                  <li className="text-sm text-muted-foreground">• Homeopāts</li>
-                  <li className="text-sm text-muted-foreground">• Osteopāts</li>
+                  <li className="text-sm text-muted-foreground">• {t('homeopath')}</li>
+                  <li className="text-sm text-muted-foreground">• {t('osteopath')}</li>
                 </ul>
               </div>
 
               <div className="space-y-2">
                 <Badge className="text-black" variant="secondary" style={{ backgroundColor: '#81d8d0' }}>
-                  Akadēmisks
+                  {t('academic')}
                 </Badge>
                 <ul className="space-y-1 ml-2">
-                  <li className="text-sm text-muted-foreground">• Docenta konsultācija</li>
+                  <li className="text-sm text-muted-foreground">• {t('docentConsultation')}</li>
                 </ul>
               </div>
             </div>
@@ -171,30 +171,30 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
             <div className="space-y-4">
               <div className="space-y-2">
                 <Badge className="text-black" variant="secondary" style={{ backgroundColor: '#81d8d0' }}>
-                  Speciālists
+                  {t('specialist')}
                 </Badge>
                 <ul className="space-y-1 ml-2">
-                  <li className="text-sm text-muted-foreground">• Kardiologs, LOR, neirologs</li>
-                  <li className="text-sm text-muted-foreground">• Ginekologs, urologs u.c.</li>
+                  <li className="text-sm text-muted-foreground">• {t('cardiologistEtc')}</li>
+                  <li className="text-sm text-muted-foreground">• {t('gynecologistEtc')}</li>
                 </ul>
               </div>
 
               <div className="space-y-2">
                 <Badge className="text-black" variant="secondary" style={{ backgroundColor: '#81d8d0' }}>
-                  Sports
+                  {t('sports')}
                 </Badge>
                 <ul className="space-y-1 ml-2">
-                  <li className="text-sm text-muted-foreground">• Sporta ārsts</li>
+                  <li className="text-sm text-muted-foreground">• {t('sportsDoctor')}</li>
                 </ul>
               </div>
 
               <div className="space-y-2">
                 <Badge className="text-black" variant="secondary" style={{ backgroundColor: '#81d8d0' }}>
-                  Mentāls
+                  {t('mental')}
                 </Badge>
                 <ul className="space-y-1 ml-2">
-                  <li className="text-sm text-muted-foreground">• Psihologs, psihoterapeits</li>
-                  <li className="text-sm text-muted-foreground">• Psihiatrs (pēc čekiem)</li>
+                  <li className="text-sm text-muted-foreground">• {t('psychologistTherapist')}</li>
+                  <li className="text-sm text-muted-foreground">• {t('psychiatristReceipts')}</li>
                 </ul>
               </div>
             </div>
@@ -203,29 +203,29 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
             <div className="space-y-4">
               <div className="space-y-2">
                 <Badge className="text-black" variant="secondary" style={{ backgroundColor: '#81d8d0' }}>
-                  Āda
+                  {t('skin')}
                 </Badge>
                 <ul className="space-y-1 ml-2">
-                  <li className="text-sm text-muted-foreground">• Dermatologs</li>
+                  <li className="text-sm text-muted-foreground">• {t('dermatologist')}</li>
                 </ul>
               </div>
 
               <div className="space-y-2">
                 <Badge className="text-black" variant="secondary" style={{ backgroundColor: '#81d8d0' }}>
-                  Terapija
+                  {t('therapy')}
                 </Badge>
                 <ul className="space-y-1 ml-2">
-                  <li className="text-sm text-muted-foreground">• Fizikālās terapijas ārsts</li>
-                  <li className="text-sm text-muted-foreground">• Rehabilitologs, fizioterapeits</li>
+                  <li className="text-sm text-muted-foreground">• {t('physicalTherapyDoctor')}</li>
+                  <li className="text-sm text-muted-foreground">• {t('rehabilitationPhysio')}</li>
                 </ul>
               </div>
 
               <div className="space-y-2">
                 <Badge className="text-black" variant="secondary" style={{ backgroundColor: '#81d8d0' }}>
-                  Attālināts
+                  {t('remote')}
                 </Badge>
                 <ul className="space-y-1 ml-2">
-                  <li className="text-sm text-muted-foreground">• Attālinātas ārstu konsultācijas</li>
+                  <li className="text-sm text-muted-foreground">• {t('remoteDoctorConsultations')}</li>
                 </ul>
               </div>
             </div>
