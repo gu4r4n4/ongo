@@ -38,7 +38,7 @@ export default function ShareView() {
   const [loading, setLoading] = useState(true);
   const pollRef = useRef<number | null>(null);
 
-  // turn API offers -> ComparisonMatrix props
+  // turn API offers -> ComparisonMatrix props - match expected structure
   const { columns, allFeatureKeys } = useMemo(() => {
     const cols: any[] = [];
     const keys = new Set<string>();
@@ -47,10 +47,12 @@ export default function ShareView() {
         cols.push({
           id: `${g.source_file}:${p.insurer || "-"}:${p.program_code || "-"}`,
           insurer: p.insurer || "-",
-          programCode: p.program_code || "-",
-          premium: p.premium_eur ?? null,
-          baseSum: p.base_sum_eur ?? null,
+          program_code: p.program_code || "-",  // Use underscore to match ComparisonMatrix
+          premium_eur: p.premium_eur ?? null,   // Use full property name
+          base_sum_eur: p.base_sum_eur ?? null, // Use full property name
+          payment_method: p.payment_method || null,
           features: p.features || {},
+          source_file: g.source_file,
         });
         Object.keys(p.features || {}).forEach((k) => keys.add(k));
       }
