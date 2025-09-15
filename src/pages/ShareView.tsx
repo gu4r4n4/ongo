@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ComparisonMatrix } from "@/components/dashboard/ComparisonMatrix";
 import MedicalServicesHeader from "@/components/MedicalServicesHeader";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useTranslation, Language } from "@/utils/translations";
 import { BACKEND_URL } from "@/config";
 
@@ -32,7 +33,8 @@ type SharePayload = {
 
 export default function ShareView() {
   const { token = "" } = useParams();
-  const { t } = useTranslation("lv" as Language);
+  const [currentLanguage, setCurrentLanguage] = useState<Language>("lv");
+  const { t } = useTranslation(currentLanguage);
   const [payload, setPayload] = useState<SharePayload | null>(null);
   const [offers, setOffers] = useState<OfferGroup[]>([]);
   const [loading, setLoading] = useState(true);
@@ -136,9 +138,17 @@ export default function ShareView() {
 
   return (
     <div className="p-4 md:p-6 space-y-6 max-w-[1400px] mx-auto">
+      {/* Language Switcher */}
+      <div className="flex justify-end">
+        <LanguageSwitcher 
+          currentLanguage={currentLanguage} 
+          onLanguageChange={setCurrentLanguage} 
+        />
+      </div>
+
       {/* Title */}
       {columns.length > 0 && (
-        <h3 className="text-lg font-semibold">Veselības Apdrošināšana</h3>
+        <h3 className="text-lg font-semibold">{t('healthInsurance')}</h3>
       )}
 
       {/* Results Matrix */}
@@ -146,7 +156,7 @@ export default function ShareView() {
         <ComparisonMatrix
           columns={columns}
           allFeatureKeys={allFeatureKeys}
-          currentLanguage={"lv" as Language}
+          currentLanguage={currentLanguage}
           onShare={undefined}
           companyName={payload.company_name || ""}
           employeesCount={payload.employees_count || 0}
@@ -158,7 +168,7 @@ export default function ShareView() {
 
       {/* Medical Services Footer - Legend */}
       {columns.length > 0 && (
-        <MedicalServicesHeader currentLanguage={"lv" as Language} />
+        <MedicalServicesHeader currentLanguage={currentLanguage} />
       )}
 
       {/* No data message */}

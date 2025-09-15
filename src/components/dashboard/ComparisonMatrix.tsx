@@ -198,7 +198,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
         <div ref={scrollContainerRef} className="overflow-x-auto select-none">
           <div className="min-w-fit">
             {/* Header Row */}
-            <div className={`flex border-b bg-muted/50 sticky top-0 ${isShareView && !isMobile ? 'z-50' : 'z-20'}`}>
+            <div className={`flex border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 ${isShareView && !isMobile ? 'sticky top-0 z-50' : 'sticky top-0 z-20'}`}>
               {/* Sticky Feature Names Column Header */}
               <div className={`w-[280px] bg-card border-r p-4 ${isMobile ? '' : 'sticky left-0 z-30'}`}>
                 <div className="font-semibold text-sm">{t('features')}</div>
