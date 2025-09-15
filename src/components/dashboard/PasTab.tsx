@@ -447,7 +447,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
           {/* Processing Status */}
           {job && (
             <div className="text-sm text-muted-foreground text-center">
-              Processed {job.done}/{job.total} files...
+              {t('processingProgress')?.replace('{done}', String(job.done)).replace('{total}', String(job.total)) || `Processed ${job.done}/${job.total} files...`}
             </div>
           )}
         </CardContent>

@@ -183,6 +183,7 @@ export const translations = {
     
     // Processing status
     processedFiles: 'Apstrādāti faili',
+    processingProgress: 'Apstrādāti {done}/{total} faili...',
     
     // Share page content
     includedInPolicy: 'iekļauts polises segumā',
@@ -374,6 +375,7 @@ export const translations = {
     
     // Processing status
     processedFiles: 'Processed Files',
+    processingProgress: 'Processed {done}/{total} files...',
     
     // Share page content
     includedInPolicy: 'included in policy coverage',
@@ -562,6 +564,10 @@ export const translations = {
     
     // Share functionality
     share: 'Поделиться',
+    
+    // Processing status
+    processedFiles: 'Обработанные файлы',
+    processingProgress: 'Обработано {done}/{total} файлов...',
     
     // Share page content
     includedInPolicy: 'включено в покрытие полиса',
