@@ -144,32 +144,28 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     }
   }
 
-  // Start polling when docIds change
+  // Gate polling on job completion using backend helper
   useEffect(() => {
-    if (docIds.length === 0) return;
+    if (!currentJobId) return;
 
-    const tick = async () => {
+    const pollJob = async (jobId: string): Promise<any> => {
+      const job = await fetch(`${BACKEND_URL}/jobs/${jobId}`).then(r => r.json());
+      console.log("Job status:", job);
+      setJob(job);
+      
+      if (job.done === job.total) {
+        setIsUploading(false);
+        return job;
+      }
+      await new Promise(r => setTimeout(r, 1500));
+      return pollJob(jobId);
+    };
+
+    const startPolling = async () => {
       try {
-        const res = await fetch(`${BACKEND_URL}/offers/by-documents`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ document_ids: docIds }),
-        });
-        const offers = await res.json();  // [{ source_file, programs: [...]}, ...]
-        console.log('=== POLLING OFFERS DEBUG ===');
-        console.log('Raw offers response:', offers);
-        console.log('Processing offers...');
-        offers.forEach((offer: any, index: number) => {
-          console.log(`Offer ${index}:`, {
-            source_file: offer.source_file,
-            status: offer.status,
-            error: offer.error,
-            programs_count: offer.programs?.length || 0,
-            programs: offer.programs
-          });
-        });
-        console.log('=== END POLLING DEBUG ===');
-        
+        await pollJob(currentJobId);
+        // Use backend helper to fetch aggregated offers
+        const offers = await fetch(`${BACKEND_URL}/offers/by-job/${currentJobId}`).then(r => r.json());
         setOffers(offers || []);
         buildMatrix(offers || []);
         saveOffersToDatabase(offers || []);
@@ -178,10 +174,8 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
       }
     };
 
-    tick();
-    const id = setInterval(tick, 2500);
-    return () => clearInterval(id);
-  }, [docIds]);
+    startPolling();
+  }, [currentJobId]);
 
   // Optional job progress tracking
   useEffect(() => {
@@ -241,9 +235,9 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
   };
 
   const setItemHint = (idx: number, value: Insurer) => {
-    console.log(`Setting hint for file ${idx} to: ${value}`);
-    setItems((prev) => prev.map((it, i) => (i === idx ? { ...it, hint: value } : it)));
-    console.log('Updated items after hint change:', items.map(it => ({ name: it.file.name, hint: it.hint })));
+    setItems(prev =>
+      prev.map((it, i) => (i === idx ? { ...it, hint: value } : it))
+    );
   };
 
   const removeItem = (idx: number) => {
@@ -251,12 +245,18 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
   };
 
   async function startAsyncProcessing(files: UploadItem[], inquiryId?: string): Promise<{ job_id: string; documents: string[] }> {
+    // Create immutable snapshots
+    const filesSnap = [...files.map(f => f.file)];
+    const insurersSnap = files.map(it => it.hint ?? "");
+    
+    if (filesSnap.length !== insurersSnap.length) {
+      throw new Error(`Length mismatch: files=${filesSnap.length} insurers=${insurersSnap.length}`);
+    }
+    
     const form = new FormData();
-
-    // one field named "files" per file with corresponding insurer
-    files.forEach((item) => {
-      form.append('files', item.file);     // repeat for each file
-      form.append('insurers', item.hint);  // repeat for each file, same order
+    filesSnap.forEach((f, i) => {
+      form.append("files", f);
+      form.append("insurers", insurersSnap[i]); // 1:1 with files
     });
     form.append('company', companyName);
     form.append('insured_count', String(employeesCount));
@@ -265,10 +265,8 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
       form.append('inquiry_id', inquiryId);
     }
 
-    // (optional) debug what you're actually sending
-    for (const [k, v] of form.entries()) {
-      console.log(k, v instanceof File ? v.name : v);
-    }
+    // Debug aligned data
+    console.table(filesSnap.map((f, i) => ({ i, file: f.name, hint: insurersSnap[i] })));
 
     const res = await fetch(`${BACKEND_URL}/extract/multiple-async`, {
       method: 'POST',
@@ -485,9 +483,25 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
             </div>
           </div>
 
-          <Button onClick={handleSubmit} className="w-full" disabled={isUploading || isLoading}>
-            {isUploading || isLoading ? (t('processing') || 'Processing…') : `${t('uploadProcess')} (${items.length || 0} ${t('files')})`}
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={handleSubmit} className="flex-1" disabled={isUploading || isLoading}>
+              {isUploading || isLoading ? (t('processing') || 'Processing…') : `${t('uploadProcess')} (${items.length || 0} ${t('files')})`}
+            </Button>
+            
+            {/* Debug Job button */}
+            {currentJobId && (
+              <Button 
+                variant="outline"
+                onClick={async () => {
+                  const j = await fetch(`${BACKEND_URL}/jobs/${currentJobId}`).then(r => r.json());
+                  console.log("DEBUG JOB:", j);
+                  alert(JSON.stringify({ total: j.total, done: j.done, errors: j.errors }, null, 2));
+                }}
+              >
+                Debug
+              </Button>
+            )}
+          </div>
           
           {/* Processing Status */}
           {job && (
