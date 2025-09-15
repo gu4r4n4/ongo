@@ -18,6 +18,7 @@ interface ComparisonMatrixProps {
   companyName?: string;
   employeesCount?: number;
   canEdit?: boolean;
+  showBuyButtons?: boolean;
 }
 
 export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
@@ -28,6 +29,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
   companyName,
   employeesCount,
   canEdit = true,
+  showBuyButtons = false,
 }) => {
   const { t } = useTranslation(currentLanguage);
   const [editingColumn, setEditingColumn] = useState<string | null>(null);
@@ -350,6 +352,31 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                 })}
               </div>
             ))}
+
+            {/* Buy Buttons Row - only in share view */}
+            {showBuyButtons && (
+              <div className="flex bg-muted/20">
+                {/* Empty space for feature name column */}
+                <div className="sticky left-0 w-[280px] bg-card border-r p-4 z-10">
+                  <div className="text-sm font-medium opacity-0">-</div>
+                </div>
+                
+                {/* Buy Buttons */}
+                {localColumns.map((column) => (
+                  <div key={column.id} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 flex items-center justify-center">
+                    <Button 
+                      className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold"
+                      onClick={() => {
+                        // TODO: Connect buy logic later
+                        console.log('Buy clicked for:', column.insurer, column.program_code);
+                      }}
+                    >
+                      Pirkt
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </Card>

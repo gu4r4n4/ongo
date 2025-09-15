@@ -151,6 +151,7 @@ export default function ShareView() {
           companyName={payload.company_name || ""}
           employeesCount={payload.employees_count || 0}
           canEdit={false}
+          showBuyButtons={true}
         />
       )}
 
