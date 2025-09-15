@@ -134,25 +134,6 @@ export default function ShareView() {
 
   return (
     <div className="p-4 md:p-6 space-y-6 max-w-[1400px] mx-auto">
-      {/* Header */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">
-            {payload.title || "Piedāvājums"}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="grid sm:grid-cols-2 gap-2 text-sm">
-          <div>
-            <span className="text-muted-foreground">{t("company") || "Company"}:</span>
-            <span className="ml-2 font-medium">{payload.company_name || "—"}</span>
-          </div>
-          <div>
-            <span className="text-muted-foreground">{t("employeeCount") || "Employees"}:</span>
-            <span className="ml-2 font-medium">{payload.employees_count ?? "—"}</span>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Results Matrix */}
       {columns.length > 0 && (
         <ComparisonMatrix
