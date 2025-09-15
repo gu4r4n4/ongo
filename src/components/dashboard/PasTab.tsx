@@ -276,13 +276,31 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
         errorData = { error: text };
       }
       
-      console.error('Upload error response:', {
-        status: res.status,
-        statusText: res.statusText,
-        errorData
-      });
+      console.error('=== FULL ERROR DETAILS ===');
+      console.error('Status:', res.status);
+      console.error('Status Text:', res.statusText);
+      console.error('Response Headers:', Object.fromEntries(res.headers.entries()));
+      console.error('Error Data (full):', JSON.stringify(errorData, null, 2));
+      console.error('========================');
       
-      throw new Error(errorData?.error || errorData?.detail || `Upload failed (${res.status})`);
+      // Try to extract the most specific error message
+      let errorMessage = 'Upload failed';
+      if (errorData?.detail) {
+        if (Array.isArray(errorData.detail)) {
+          // FastAPI validation errors are arrays
+          errorMessage = errorData.detail.map(err => 
+            `${err.loc?.join?.('.') || 'field'}: ${err.msg || err.type}`
+          ).join(', ');
+        } else if (typeof errorData.detail === 'string') {
+          errorMessage = errorData.detail;
+        }
+      } else if (errorData?.error) {
+        errorMessage = errorData.error;
+      } else if (errorData?.message) {
+        errorMessage = errorData.message;
+      }
+      
+      throw new Error(`${errorMessage} (${res.status})`);
     }
     
     const response = await res.json();
