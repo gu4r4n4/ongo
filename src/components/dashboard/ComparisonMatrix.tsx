@@ -11,6 +11,48 @@ import { Language, useTranslation } from '@/utils/translations';
 import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
 
+type OfferPatch = {
+  premium_eur?: number;
+  base_sum_eur?: number;
+  payment_method?: string;
+  insurer?: string;
+  program_code?: string;
+  features?: Record<string, any>;
+};
+
+function toNumOrThrow(v: any, name: string): number {
+  const n = Number(String(v).replace(",", ".").replace(/[^\d.-]/g, ""));
+  if (Number.isNaN(n)) throw new Error(`${name} must be a number`);
+  return n;
+}
+
+function normalizeChanges(changes: Record<string, any>): OfferPatch {
+  const out: OfferPatch = {};
+  if ("premium_eur" in changes) out.premium_eur = toNumOrThrow(changes.premium_eur, "premium_eur");
+  if ("base_sum_eur" in changes) out.base_sum_eur = toNumOrThrow(changes.base_sum_eur, "base_sum_eur");
+  if ("payment_method" in changes) out.payment_method = String(changes.payment_method ?? "");
+  if ("insurer" in changes) out.insurer = String(changes.insurer ?? "");
+  if ("program_code" in changes) out.program_code = String(changes.program_code ?? "");
+  if ("features" in changes) out.features = (changes.features ?? {}) as Record<string, any>;
+  return out;
+}
+
+async function updateOffer(program: { row_id?: number }, changes: Record<string, any>, backendUrl: string, refreshOffers?: () => Promise<void>) {
+  if (!program.row_id) throw new Error("Missing row_id from offers payload");
+  const patch = normalizeChanges(changes);
+
+  const res = await fetch(`${backendUrl}/offers/${program.row_id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(patch),
+  });
+  if (!res.ok) throw new Error(await res.text());
+
+  if (refreshOffers) {
+    await refreshOffers(); // re-fetch GET /offers/by-job/{job_id}
+  }
+}
+
 // Feature name translation utility
 const translateFeatureName = (featureKey: string, t: (key: any) => string): string => {
   // Common feature translations - you can expand this mapping
@@ -43,7 +85,7 @@ interface ComparisonMatrixProps {
   showBuyButtons?: boolean;
   isShareView?: boolean;
   backendUrl?: string;
-  onRefreshOffers?: () => void;
+  onRefreshOffers?: () => Promise<void>;
 }
 
 export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
@@ -149,39 +191,47 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
     setEditFormData({});
   };
 
-  const savePremium = async (program: { row_id?: number }, value: string | number) => {
-    if (!program.row_id) throw new Error("Missing row_id from offers payload");
-    if (!backendUrl) throw new Error("Backend URL not provided");
-    
-    const num = Number(String(value).replace(",", "."));
-    if (Number.isNaN(num)) throw new Error("Invalid number");
-
-    const res = await fetch(`${backendUrl}/offers/${program.row_id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ premium_eur: num }),
-    });
-    if (!res.ok) throw new Error(await res.text());
-
-    if (onRefreshOffers) {
-      await onRefreshOffers(); // refetch GET /offers/by-job/{job_id}
-    }
-    toast.success('Premium updated successfully');
-  };
-
   const saveEdit = async () => {
-    if (!editingColumn) return;
+    if (!editingColumn || !backendUrl) return;
     
     try {
       const column = localColumns.find(col => col.id === editingColumn);
       if (!column) return;
 
-      // Save premium if changed
+      // Collect all changes from the edit form
+      const changes: Record<string, any> = {};
+      
+      // Check each field for changes
       if (editFormData.premium_eur !== undefined && editFormData.premium_eur !== column.premium_eur) {
-        await savePremium(column, editFormData.premium_eur);
+        changes.premium_eur = editFormData.premium_eur;
+      }
+      if (editFormData.base_sum_eur !== undefined && editFormData.base_sum_eur !== column.base_sum_eur) {
+        changes.base_sum_eur = editFormData.base_sum_eur;
+      }
+      if (editFormData.payment_method !== undefined && editFormData.payment_method !== column.payment_method) {
+        changes.payment_method = editFormData.payment_method;
+      }
+      if (editFormData.insurer !== undefined && editFormData.insurer !== column.insurer) {
+        changes.insurer = editFormData.insurer;
+      }
+      if (editFormData.program_code !== undefined && editFormData.program_code !== column.program_code) {
+        changes.program_code = editFormData.program_code;
+      }
+      if (editFormData.features) {
+        // Check if features have changed
+        const originalFeatures = JSON.stringify(column.features || {});
+        const newFeatures = JSON.stringify(editFormData.features);
+        if (originalFeatures !== newFeatures) {
+          changes.features = editFormData.features;
+        }
       }
 
-      // For now, only handle premium updates. Base sum and payment method will be added later
+      // Only update if there are actual changes
+      if (Object.keys(changes).length > 0) {
+        await updateOffer(column, changes, backendUrl, onRefreshOffers);
+        toast.success('Program updated successfully');
+      }
+
       setEditingColumn(null);
       setEditFormData({});
     } catch (error: any) {
@@ -456,28 +506,22 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
 
             {/* Buy Buttons Row - only in share view */}
             {showBuyButtons && (
-              <div className="flex bg-muted/20">
-                {/* Empty space for feature name column */}
-                <div className={`w-[280px] bg-card border-r p-4 z-10 ${isMobile ? '' : 'sticky left-0'}`}>
-                  <div className="text-sm font-medium opacity-0">-</div>
+              <div className="flex border-b">
+                {/* Sticky label column */}
+                <div className={`w-[280px] bg-black border-r p-4 z-10 shadow-lg ${isMobile ? '' : 'sticky left-0'}`}>
+                  <div className="text-sm font-medium text-white">Buy Now</div>
                 </div>
                 
-                {/* Buy Buttons */}
+                {/* Buy buttons */}
                 {localColumns.map((column) => (
                   <div key={column.id} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 flex items-center justify-center">
-                    {column.type === 'error' ? (
-                      <Button 
-                        disabled
-                        className="w-full bg-gray-300 text-gray-500 cursor-not-allowed"
-                      >
-                        Unavailable
-                      </Button>
-                    ) : (
-                      <Button 
-                        className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold"
+                    {column.type !== 'error' && (
+                      <Button
+                        size="sm"
+                        className="w-full"
                         onClick={() => {
-                          // TODO: Connect buy logic later
-                          console.log('Buy clicked for:', column.insurer, column.program_code);
+                          // Handle buy action here
+                          toast.success(`Buying ${column.insurer} plan...`);
                         }}
                       >
                         Pirkt
@@ -493,3 +537,5 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
     </div>
   );
 };
+
+export default ComparisonMatrix;
