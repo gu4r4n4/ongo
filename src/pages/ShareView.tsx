@@ -152,6 +152,7 @@ export default function ShareView() {
           employeesCount={payload.employees_count || 0}
           canEdit={false}
           showBuyButtons={true}
+          isShareView={true}
         />
       )}
 
