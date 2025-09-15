@@ -229,13 +229,11 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
   async function startAsyncProcessing(files: UploadItem[], inquiryId?: string): Promise<{ job_id: string; documents: string[] }> {
     const form = new FormData();
 
-    // one field named "files" per file
+    // one field named "files" per file with corresponding insurer
     files.forEach((item) => {
-      form.append('files', item.file);
+      form.append('files', item.file);     // repeat for each file
+      form.append('insurers', item.hint);  // repeat for each file, same order
     });
-
-    // use the first hint (or join them if you like)
-    form.append('insurer', files[0]?.hint ?? '');
     form.append('company', companyName);
     form.append('insured_count', String(employeesCount));
     if (inquiryId) form.append('inquiry_id', inquiryId);
