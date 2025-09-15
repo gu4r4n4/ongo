@@ -238,7 +238,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     
     files.forEach((item) => {
       form.append('files', item.file);      // repeats – order matters
-      form.append('insurers', item.hint);   // repeats – same order as files
+      form.append('insurers[]', item.hint); // Array notation for FastAPI
     });
     
     // Validate required fields
