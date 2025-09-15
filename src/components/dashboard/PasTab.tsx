@@ -215,7 +215,10 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     });
     form.append('company', companyName);
     form.append('insured_count', String(employeesCount));
-    if (inquiryId) form.append('inquiry_id', inquiryId);
+    // Only send inquiry_id if it's a valid number
+    if (inquiryId && !isNaN(Number(inquiryId))) {
+      form.append('inquiry_id', inquiryId);
+    }
 
     // (optional) debug what you're actually sending
     for (const [k, v] of form.entries()) {
