@@ -228,42 +228,27 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
 
   async function startAsyncProcessing(files: UploadItem[], inquiryId?: string): Promise<{ job_id: string; documents: string[] }> {
     const form = new FormData();
-    
-    // Debug logging
-    console.log('=== Upload Debug Info ===');
-    console.log('Files count:', files.length);
-    console.log('Company name:', companyName);
-    console.log('Employees count:', employeesCount);
-    console.log('Files data:', files.map(f => ({ fileName: f.file.name, hint: f.hint })));
-    
+
+    // one field named "files" per file
     files.forEach((item) => {
-      form.append('files', item.file);      // repeats – order matters
-      form.append('insurers[]', item.hint); // Array notation for FastAPI
+      form.append('files', item.file);
     });
-    
-    // Validate required fields
-    if (!companyName || companyName.trim() === '') {
-      throw new Error('Company name is required');
-    }
-    
-    if (!employeesCount || employeesCount <= 0) {
-      throw new Error('Employee count must be greater than 0');
-    }
-    
-    form.append('company', companyName.trim());
+
+    // use the first hint (or join them if you like)
+    form.append('insurer', files[0]?.hint ?? '');
+    form.append('company', companyName);
     form.append('insured_count', String(employeesCount));
-    
-    // inquiry_id is optional; only include it if you actually have one
-    if (inquiryId && inquiryId.trim()) {
-      form.append('inquiry_id', inquiryId.trim());
+    if (inquiryId) form.append('inquiry_id', inquiryId);
+
+    // (optional) debug what you're actually sending
+    for (const [k, v] of form.entries()) {
+      console.log(k, v instanceof File ? v.name : v);
     }
-    
-    console.log('FormData entries:');
-    for (const [key, value] of form.entries()) {
-      console.log(key, typeof value === 'string' ? value : value.constructor.name);
-    }
-    
-    const res = await fetch(`${BACKEND_URL}/extract/multiple-async`, { method: 'POST', body: form });
+
+    const res = await fetch(`${BACKEND_URL}/extract/multiple-async`, {
+      method: 'POST',
+      body: form,
+    });
     
     if (!res.ok) {
       const contentType = res.headers.get('content-type');
