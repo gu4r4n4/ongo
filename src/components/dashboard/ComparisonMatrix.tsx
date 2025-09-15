@@ -9,6 +9,7 @@ import { InsurerLogo } from '@/components/InsurerLogo';
 import { Column } from '@/hooks/useAsyncOffers';
 import { Language, useTranslation } from '@/utils/translations';
 import { toast } from 'sonner';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ComparisonMatrixProps {
   columns: Column[];
@@ -32,6 +33,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
   showBuyButtons = false,
 }) => {
   const { t } = useTranslation(currentLanguage);
+  const isMobile = useIsMobile();
   const [editingColumn, setEditingColumn] = useState<string | null>(null);
   const [editFormData, setEditFormData] = useState<Partial<Column>>({});
   const [localColumns, setLocalColumns] = useState<Column[]>(columns);
@@ -196,7 +198,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
             {/* Header Row */}
             <div className="flex border-b bg-muted/50 sticky top-0 z-20">
               {/* Sticky Feature Names Column Header */}
-              <div className="sticky left-0 w-[280px] bg-card border-r p-4 z-30">
+              <div className={`w-[280px] bg-card border-r p-4 ${isMobile ? '' : 'sticky left-0 z-30'}`}>
                 <div className="font-semibold text-sm">{t('features')}</div>
               </div>
               
@@ -262,7 +264,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
             {metaRows.map((row) => (
               <div key={row.key} className="flex border-b">
                 {/* Sticky Feature Name */}
-                <div className="sticky left-0 w-[280px] bg-black border-r p-4 z-10 shadow-lg">
+                <div className={`w-[280px] bg-black border-r p-4 z-10 shadow-lg ${isMobile ? '' : 'sticky left-0'}`}>
                   <div className="font-medium text-sm text-white">{row.label}</div>
                 </div>
                 
@@ -321,7 +323,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                 className={`flex border-b ${index % 2 === 0 ? 'bg-muted/10' : ''}`}
               >
                 {/* Sticky Feature Name */}
-                <div className="sticky left-0 w-[280px] bg-black border-r p-4 z-10 shadow-lg">
+                <div className={`w-[280px] bg-black border-r p-4 z-10 shadow-lg ${isMobile ? '' : 'sticky left-0'}`}>
                   <div className="text-sm font-medium text-white">{featureKey}</div>
                 </div>
                 
@@ -357,7 +359,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
             {showBuyButtons && (
               <div className="flex bg-muted/20">
                 {/* Empty space for feature name column */}
-                <div className="sticky left-0 w-[280px] bg-card border-r p-4 z-10">
+                <div className={`w-[280px] bg-card border-r p-4 z-10 ${isMobile ? '' : 'sticky left-0'}`}>
                   <div className="text-sm font-medium opacity-0">-</div>
                 </div>
                 
