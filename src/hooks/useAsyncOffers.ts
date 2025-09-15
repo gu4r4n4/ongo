@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 export type Program = {
   row_id?: number;
+  id?: number;
   insurer?: string;
   program_code?: string | null;
   base_sum_eur?: number | null;
@@ -126,7 +127,7 @@ export function useAsyncOffers({ backendUrl, jobId, documentIds, pollMs = 2000 }
         id: `${g.source_file}::${program.insurer}::${program.program_code}`,
         label: program.insurer || g.source_file,
         source_file: g.source_file,
-        row_id: program.row_id,
+        row_id: program.row_id || program.id,
         insurer: program.insurer,
         program_code: program.program_code,
         premium_eur: program.premium_eur,
