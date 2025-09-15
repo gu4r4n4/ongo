@@ -12,6 +12,8 @@ export type Program = {
 export type OfferGroup = {
   source_file: string;
   inquiry_id?: number | null;
+  status?: 'error' | 'success';
+  error?: string;
   programs: Program[];
 };
 
@@ -21,6 +23,7 @@ export type Column = {
   id: string;
   label: string;
   source_file: string;
+  type?: 'program' | 'error';
   insurer?: string;
   program_code?: string | null;
   premium_eur?: number | null;
@@ -28,6 +31,7 @@ export type Column = {
   payment_method?: string | null;
   features: Record<string, any>;
   group: OfferGroup;
+  error?: string;
 };
 
 type Job = { total: number; done: number; errors: Array<{ document_id: string; error: string }> };

@@ -208,6 +208,24 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
               {localColumns.map((column) => {
                 const isEditing = editingColumn === column.id;
                 
+                // Handle error columns
+                if (column.type === 'error') {
+                  return (
+                    <div key={column.id} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 bg-red-50 dark:bg-red-950/20">
+                      <div className="flex flex-col items-center text-center space-y-2">
+                        <div className="w-12 h-12 flex items-center justify-center rounded-md bg-red-100 dark:bg-red-900/30">
+                          <X className="h-6 w-6 text-red-600" />
+                        </div>
+                        <div className="font-semibold text-sm text-red-600">{column.label}</div>
+                        <Badge variant="destructive" className="text-xs">FAILED</Badge>
+                        <div className="text-xs text-red-600 max-w-full break-words">
+                          Processing Failed
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+                
                 return (
                   <div key={column.id} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 bg-card">
                     <div className="flex flex-col items-center text-center space-y-2">
@@ -275,6 +293,21 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                   const isEditing = editingColumn === column.id;
                   const value = (column as any)[row.key];
                   
+                  // Handle error columns - show error message for first meta row, dash for others
+                  if (column.type === 'error') {
+                    return (
+                      <div key={column.id} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 flex items-center justify-center bg-red-50 dark:bg-red-950/20">
+                        {row.key === 'base_sum_eur' ? (
+                          <div className="text-xs text-red-600 text-center max-w-full break-words px-2">
+                            {column.error || 'Processing failed'}
+                          </div>
+                        ) : (
+                          <span className="text-sm text-red-400">—</span>
+                        )}
+                      </div>
+                    );
+                  }
+                  
                   return (
                     <div key={column.id} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 flex items-center justify-center">
                       {isEditing && row.key === 'payment_method' ? (
@@ -332,7 +365,16 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                 {/* Feature Values */}
                 {localColumns.map((column) => {
                   const isEditing = editingColumn === column.id;
-                  const value = column.features[featureKey];
+                  const value = column.features?.[featureKey];
+                  
+                  // Handle error columns - show dash for all features
+                  if (column.type === 'error') {
+                    return (
+                      <div key={column.id} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 flex items-center justify-center bg-red-50 dark:bg-red-950/20">
+                        <Minus className="h-4 w-4 text-red-400" />
+                      </div>
+                    );
+                  }
                   
                   return (
                     <div key={column.id} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 flex items-center justify-center">
@@ -368,15 +410,24 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                 {/* Buy Buttons */}
                 {localColumns.map((column) => (
                   <div key={column.id} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 flex items-center justify-center">
-                    <Button 
-                      className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold"
-                      onClick={() => {
-                        // TODO: Connect buy logic later
-                        console.log('Buy clicked for:', column.insurer, column.program_code);
-                      }}
-                    >
-                      Pirkt
-                    </Button>
+                    {column.type === 'error' ? (
+                      <Button 
+                        disabled
+                        className="w-full bg-gray-300 text-gray-500 cursor-not-allowed"
+                      >
+                        Unavailable
+                      </Button>
+                    ) : (
+                      <Button 
+                        className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold"
+                        onClick={() => {
+                          // TODO: Connect buy logic later
+                          console.log('Buy clicked for:', column.insurer, column.program_code);
+                        }}
+                      >
+                        Pirkt
+                      </Button>
+                    )}
                   </div>
                 ))}
               </div>

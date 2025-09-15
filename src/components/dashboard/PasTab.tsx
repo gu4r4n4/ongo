@@ -44,11 +44,31 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
 
   // Build matrix from offers data
   function buildMatrix(grouped: any[]) {
-    const cols = grouped.flatMap((g) =>
-      g.programs.map((program: any) => ({
+    const cols = grouped.flatMap((g) => {
+      // Handle error cases - show error columns for failed processing
+      if (g.status === 'error') {
+        return [{
+          id: `error::${g.source_file}`,
+          label: g.source_file.split('::').pop() || g.source_file,
+          source_file: g.source_file,
+          type: 'error',
+          error: g.error,
+          insurer: 'ERROR',
+          program_code: 'FAILED',
+          premium_eur: null,
+          base_sum_eur: null,
+          payment_method: null,
+          features: {},
+          group: g,
+        }];
+      }
+      
+      // Handle successful processing
+      return g.programs.map((program: any) => ({
         id: `${g.source_file}::${program.insurer}::${program.program_code}`,
         label: program.insurer || g.source_file,
         source_file: g.source_file,
+        type: 'program',
         insurer: program.insurer,
         program_code: program.program_code,
         premium_eur: program.premium_eur,
@@ -56,13 +76,15 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
         payment_method: program.payment_method,
         features: program.features || {},
         group: g,
-      }))
-    );
+      }));
+    });
     setColumns(cols);
 
     const featureSet = new Set<string>();
     for (const col of cols) {
-      Object.keys(col.features || {}).forEach((k) => featureSet.add(k));
+      if (col.type !== 'error') {
+        Object.keys(col.features || {}).forEach((k) => featureSet.add(k));
+      }
     }
     setAllFeatureKeys(Array.from(featureSet).sort());
   }
@@ -134,6 +156,20 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
           body: JSON.stringify({ document_ids: docIds }),
         });
         const offers = await res.json();  // [{ source_file, programs: [...]}, ...]
+        console.log('=== POLLING OFFERS DEBUG ===');
+        console.log('Raw offers response:', offers);
+        console.log('Processing offers...');
+        offers.forEach((offer: any, index: number) => {
+          console.log(`Offer ${index}:`, {
+            source_file: offer.source_file,
+            status: offer.status,
+            error: offer.error,
+            programs_count: offer.programs?.length || 0,
+            programs: offer.programs
+          });
+        });
+        console.log('=== END POLLING DEBUG ===');
+        
         setOffers(offers || []);
         buildMatrix(offers || []);
         saveOffersToDatabase(offers || []);
@@ -157,6 +193,15 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
         if (r.ok) {
           const j = await r.json();
           setJob(j);
+          
+          // Show errors via toast if any
+          if (j.errors?.length && j.done >= j.total) {
+            j.errors.forEach((error: any) => {
+              const filename = error.document_id?.split('::').pop() || error.document_id;
+              toast.error(`Failed to process ${filename}: ${error.error}`);
+            });
+          }
+          
           // Stop loading when job is complete
           if (j.done >= j.total) {
             setIsUploading(false);
@@ -448,6 +493,11 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
           {job && (
             <div className="text-sm text-muted-foreground text-center">
               {t('processingProgress')?.replace('{done}', String(job.done)).replace('{total}', String(job.total)) || `Processed ${job.done}/${job.total} files...`}
+              {job.errors?.length > 0 && (
+                <div className="text-destructive text-xs mt-1">
+                  {job.errors.length} file(s) failed to process
+                </div>
+              )}
             </div>
           )}
         </CardContent>
