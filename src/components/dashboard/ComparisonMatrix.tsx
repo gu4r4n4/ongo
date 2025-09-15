@@ -20,16 +20,29 @@ type OfferPatch = {
   features?: Record<string, any>;
 };
 
+type EditForm = {
+  premium_eur?: string;
+  base_sum_eur?: string;
+  payment_method?: string;
+  insurer?: string;
+  program_code?: string;
+  features?: Record<string, any>;
+};
+
 function toNumOrThrow(v: any, name: string): number {
-  const n = Number(String(v).replace(",", ".").replace(/[^\d.-]/g, ""));
+  const n = Number(String(v).trim().replace("€","").replace(/\s/g,"").replace(",", ".").replace(/[^\d.-]/g, ""));
   if (Number.isNaN(n)) throw new Error(`${name} must be a number`);
   return n;
 }
 
 function normalizeChanges(changes: Record<string, any>): OfferPatch {
   const out: OfferPatch = {};
-  if ("premium_eur" in changes) out.premium_eur = toNumOrThrow(changes.premium_eur, "premium_eur");
-  if ("base_sum_eur" in changes) out.base_sum_eur = toNumOrThrow(changes.base_sum_eur, "base_sum_eur");
+  if (changes.premium_eur !== undefined && String(changes.premium_eur).trim() !== "") {
+    out.premium_eur = toNumOrThrow(changes.premium_eur, "premium_eur");
+  }
+  if (changes.base_sum_eur !== undefined && String(changes.base_sum_eur).trim() !== "") {
+    out.base_sum_eur = toNumOrThrow(changes.base_sum_eur, "base_sum_eur");
+  }
   if ("payment_method" in changes) out.payment_method = String(changes.payment_method ?? "");
   if ("insurer" in changes) out.insurer = String(changes.insurer ?? "");
   if ("program_code" in changes) out.program_code = String(changes.program_code ?? "");
@@ -104,7 +117,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
   const { t } = useTranslation(currentLanguage);
   const isMobile = useIsMobile();
   const [editingColumn, setEditingColumn] = useState<string | null>(null);
-  const [editFormData, setEditFormData] = useState<Partial<Column>>({});
+  const [editFormData, setEditFormData] = useState<EditForm>({});
   const [localColumns, setLocalColumns] = useState<Column[]>(columns);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -182,7 +195,14 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
     const column = localColumns.find(col => col.id === columnId);
     if (column) {
       setEditingColumn(columnId);
-      setEditFormData({ ...column });
+      setEditFormData({
+        premium_eur: column.premium_eur?.toString() ?? '',
+        base_sum_eur: column.base_sum_eur?.toString() ?? '',
+        payment_method: column.payment_method ?? '',
+        insurer: column.insurer ?? '',
+        program_code: column.program_code ?? '',
+        features: column.features ?? {}
+      });
     }
   };
 
@@ -192,20 +212,22 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
   };
 
   const saveEdit = async () => {
-    if (!editingColumn || !backendUrl) return;
+    if (!editingColumn) return;
+    if (!backendUrl) { 
+      toast.error("Missing backend URL"); 
+      return; 
+    }
     
     try {
       const column = localColumns.find(col => col.id === editingColumn);
       if (!column) return;
 
-      // Collect all changes from the edit form
       const changes: Record<string, any> = {};
-      
-      // Check each field for changes
-      if (editFormData.premium_eur !== undefined && editFormData.premium_eur !== column.premium_eur) {
+
+      if (editFormData.premium_eur !== undefined && String(editFormData.premium_eur).trim() !== "") {
         changes.premium_eur = editFormData.premium_eur;
       }
-      if (editFormData.base_sum_eur !== undefined && editFormData.base_sum_eur !== column.base_sum_eur) {
+      if (editFormData.base_sum_eur !== undefined && String(editFormData.base_sum_eur).trim() !== "") {
         changes.base_sum_eur = editFormData.base_sum_eur;
       }
       if (editFormData.payment_method !== undefined && editFormData.payment_method !== column.payment_method) {
@@ -218,7 +240,6 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
         changes.program_code = editFormData.program_code;
       }
       if (editFormData.features) {
-        // Check if features have changed
         const originalFeatures = JSON.stringify(column.features || {});
         const newFeatures = JSON.stringify(editFormData.features);
         if (originalFeatures !== newFeatures) {
@@ -226,14 +247,19 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
         }
       }
 
-      // Only update if there are actual changes
       if (Object.keys(changes).length > 0) {
-        await updateOffer(column, changes, backendUrl, onRefreshOffers);
+        await updateOffer(column, changes, backendUrl, undefined);
+        // end editing now so new props can flow in
+        setEditingColumn(null);
+        setEditFormData({});
+        // refresh after closing edit mode (prevents prop-update being ignored)
+        if (onRefreshOffers) await onRefreshOffers();
         toast.success('Program updated successfully');
+      } else {
+        setEditingColumn(null);
+        setEditFormData({});
+        toast.message('No changes to save');
       }
-
-      setEditingColumn(null);
-      setEditFormData({});
     } catch (error: any) {
       toast.error(`Failed to save: ${error.message}`);
     }
@@ -345,10 +371,10 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                           <Input
                             placeholder={t('premium')}
                             type="number"
-                            value={editFormData.premium_eur || ''}
+                            value={editFormData.premium_eur ?? ''}
                             onChange={(e) => setEditFormData(prev => ({
                               ...prev,
-                              premium_eur: e.target.value ? Number(e.target.value) : null
+                              premium_eur: e.target.value
                             }))}
                             className="text-center"
                           />
@@ -436,10 +462,10 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                       ) : isEditing && row.key === 'base_sum_eur' ? (
                         <Input
                           type="number"
-                          value={editFormData.base_sum_eur || ''}
+                          value={editFormData.base_sum_eur ?? ''}
                           onChange={(e) => setEditFormData(prev => ({
                             ...prev,
-                            base_sum_eur: e.target.value ? Number(e.target.value) : null
+                            base_sum_eur: e.target.value
                           }))}
                           className="text-center"
                         />
