@@ -136,6 +136,11 @@ export default function ShareView() {
 
   return (
     <div className="p-4 md:p-6 space-y-6 max-w-[1400px] mx-auto">
+      {/* Title */}
+      {columns.length > 0 && (
+        <h3 className="text-lg font-semibold">Veselības Apdrošināšana</h3>
+      )}
+
       {/* Results Matrix */}
       {columns.length > 0 && (
         <ComparisonMatrix
