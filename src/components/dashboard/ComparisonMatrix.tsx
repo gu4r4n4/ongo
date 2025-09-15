@@ -49,8 +49,20 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
     console.log('=== ComparisonMatrix useEffect ===');
     console.log('New columns received:', columns.length);
     console.log('Columns data:', columns);
-    setLocalColumns(columns);
-  }, [columns]);
+    
+    // Preserve local edits when new data arrives
+    if (editingColumn) {
+      // If currently editing, merge the new data but keep the edited column unchanged
+      const mergedColumns = columns.map(newCol => {
+        const existingEditedCol = localColumns.find(local => local.id === editingColumn && local.id === newCol.id);
+        return existingEditedCol ? existingEditedCol : newCol;
+      });
+      setLocalColumns(mergedColumns);
+    } else {
+      // No active editing, safe to update with new data
+      setLocalColumns(columns);
+    }
+  }, [columns, editingColumn, localColumns]);
 
   // Drag scrolling functionality
   useEffect(() => {
