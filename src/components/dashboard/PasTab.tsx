@@ -122,46 +122,30 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     }
   }
 
-  // Polling by document IDs
-  function startOffersPolling(ids: string[]) {
-    if (!ids || ids.length === 0) return;
+  // Start polling when docIds change
+  useEffect(() => {
+    if (docIds.length === 0) return;
 
-    setIsLoading(true);
-
-    // Immediate fetch
-    fetch(`${BACKEND_URL}/offers/by-documents`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ document_ids: ids })
-    })
-    .then(r => r.json())
-    .then(data => {
-      setOffers(data || []);
-      buildMatrix(data || []);
-      saveOffersToDatabase(data || []); // Save to database
-      setIsLoading(false);
-    })
-    .catch(() => { 
-      setIsLoading(false);
-    });
-
-    // Interval polling
-    const timer = setInterval(async () => {
+    const tick = async () => {
       try {
-        const r = await fetch(`${BACKEND_URL}/offers/by-documents`, {
+        const res = await fetch(`${BACKEND_URL}/offers/by-documents`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ document_ids: ids })
+          body: JSON.stringify({ document_ids: docIds }),
         });
-        const data = await r.json();
-        setOffers(data || []);
-        buildMatrix(data || []);
-        saveOffersToDatabase(data || []); // Save to database
-      } catch {}
-    }, 2500);
+        const offers = await res.json();  // [{ source_file, programs: [...]}, ...]
+        setOffers(offers || []);
+        buildMatrix(offers || []);
+        saveOffersToDatabase(offers || []);
+      } catch (error) {
+        console.error('Polling error:', error);
+      }
+    };
 
-    return () => clearInterval(timer);
-  }
+    tick();
+    const id = setInterval(tick, 2500);
+    return () => clearInterval(id);
+  }, [docIds]);
 
   // Optional job progress tracking
   useEffect(() => {
@@ -185,11 +169,6 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     return () => { alive = false; };
   }, [currentJobId]);
 
-  // Start polling when docIds change
-  useEffect(() => {
-    if (!docIds.length) return;
-    return startOffersPolling(docIds);
-  }, [docIds]);
 
   const onFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Clear old results immediately when new files selected
@@ -315,7 +294,8 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     try {
       const { job_id, documents } = await startAsyncProcessing(items, inquiryId || undefined);
       setCurrentJobId(job_id);
-      setDocIds(documents);
+      setDocIds(documents);            // <-- Save ALL doc ids
+      console.log('All document IDs saved:', documents);
       toast.success('Processing started...');
     } catch (err: any) {
       toast.error(`${t('failed') || 'Failed'}: ${err?.message || 'Upload error'}`);
