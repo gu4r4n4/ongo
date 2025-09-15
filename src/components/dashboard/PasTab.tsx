@@ -228,20 +228,65 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
 
   async function startAsyncProcessing(files: UploadItem[], inquiryId?: string): Promise<{ job_id: string; documents: string[] }> {
     const form = new FormData();
+    
+    // Debug logging
+    console.log('=== Upload Debug Info ===');
+    console.log('Files count:', files.length);
+    console.log('Company name:', companyName);
+    console.log('Employees count:', employeesCount);
+    console.log('Files data:', files.map(f => ({ fileName: f.file.name, hint: f.hint })));
+    
     files.forEach((item) => {
       form.append('files', item.file);      // repeats – order matters
       form.append('insurers', item.hint);   // repeats – same order as files
     });
-    form.append('company', companyName);
-    form.append('insured_count', String(employeesCount));
-    // inquiry_id is optional; only include it if you actually have one
-    if (inquiryId) form.append('inquiry_id', inquiryId);
-    const res = await fetch(`${BACKEND_URL}/extract/multiple-async`, { method: 'POST', body: form });
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      throw new Error(data?.error || `Upload failed (${res.status})`);
+    
+    // Validate required fields
+    if (!companyName || companyName.trim() === '') {
+      throw new Error('Company name is required');
     }
+    
+    if (!employeesCount || employeesCount <= 0) {
+      throw new Error('Employee count must be greater than 0');
+    }
+    
+    form.append('company', companyName.trim());
+    form.append('insured_count', String(employeesCount));
+    
+    // inquiry_id is optional; only include it if you actually have one
+    if (inquiryId && inquiryId.trim()) {
+      form.append('inquiry_id', inquiryId.trim());
+    }
+    
+    console.log('FormData entries:');
+    for (const [key, value] of form.entries()) {
+      console.log(key, typeof value === 'string' ? value : value.constructor.name);
+    }
+    
+    const res = await fetch(`${BACKEND_URL}/extract/multiple-async`, { method: 'POST', body: form });
+    
+    if (!res.ok) {
+      const contentType = res.headers.get('content-type');
+      let errorData;
+      
+      if (contentType && contentType.includes('application/json')) {
+        errorData = await res.json().catch(() => ({}));
+      } else {
+        const text = await res.text().catch(() => 'Unknown error');
+        errorData = { error: text };
+      }
+      
+      console.error('Upload error response:', {
+        status: res.status,
+        statusText: res.statusText,
+        errorData
+      });
+      
+      throw new Error(errorData?.error || errorData?.detail || `Upload failed (${res.status})`);
+    }
+    
     const response = await res.json();
+    console.log('Upload success response:', response);
     return { job_id: response.job_id, documents: response.documents || [] };
   }
 
