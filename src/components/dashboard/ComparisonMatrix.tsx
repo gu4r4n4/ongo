@@ -42,6 +42,8 @@ interface ComparisonMatrixProps {
   canEdit?: boolean;
   showBuyButtons?: boolean;
   isShareView?: boolean;
+  backendUrl?: string;
+  onRefreshOffers?: () => void;
 }
 
 export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
@@ -54,6 +56,8 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
   canEdit = true,
   showBuyButtons = false,
   isShareView = false,
+  backendUrl,
+  onRefreshOffers,
 }) => {
   const { t } = useTranslation(currentLanguage);
   const isMobile = useIsMobile();
@@ -145,17 +149,44 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
     setEditFormData({});
   };
 
-  const saveEdit = () => {
+  const savePremium = async (program: { row_id?: number }, value: string | number) => {
+    if (!program.row_id) throw new Error("Missing row_id from offers payload");
+    if (!backendUrl) throw new Error("Backend URL not provided");
+    
+    const num = Number(String(value).replace(",", "."));
+    if (Number.isNaN(num)) throw new Error("Invalid number");
+
+    const res = await fetch(`${backendUrl}/offers/${program.row_id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ premium_eur: num }),
+    });
+    if (!res.ok) throw new Error(await res.text());
+
+    if (onRefreshOffers) {
+      await onRefreshOffers(); // refetch GET /offers/by-job/{job_id}
+    }
+    toast.success('Premium updated successfully');
+  };
+
+  const saveEdit = async () => {
     if (!editingColumn) return;
     
-    const updatedColumns = localColumns.map(col =>
-      col.id === editingColumn ? { ...col, ...editFormData } : col
-    );
-    
-    setLocalColumns(updatedColumns);
-    setEditingColumn(null);
-    setEditFormData({});
-    toast.success('Program updated successfully');
+    try {
+      const column = localColumns.find(col => col.id === editingColumn);
+      if (!column) return;
+
+      // Save premium if changed
+      if (editFormData.premium_eur !== undefined && editFormData.premium_eur !== column.premium_eur) {
+        await savePremium(column, editFormData.premium_eur);
+      }
+
+      // For now, only handle premium updates. Base sum and payment method will be added later
+      setEditingColumn(null);
+      setEditFormData({});
+    } catch (error: any) {
+      toast.error(`Failed to save: ${error.message}`);
+    }
   };
 
   if (localColumns.length === 0) {

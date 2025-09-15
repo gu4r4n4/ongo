@@ -528,6 +528,14 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
           onShare={shareResults}
           companyName={companyName}
           employeesCount={employeesCount}
+          backendUrl={BACKEND_URL}
+          onRefreshOffers={async () => {
+            if (currentJobId) {
+              const offers = await fetch(`${BACKEND_URL}/offers/by-job/${currentJobId}`).then(r => r.json());
+              setOffers(offers || []);
+              buildMatrix(offers || []);
+            }
+          }}
         />
       )}
 

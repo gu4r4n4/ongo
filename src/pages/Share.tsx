@@ -146,6 +146,7 @@ const Share = () => {
       id: `${offer.source_file}::${program.insurer}::${program.program_code}`,
       label: program.insurer || offer.source_file,
       source_file: offer.source_file,
+      row_id: (program as any).row_id,
       insurer: program.insurer,
       program_code: program.program_code,
       premium_eur: program.premium_eur,
@@ -182,6 +183,7 @@ const Share = () => {
           companyName={shareData.payload?.company_name}
           employeesCount={shareData.payload?.employees_count}
           canEdit={false}
+          backendUrl={BACKEND_URL}
         />
       </div>
     </div>

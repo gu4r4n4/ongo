@@ -8,6 +8,7 @@ import { useTranslation, Language } from "@/utils/translations";
 import { BACKEND_URL } from "@/config";
 
 type Program = {
+  row_id?: number;
   insurer?: string | null;
   program_code?: string | null;
   base_sum_eur?: number | null;
@@ -50,6 +51,7 @@ export default function ShareView() {
           id: `${g.source_file}:${p.insurer || "-"}:${p.program_code || "-"}`,
           insurer: p.insurer || "-",
           program_code: p.program_code || "-",  // Use underscore to match ComparisonMatrix
+          row_id: p.row_id,
           premium_eur: p.premium_eur ?? null,   // Use full property name
           base_sum_eur: p.base_sum_eur ?? null, // Use full property name
           payment_method: p.payment_method || null,
@@ -163,6 +165,7 @@ export default function ShareView() {
           canEdit={false}
           showBuyButtons={true}
           isShareView={true}
+          backendUrl={BACKEND_URL}
         />
       )}
 
