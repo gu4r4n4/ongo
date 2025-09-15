@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { ComparisonMatrix } from "@/components/dashboard/ComparisonMatrix";
+import MedicalServicesHeader from "@/components/MedicalServicesHeader";
 import { useTranslation, Language } from "@/utils/translations";
 import { BACKEND_URL } from "@/config";
 
@@ -134,6 +134,7 @@ export default function ShareView() {
 
   return (
     <div className="p-4 md:p-6 space-y-6 max-w-[1400px] mx-auto">
+      {/* Header */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">
@@ -150,23 +151,34 @@ export default function ShareView() {
             <span className="ml-2 font-medium">{payload.employees_count ?? "—"}</span>
           </div>
         </CardContent>
-        <Separator />
-        <CardContent>
-          {columns.length === 0 ? (
-            <div className="text-sm text-muted-foreground">No data yet…</div>
-          ) : (
-            <ComparisonMatrix
-              columns={columns}
-              allFeatureKeys={allFeatureKeys}
-              currentLanguage={"lv" as Language}
-              onShare={undefined}
-              companyName={payload.company_name || ""}
-              employeesCount={payload.employees_count || 0}
-              canEdit={false}
-            />
-          )}
-        </CardContent>
       </Card>
+
+      {/* Results Matrix */}
+      {columns.length > 0 && (
+        <ComparisonMatrix
+          columns={columns}
+          allFeatureKeys={allFeatureKeys}
+          currentLanguage={"lv" as Language}
+          onShare={undefined}
+          companyName={payload.company_name || ""}
+          employeesCount={payload.employees_count || 0}
+          canEdit={false}
+        />
+      )}
+
+      {/* Medical Services Footer - Legend */}
+      {columns.length > 0 && (
+        <MedicalServicesHeader currentLanguage={"lv" as Language} />
+      )}
+
+      {/* No data message */}
+      {columns.length === 0 && (
+        <Card>
+          <CardContent className="p-6 text-center">
+            <div className="text-sm text-muted-foreground">No data yet…</div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
