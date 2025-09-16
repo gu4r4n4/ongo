@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Check, Minus, Edit, Save, X, Share2, Info } from "lucide-react";
+import { Check, Minus, Edit, Save, X, Share2 } from "lucide-react";
 import { InsurerLogo } from "@/components/InsurerLogo";
 import { Column } from "@/hooks/useAsyncOffers";
 import { Language, useTranslation } from "@/utils/translations";
@@ -62,6 +62,41 @@ async function updateOffer(row_id: number, changes: Record<string, any>, API: st
   if (!res.ok) throw new Error(await res.text());
 }
 
+/**
+ * Try to resolve the DB id for a program without forcing a full-page refresh.
+ * We fetch /offers/by-documents for just this file and match by (insurer, program_code).
+ */
+async function resolveRowIdForColumn(column: Column, backendUrl: string): Promise<number | undefined> {
+  try {
+    const res = await fetch(`${backendUrl}/offers/by-documents`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ document_ids: [column.source_file] }),
+    });
+    if (!res.ok) return undefined;
+    const groups: Array<{
+      source_file: string;
+      programs: Array<{ row_id?: number; id?: number; insurer?: string; program_code?: string | null }>;
+    }> = await res.json();
+
+    const g = groups.find((x) => x.source_file === column.source_file);
+    if (!g) return undefined;
+
+    // match on insurer + program_code
+    const match = g.programs.find(
+      (p) =>
+        (p.insurer ?? "") === (column.insurer ?? "") &&
+        (p.program_code ?? "") === (column.program_code ?? "")
+    );
+
+    const rid = match?.row_id ?? match?.id;
+    return typeof rid === "number" ? rid : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+// Feature label translations
 const translateFeatureName = (featureKey: string, t: (key: any) => string): string => {
   const featureTranslations: Record<string, string> = {
     "Doctor visits": t("doctorVisits"),
@@ -115,12 +150,13 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
 
-  // keep columns in sync, but don't clobber an active edit session
+  // Keep incoming props in sync, but don't clobber while editing
   useEffect(() => {
     if (editingColumn) return;
     setLocalColumns(columns);
   }, [columns, editingColumn]);
 
+  // drag-to-scroll UX
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
@@ -203,9 +239,18 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
       const column = localColumns.find((col) => col.id === editingColumn);
       if (!column) return;
 
-      if (!column.row_id) {
-        toast.error("This program cannot be edited yet (no row_id). Try Refresh.");
-        return;
+      // resolve row id (without a destructive refresh)
+      let rowId = column.row_id;
+      if (!rowId) {
+        rowId = await resolveRowIdForColumn(column, backendUrl);
+        if (!rowId) {
+          toast.error("Could not resolve record id yet. Try again in a moment.");
+          return;
+        }
+        // update the local copy so subsequent edits don't need to resolve again
+        setLocalColumns((prev) =>
+          prev.map((c) => (c.id === column.id ? { ...c, row_id: rowId } : c))
+        );
       }
 
       const changes: Record<string, any> = {};
@@ -239,9 +284,9 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
         return;
       }
 
-      await updateOffer(column.row_id, changes, backendUrl);
+      await updateOffer(rowId, changes, backendUrl);
 
-      // End edit so new props can flow in, then refresh
+      // end edit so new props can flow in, then optionally refresh offers
       setEditingColumn(null);
       setEditFormData({});
       if (onRefreshOffers) await onRefreshOffers();
@@ -310,21 +355,30 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                 isShareView && !isMobile ? "sticky top-0 z-50" : "sticky top-0 z-20"
               }`}
             >
-              {/* Sticky Feature Names Column Header */}
+              {/* Sticky feature header */}
               <div className={`w-[280px] bg-card border-r p-4 ${isMobile ? "" : "sticky left-0 z-30"}`}>
-                <div className="font-semibold text-sm flex items-center gap-2">
-                  {t("features")}
-                  <span className="text-xs text-muted-foreground inline-flex items-center gap-1">
-                    <Info className="h-3 w-3" />
-                    {/* tiny helper so testers find correct endpoint */}
-                    /offers/by-job, not /jobs/by-job
-                  </span>
-                </div>
+                <div className="font-semibold text-sm">{t("features")}</div>
               </div>
 
-              {/* Program Columns */}
+              {/* Program columns */}
               {localColumns.map((column) => {
                 const isEditing = editingColumn === column.id;
+
+                // Error column rendering, if any
+                if (column.type === "error") {
+                  return (
+                    <div key={column.id} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 bg-red-50 dark:bg-red-950/20">
+                      <div className="flex flex-col items-center text-center space-y-2">
+                        <div className="w-12 h-12 flex items-center justify-center rounded-md bg-red-100 dark:bg-red-900/30">
+                          <X className="h-6 w-6 text-red-600" />
+                        </div>
+                        <div className="font-semibold text-sm text-red-600">{column.label}</div>
+                        <Badge variant="destructive" className="text-xs">FAILED</Badge>
+                        <div className="text-xs text-red-600 max-w-full break-words">Processing Failed</div>
+                      </div>
+                    </div>
+                  );
+                }
 
                 return (
                   <div key={column.id} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 bg-card">
@@ -333,14 +387,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                         <InsurerLogo name={column.insurer} className="w-10 h-10 object-contain" />
                       </div>
                       <div className="font-semibold text-sm truncate w-full">{column.insurer}</div>
-                      <Badge variant="outline" className="text-xs truncate max-w-full">
-                        {column.program_code}
-                      </Badge>
-
-                      {/* show row_id for quick debugging */}
-                      {canEdit && (
-                        <div className="text-[10px] text-muted-foreground">{column.row_id ? `id: ${column.row_id}` : "id: —"}</div>
-                      )}
+                      <Badge variant="outline" className="text-xs truncate max-w-full">{column.program_code}</Badge>
 
                       {isEditing ? (
                         <div className="w-full space-y-2">
@@ -385,11 +432,8 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
               })}
             </div>
 
-            {/* Meta Rows */}
-            {[
-              { key: "base_sum_eur", label: t("baseSum") },
-              { key: "payment_method", label: t("payment") },
-            ].map((row) => (
+            {/* Meta rows */}
+            {metaRows.map((row) => (
               <div key={row.key} className="flex border-b">
                 <div className={`w-[280px] bg-black border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
                   <div className="font-medium text-sm text-white">{row.label}</div>
@@ -445,7 +489,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
               </div>
             ))}
 
-            {/* Feature Rows */}
+            {/* Feature rows */}
             {allFeatureKeys.map((featureKey, index) => (
               <div key={featureKey} className={`flex border-b ${index % 2 === 0 ? "bg-muted/10" : ""}`}>
                 <div className={`w-[280px] bg-black border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
@@ -481,7 +525,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
               </div>
             ))}
 
-            {/* Buy Buttons Row - only in share view */}
+            {/* CTA row (optional) */}
             {showBuyButtons && (
               <div className="flex border-b">
                 <div className={`w-[280px] bg-black border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>

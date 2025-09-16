@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 export type Program = {
-  // From API (programs[] inside each group). Backend sets row_id = DB id.
-  row_id?: number;           // preferred (explicit by backend)
-  id?: number;               // fallback (if backend only returns "id")
+  // Backend should include one of these (prefer row_id, else id)
+  row_id?: number;
+  id?: number;
   insurer?: string;
   program_code?: string | null;
   base_sum_eur?: number | null;
@@ -15,7 +15,7 @@ export type Program = {
 export type OfferGroup = {
   source_file: string;
   inquiry_id?: number | null;
-  status?: "error" | "success" | "parsed";
+  status?: "error" | "parsed" | "success";
   error?: string | null;
   programs: Program[];
 };
@@ -27,7 +27,7 @@ export type Column = {
   label: string;
   source_file: string;
   type?: "program" | "error";
-  row_id?: number; // <- make optional, we'll guard on save
+  row_id?: number; // optional; we’ll resolve it on demand if missing
   insurer?: string;
   program_code?: string | null;
   premium_eur?: number | null;
@@ -38,11 +38,7 @@ export type Column = {
   error?: string;
 };
 
-type Job = {
-  total: number;
-  done: number;
-  errors: Array<{ document_id: string; error: string }>;
-};
+type Job = { total: number; done: number; errors: Array<{ document_id: string; error: string }> };
 
 type UseAsyncOffersArgs = {
   backendUrl: string;
@@ -84,7 +80,6 @@ export function useAsyncOffers({ backendUrl, jobId, documentIds, pollMs = 2000 }
     setOffers([]);
     setJob(null);
 
-    // no jobId AND no docs => skip
     if (!jobId && !documentIds?.length) return;
 
     let t: any;
@@ -103,7 +98,7 @@ export function useAsyncOffers({ backendUrl, jobId, documentIds, pollMs = 2000 }
 
           if (j.done >= j.total) {
             setIsLoading(false);
-            return; // stop polling when done
+            return;
           }
         } else if (documentIds?.length) {
           const o = await fetchOffersByDocs(documentIds);
@@ -111,7 +106,7 @@ export function useAsyncOffers({ backendUrl, jobId, documentIds, pollMs = 2000 }
           setOffers(o);
         }
       } catch {
-        // ignore transient background errors
+        // swallow transient background errors
       } finally {
         if (!stopRef.current && (jobId || documentIds?.length)) {
           t = setTimeout(loop, pollMs);
@@ -131,17 +126,12 @@ export function useAsyncOffers({ backendUrl, jobId, documentIds, pollMs = 2000 }
 
     for (const g of offers) {
       for (const program of g.programs) {
-        // derive a stable column id for rendering
-        const colId = `${g.source_file}::${program.insurer ?? ""}::${program.program_code ?? ""}`;
-
-        // IMPORTANT: pick row id robustly; do NOT throw
-        const rid = program.row_id ?? program.id; // backend sends row_id, but accept id fallback
-
-        const col: Column = {
-          id: colId,
+        const rid = program.row_id ?? program.id; // accept either from backend
+        cols.push({
+          id: `${g.source_file}::${program.insurer ?? ""}::${program.program_code ?? ""}`,
           label: program.insurer || g.source_file,
           source_file: g.source_file,
-          row_id: rid, // may be undefined if DB ids unavailable (fallback mode)
+          row_id: rid,
           insurer: program.insurer,
           program_code: program.program_code,
           premium_eur: program.premium_eur ?? null,
@@ -149,15 +139,12 @@ export function useAsyncOffers({ backendUrl, jobId, documentIds, pollMs = 2000 }
           payment_method: program.payment_method ?? null,
           features: program.features || {},
           group: g,
-        };
-        cols.push(col);
+        });
       }
     }
 
     const featureSet = new Set<string>();
-    for (const col of cols) {
-      Object.keys(col.features || {}).forEach((k) => featureSet.add(k));
-    }
+    for (const col of cols) Object.keys(col.features || {}).forEach((k) => featureSet.add(k));
 
     return { columns: cols, allFeatureKeys: Array.from(featureSet).sort() };
   }, [offers]);
