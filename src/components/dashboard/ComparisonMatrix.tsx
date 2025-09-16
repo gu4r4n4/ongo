@@ -50,20 +50,14 @@ function normalizeChanges(changes: Record<string, any>): OfferPatch {
   return out;
 }
 
-async function updateOffer(program: { row_id?: number }, changes: Record<string, any>, backendUrl: string, refreshOffers?: () => Promise<void>) {
-  if (!program.row_id) throw new Error("Missing row_id from offers payload");
+async function updateOffer(row_id: number, changes: Record<string, any>, API: string) {
   const patch = normalizeChanges(changes);
-
-  const res = await fetch(`${backendUrl}/offers/${program.row_id}`, {
+  const res = await fetch(`${API}/offers/${row_id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(patch),
   });
   if (!res.ok) throw new Error(await res.text());
-
-  if (refreshOffers) {
-    await refreshOffers(); // re-fetch GET /offers/by-job/{job_id}
-  }
 }
 
 // Feature name translation utility
@@ -248,7 +242,8 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
       }
 
       if (Object.keys(changes).length > 0) {
-        await updateOffer(column, changes, backendUrl, undefined);
+        if (!column.row_id) throw new Error("Missing row_id from column");
+        await updateOffer(column.row_id, changes, backendUrl);
         // end editing now so new props can flow in
         setEditingColumn(null);
         setEditFormData({});
