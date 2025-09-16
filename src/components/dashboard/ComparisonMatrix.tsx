@@ -242,7 +242,6 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
       }
 
       if (Object.keys(changes).length > 0) {
-        if (!column.row_id) throw new Error("Missing row_id from column");
         await updateOffer(column.row_id, changes, backendUrl);
         // end editing now so new props can flow in
         setEditingColumn(null);

@@ -26,7 +26,7 @@ export type Column = {
   label: string;
   source_file: string;
   type?: 'program' | 'error';
-  row_id?: number;
+  row_id: number;
   insurer?: string;
   program_code?: string | null;
   premium_eur?: number | null;
@@ -123,19 +123,24 @@ export function useAsyncOffers({ backendUrl, jobId, documentIds, pollMs = 2000 }
 
   const { columns, allFeatureKeys } = useMemo(() => {
     const cols = offers.flatMap((g) =>
-      g.programs.map((program) => ({
-        id: `${g.source_file}::${program.insurer}::${program.program_code}`,
-        label: program.insurer || g.source_file,
-        source_file: g.source_file,
-        row_id: program.row_id || program.id,
-        insurer: program.insurer,
-        program_code: program.program_code,
-        premium_eur: program.premium_eur,
-        base_sum_eur: program.base_sum_eur,
-        payment_method: program.payment_method,
-        features: program.features || {},
-        group: g,
-      }))
+      g.programs.map((program) => {
+        if (!program.row_id) {
+          throw new Error(`Missing row_id for program in ${g.source_file}`);
+        }
+        return {
+          id: `${g.source_file}::${program.insurer}::${program.program_code}`,
+          label: program.insurer || g.source_file,
+          source_file: g.source_file,
+          row_id: program.row_id,
+          insurer: program.insurer,
+          program_code: program.program_code,
+          premium_eur: program.premium_eur,
+          base_sum_eur: program.base_sum_eur,
+          payment_method: program.payment_method,
+          features: program.features || {},
+          group: g,
+        };
+      })
     );
 
     const featureSet = new Set<string>();
