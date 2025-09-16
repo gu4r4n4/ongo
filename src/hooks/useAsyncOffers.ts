@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 export type Program = {
-  row_id?: number;            // returned by BE (_aggregate_offers_rows maps DB id -> row_id)
-  id?: number;                // fallback if row_id is missing
+  // From API (programs[] inside each group). Backend sets row_id = DB id.
+  row_id?: number;           // preferred (explicit by backend)
+  id?: number;               // fallback (if backend only returns "id")
   insurer?: string;
   program_code?: string | null;
   base_sum_eur?: number | null;
@@ -15,18 +16,18 @@ export type OfferGroup = {
   source_file: string;
   inquiry_id?: number | null;
   status?: "error" | "success" | "parsed";
-  error?: string;
+  error?: string | null;
   programs: Program[];
 };
 
-export type OfferResult = OfferGroup; // alias for backward compatibility
+export type OfferResult = OfferGroup; // legacy alias
 
 export type Column = {
   id: string;
   label: string;
   source_file: string;
   type?: "program" | "error";
-  row_id: number; // required for PATCH
+  row_id?: number; // <- make optional, we'll guard on save
   insurer?: string;
   program_code?: string | null;
   premium_eur?: number | null;
@@ -50,12 +51,7 @@ type UseAsyncOffersArgs = {
   pollMs?: number;
 };
 
-export function useAsyncOffers({
-  backendUrl,
-  jobId,
-  documentIds,
-  pollMs = 2000,
-}: UseAsyncOffersArgs) {
+export function useAsyncOffers({ backendUrl, jobId, documentIds, pollMs = 2000 }: UseAsyncOffersArgs) {
   const [offers, setOffers] = useState<OfferGroup[]>([]);
   const [job, setJob] = useState<Job | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -88,7 +84,7 @@ export function useAsyncOffers({
     setOffers([]);
     setJob(null);
 
-    // Nothing to poll
+    // no jobId AND no docs => skip
     if (!jobId && !documentIds?.length) return;
 
     let t: any;
@@ -113,10 +109,9 @@ export function useAsyncOffers({
           const o = await fetchOffersByDocs(documentIds);
           if (stopRef.current) return;
           setOffers(o);
-          setIsLoading(false); // docs mode: considered loaded after first fetch
         }
       } catch {
-        // swallow transient polling errors
+        // ignore transient background errors
       } finally {
         if (!stopRef.current && (jobId || documentIds?.length)) {
           t = setTimeout(loop, pollMs);
@@ -135,48 +130,27 @@ export function useAsyncOffers({
     const cols: Column[] = [];
 
     for (const g of offers) {
-      // if backend reported an error group (no programs), render an error column
-      if ((!g.programs || g.programs.length === 0) && (g.status === "error" || g.error)) {
-        cols.push({
-          id: `${g.source_file}::error`,
-          label: g.source_file,
-          source_file: g.source_file,
-          type: "error",
-          row_id: 0, // no edits on error columns
-          insurer: undefined,
-          program_code: undefined,
-          premium_eur: undefined,
-          base_sum_eur: undefined,
-          payment_method: undefined,
-          features: {},
-          group: g,
-          error: g.error || "Processing failed",
-        });
-        continue;
-      }
+      for (const program of g.programs) {
+        // derive a stable column id for rendering
+        const colId = `${g.source_file}::${program.insurer ?? ""}::${program.program_code ?? ""}`;
 
-      // normal programs
-      for (const program of g.programs || []) {
-        const rid = (program.row_id ?? program.id) as number | undefined;
-        if (!rid) {
-          // skip silently; BE should always return row_id, but this keeps UI resilient
-          // console.warn(`Missing row_id for program in ${g.source_file}`, program);
-          continue;
-        }
-        cols.push({
-          id: `${g.source_file}::${program.insurer ?? ""}::${program.program_code ?? ""}`,
+        // IMPORTANT: pick row id robustly; do NOT throw
+        const rid = program.row_id ?? program.id; // backend sends row_id, but accept id fallback
+
+        const col: Column = {
+          id: colId,
           label: program.insurer || g.source_file,
           source_file: g.source_file,
-          type: "program",
-          row_id: rid,
+          row_id: rid, // may be undefined if DB ids unavailable (fallback mode)
           insurer: program.insurer,
           program_code: program.program_code,
-          premium_eur: program.premium_eur,
-          base_sum_eur: program.base_sum_eur,
-          payment_method: program.payment_method,
+          premium_eur: program.premium_eur ?? null,
+          base_sum_eur: program.base_sum_eur ?? null,
+          payment_method: program.payment_method ?? null,
           features: program.features || {},
           group: g,
-        });
+        };
+        cols.push(col);
       }
     }
 

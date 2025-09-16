@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Check, Minus, Edit, Save, X, Share2 } from "lucide-react";
+import { Check, Minus, Edit, Save, X, Share2, Info } from "lucide-react";
 import { InsurerLogo } from "@/components/InsurerLogo";
 import { Column } from "@/hooks/useAsyncOffers";
 import { Language, useTranslation } from "@/utils/translations";
@@ -31,12 +31,7 @@ type EditForm = {
 
 function toNumOrThrow(v: any, name: string): number {
   const n = Number(
-    String(v)
-      .trim()
-      .replace("€", "")
-      .replace(/\s/g, "")
-      .replace(",", ".")
-      .replace(/[^\d.-]/g, "")
+    String(v).trim().replace("€", "").replace(/\s/g, "").replace(",", ".").replace(/[^\d.-]/g, "")
   );
   if (Number.isNaN(n)) throw new Error(`${name} must be a number`);
   return n;
@@ -120,12 +115,12 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
 
-  // sync incoming columns unless editing
+  // keep columns in sync, but don't clobber an active edit session
   useEffect(() => {
-    if (!editingColumn) setLocalColumns(columns);
+    if (editingColumn) return;
+    setLocalColumns(columns);
   }, [columns, editingColumn]);
 
-  // drag-to-scroll
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
@@ -134,9 +129,8 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
       setIsDragging(true);
       setStartX(e.pageX - container.offsetLeft);
       setScrollLeft(container.scrollLeft);
-      container.style.cursor = "grabbing";
+      (container as HTMLDivElement).style.cursor = "grabbing";
     };
-
     const handleMouseMove = (e: MouseEvent) => {
       if (!isDragging) return;
       e.preventDefault();
@@ -144,23 +138,21 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
       const walk = (x - startX) * 2;
       container.scrollLeft = scrollLeft - walk;
     };
-
     const handleMouseUp = () => {
       setIsDragging(false);
-      container.style.cursor = "grab";
+      (container as HTMLDivElement).style.cursor = "grab";
     };
-
     const handleMouseLeave = () => {
       setIsDragging(false);
-      container.style.cursor = "grab";
+      (container as HTMLDivElement).style.cursor = "grab";
     };
 
     container.addEventListener("mousedown", handleMouseDown);
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", handleMouseUp);
     container.addEventListener("mouseleave", handleMouseLeave);
+    (container as HTMLDivElement).style.cursor = "grab";
 
-    container.style.cursor = "grab";
     return () => {
       container.removeEventListener("mousedown", handleMouseDown);
       document.removeEventListener("mousemove", handleMouseMove);
@@ -182,16 +174,17 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
   const startEdit = (columnId: string) => {
     if (!canEdit) return;
     const column = localColumns.find((col) => col.id === columnId);
-    if (!column || column.type === "error") return;
-    setEditingColumn(columnId);
-    setEditFormData({
-      premium_eur: column.premium_eur?.toString() ?? "",
-      base_sum_eur: column.base_sum_eur?.toString() ?? "",
-      payment_method: column.payment_method ?? "",
-      insurer: column.insurer ?? "",
-      program_code: column.program_code ?? "",
-      features: { ...(column.features ?? {}) },
-    });
+    if (column) {
+      setEditingColumn(columnId);
+      setEditFormData({
+        premium_eur: column.premium_eur?.toString() ?? "",
+        base_sum_eur: column.base_sum_eur?.toString() ?? "",
+        payment_method: column.payment_method ?? "",
+        insurer: column.insurer ?? "",
+        program_code: column.program_code ?? "",
+        features: column.features ?? {},
+      });
+    }
   };
 
   const cancelEdit = () => {
@@ -205,26 +198,38 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
       toast.error("Missing backend URL");
       return;
     }
-    const column = localColumns.find((col) => col.id === editingColumn);
-    if (!column) return;
-    if (!column.row_id) {
-      toast.error("Missing row_id for this program");
-      return;
-    }
 
     try {
-      // compute changed fields
-      const changes: Record<string, any> = {};
-      if (editFormData.premium_eur !== undefined) changes.premium_eur = editFormData.premium_eur;
-      if (editFormData.base_sum_eur !== undefined) changes.base_sum_eur = editFormData.base_sum_eur;
-      if (editFormData.payment_method !== undefined) changes.payment_method = editFormData.payment_method;
-      if (editFormData.insurer !== undefined) changes.insurer = editFormData.insurer;
-      if (editFormData.program_code !== undefined) changes.program_code = editFormData.program_code;
+      const column = localColumns.find((col) => col.id === editingColumn);
+      if (!column) return;
 
+      if (!column.row_id) {
+        toast.error("This program cannot be edited yet (no row_id). Try Refresh.");
+        return;
+      }
+
+      const changes: Record<string, any> = {};
+      if (editFormData.premium_eur !== undefined && String(editFormData.premium_eur).trim() !== "") {
+        changes.premium_eur = editFormData.premium_eur;
+      }
+      if (editFormData.base_sum_eur !== undefined && String(editFormData.base_sum_eur).trim() !== "") {
+        changes.base_sum_eur = editFormData.base_sum_eur;
+      }
+      if (editFormData.payment_method !== undefined && editFormData.payment_method !== column.payment_method) {
+        changes.payment_method = editFormData.payment_method;
+      }
+      if (editFormData.insurer !== undefined && editFormData.insurer !== column.insurer) {
+        changes.insurer = editFormData.insurer;
+      }
+      if (editFormData.program_code !== undefined && editFormData.program_code !== column.program_code) {
+        changes.program_code = editFormData.program_code;
+      }
       if (editFormData.features) {
-        const original = JSON.stringify(column.features || {});
-        const next = JSON.stringify(editFormData.features || {});
-        if (original !== next) changes.features = editFormData.features;
+        const originalFeatures = JSON.stringify(column.features || {});
+        const newFeatures = JSON.stringify(editFormData.features);
+        if (originalFeatures !== newFeatures) {
+          changes.features = editFormData.features;
+        }
       }
 
       if (Object.keys(changes).length === 0) {
@@ -236,32 +241,10 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
 
       await updateOffer(column.row_id, changes, backendUrl);
 
-      // optimistic local update for snappy UX
-      setLocalColumns((prev) =>
-        prev.map((c) =>
-          c.id !== column.id
-            ? c
-            : {
-                ...c,
-                premium_eur:
-                  changes.premium_eur !== undefined ? toNumOrThrow(changes.premium_eur, "premium_eur") : c.premium_eur,
-                base_sum_eur:
-                  changes.base_sum_eur !== undefined ? toNumOrThrow(changes.base_sum_eur, "base_sum_eur") : c.base_sum_eur,
-                payment_method: changes.payment_method !== undefined ? String(changes.payment_method) : c.payment_method,
-                insurer: changes.insurer !== undefined ? String(changes.insurer) : c.insurer,
-                program_code: changes.program_code !== undefined ? String(changes.program_code) : c.program_code,
-                features: changes.features !== undefined ? (changes.features as Record<string, any>) : c.features,
-              }
-        )
-      );
-
-      // close edit first so new props can flow in
+      // End edit so new props can flow in, then refresh
       setEditingColumn(null);
       setEditFormData({});
-
-      // optional re-fetch from backend to stay authoritative
       if (onRefreshOffers) await onRefreshOffers();
-
       toast.success("Program updated successfully");
     } catch (error: any) {
       toast.error(`Failed to save: ${error.message}`);
@@ -273,7 +256,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
   const metaRows = [
     { key: "base_sum_eur", label: t("baseSum") },
     { key: "payment_method", label: t("payment") },
-  ] as const;
+  ];
 
   return (
     <div className="space-y-4">
@@ -296,7 +279,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                 <span className="ml-2 font-medium">{companyName}</span>
               </div>
             )}
-            {typeof employeesCount === "number" && (
+            {employeesCount && (
               <div className="text-sm">
                 <span className="text-muted-foreground">{t("employeeCount")}:</span>
                 <span className="ml-2 font-medium">{employeesCount}</span>
@@ -329,32 +312,19 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
             >
               {/* Sticky Feature Names Column Header */}
               <div className={`w-[280px] bg-card border-r p-4 ${isMobile ? "" : "sticky left-0 z-30"}`}>
-                <div className="font-semibold text-sm">{t("features")}</div>
+                <div className="font-semibold text-sm flex items-center gap-2">
+                  {t("features")}
+                  <span className="text-xs text-muted-foreground inline-flex items-center gap-1">
+                    <Info className="h-3 w-3" />
+                    {/* tiny helper so testers find correct endpoint */}
+                    /offers/by-job, not /jobs/by-job
+                  </span>
+                </div>
               </div>
 
-              {/* Program Column Headers */}
+              {/* Program Columns */}
               {localColumns.map((column) => {
                 const isEditing = editingColumn === column.id;
-
-                if (column.type === "error") {
-                  return (
-                    <div
-                      key={column.id}
-                      className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 bg-red-50 dark:bg-red-950/20"
-                    >
-                      <div className="flex flex-col items-center text-center space-y-2">
-                        <div className="w-12 h-12 flex items-center justify-center rounded-md bg-red-100 dark:bg-red-900/30">
-                          <X className="h-6 w-6 text-red-600" />
-                        </div>
-                        <div className="font-semibold text-sm text-red-600">{column.label}</div>
-                        <Badge variant="destructive" className="text-xs">
-                          FAILED
-                        </Badge>
-                        <div className="text-xs text-red-600 max-w-full break-words">{column.error || "Processing Failed"}</div>
-                      </div>
-                    </div>
-                  );
-                }
 
                 return (
                   <div key={column.id} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 bg-card">
@@ -362,33 +332,22 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                       <div className="w-12 h-12 flex items-center justify-center rounded-md bg-muted/30">
                         <InsurerLogo name={column.insurer} className="w-10 h-10 object-contain" />
                       </div>
+                      <div className="font-semibold text-sm truncate w-full">{column.insurer}</div>
+                      <Badge variant="outline" className="text-xs truncate max-w-full">
+                        {column.program_code}
+                      </Badge>
+
+                      {/* show row_id for quick debugging */}
+                      {canEdit && (
+                        <div className="text-[10px] text-muted-foreground">{column.row_id ? `id: ${column.row_id}` : "id: —"}</div>
+                      )}
+
                       {isEditing ? (
                         <div className="w-full space-y-2">
                           <Input
-                            placeholder={t("insurer")}
-                            value={editFormData.insurer ?? ""}
-                            onChange={(e) =>
-                              setEditFormData((prev) => ({
-                                ...prev,
-                                insurer: e.target.value,
-                              }))
-                            }
-                            className="text-center"
-                          />
-                          <Input
-                            placeholder={t("programCode")}
-                            value={editFormData.program_code ?? ""}
-                            onChange={(e) =>
-                              setEditFormData((prev) => ({
-                                ...prev,
-                                program_code: e.target.value,
-                              }))
-                            }
-                            className="text-center"
-                          />
-                          <Input
                             placeholder={t("premium")}
-                            type="number"
+                            inputMode="decimal"
+                            type="text"
                             value={editFormData.premium_eur ?? ""}
                             onChange={(e) =>
                               setEditFormData((prev) => ({
@@ -409,20 +368,11 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                         </div>
                       ) : (
                         <div className="space-y-1">
-                          <div className="font-semibold text-sm truncate w-full">{column.insurer}</div>
-                          <Badge variant="outline" className="text-xs truncate max-w-full">
-                            {column.program_code}
-                          </Badge>
                           <div className="text-lg font-bold text-primary truncate">
                             €{column.premium_eur?.toLocaleString() || "—"}
                           </div>
                           {canEdit && (
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => startEdit(column.id)}
-                              className="h-6 w-full p-0 text-xs"
-                            >
+                            <Button size="sm" variant="ghost" onClick={() => startEdit(column.id)} className="h-6 w-full p-0 text-xs">
                               <Edit className="h-3 w-3 mr-1" />
                               Edit
                             </Button>
@@ -436,7 +386,10 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
             </div>
 
             {/* Meta Rows */}
-            {metaRows.map((row) => (
+            {[
+              { key: "base_sum_eur", label: t("baseSum") },
+              { key: "payment_method", label: t("payment") },
+            ].map((row) => (
               <div key={row.key} className="flex border-b">
                 <div className={`w-[280px] bg-black border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
                   <div className="font-medium text-sm text-white">{row.label}</div>
@@ -446,35 +399,15 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                   const isEditing = editingColumn === column.id;
                   const value = (column as any)[row.key];
 
-                  if (column.type === "error") {
-                    return (
-                      <div
-                        key={column.id}
-                        className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 flex items-center justify-center bg-red-50 dark:bg-red-950/20"
-                      >
-                        {row.key === "base_sum_eur" ? (
-                          <div className="text-xs text-red-600 text-center max-w-full break-words px-2">
-                            {column.error || "Processing failed"}
-                          </div>
-                        ) : (
-                          <span className="text-sm text-red-400">—</span>
-                        )}
-                      </div>
-                    );
-                  }
-
                   return (
-                    <div
-                      key={column.id}
-                      className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 flex items-center justify-center"
-                    >
+                    <div key={column.id} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 flex items-center justify-center">
                       {isEditing && row.key === "payment_method" ? (
                         <Select
                           value={editFormData.payment_method || ""}
-                          onValueChange={(val) =>
+                          onValueChange={(value) =>
                             setEditFormData((prev) => ({
                               ...prev,
-                              payment_method: val,
+                              payment_method: value,
                             }))
                           }
                         >
@@ -490,7 +423,8 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                         </Select>
                       ) : isEditing && row.key === "base_sum_eur" ? (
                         <Input
-                          type="number"
+                          inputMode="decimal"
+                          type="text"
                           value={editFormData.base_sum_eur ?? ""}
                           onChange={(e) =>
                             setEditFormData((prev) => ({
@@ -522,25 +456,11 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                   const isEditing = editingColumn === column.id;
                   const value = column.features?.[featureKey];
 
-                  if (column.type === "error") {
-                    return (
-                      <div
-                        key={column.id}
-                        className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 flex items-center justify-center bg-red-50 dark:bg-red-950/20"
-                      >
-                        <Minus className="h-4 w-4 text-red-400" />
-                      </div>
-                    );
-                  }
-
                   return (
-                    <div
-                      key={column.id}
-                      className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 flex items-center justify-center"
-                    >
+                    <div key={column.id} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 flex items-center justify-center">
                       {isEditing ? (
                         <Input
-                          value={editFormData.features?.[featureKey] ?? ""}
+                          value={editFormData.features?.[featureKey] || ""}
                           onChange={(e) =>
                             setEditFormData((prev) => ({
                               ...prev,
@@ -567,20 +487,18 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                 <div className={`w-[280px] bg-black border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
                   <div className="text-sm font-medium text-white">Buy Now</div>
                 </div>
+
                 {localColumns.map((column) => (
-                  <div
-                    key={column.id}
-                    className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 flex items-center justify-center"
-                  >
-                    {column.type !== "error" && (
-                      <Button
-                        size="sm"
-                        className="w-full"
-                        onClick={() => toast.success(`Buying ${column.insurer} plan...`)}
-                      >
-                        Pirkt
-                      </Button>
-                    )}
+                  <div key={column.id} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 flex items-center justify-center">
+                    <Button
+                      size="sm"
+                      className="w-full"
+                      onClick={() => {
+                        toast.success(`Buying ${column.insurer} plan...`);
+                      }}
+                    >
+                      Pirkt
+                    </Button>
                   </div>
                 ))}
               </div>
