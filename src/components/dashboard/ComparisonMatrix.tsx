@@ -605,8 +605,8 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
             {/* Meta rows */}
             {metaRows.map((row) => (
               <div key={row.key} className="flex border-b">
-                <div className={`w-[280px] bg-black border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
-                  <div className="font-medium text-sm text-white">{row.label}</div>
+                <div className={`w-[280px] bg-muted border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
+                  <Badge variant="secondary" className="font-medium text-sm">{row.label}</Badge>
                 </div>
 
                 {localColumns.map((column) => {
@@ -665,8 +665,8 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
             {/* ===== MAIN BLOCK (ordered) ===== */}
             {mainToRender.map((featureKey, index) => (
               <div key={featureKey} className={`flex border-b ${index % 2 === 0 ? "bg-muted/10" : ""}`}>
-                <div className={`w-[280px] bg-black border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
-                  <div className="text-sm font-medium text-white">{featureKey}</div>
+                <div className={`w-[280px] bg-muted border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
+                  <Badge variant="secondary" className="text-sm font-medium">{featureKey}</Badge>
                 </div>
 
                 {localColumns.map((column) => {
@@ -709,8 +709,8 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
 
                 {addonsToRender.map((featureKey, index) => (
                   <div key={featureKey} className={`flex border-b ${index % 2 === 0 ? "bg-muted/10" : ""}`}>
-                    <div className={`w-[280px] bg-black border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
-                      <div className="text-sm font-medium text-white">{featureKey}</div>
+                    <div className={`w-[280px] bg-muted border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
+                      <Badge variant="secondary" className="text-sm font-medium">{featureKey}</Badge>
                     </div>
 
                     {localColumns.map((column) => {
@@ -753,8 +753,8 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                 </div>
                 {leftovers.map((featureKey, index) => (
                   <div key={featureKey} className={`flex border-b ${index % 2 === 0 ? "bg-muted/10" : ""}`}>
-                    <div className={`w-[280px] bg-black border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
-                      <div className="text-sm font-medium text-white">{featureKey}</div>
+                    <div className={`w-[280px] bg-muted border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
+                      <Badge variant="secondary" className="text-sm font-medium">{featureKey}</Badge>
                     </div>
 
                     {localColumns.map((column) => {
@@ -773,8 +773,8 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
             {/* CTA row (optional) */}
             {showBuyButtons && (
               <div className="flex border-b">
-                <div className={`w-[280px] bg-black border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
-                  <div className="text-sm font-medium text-white">Buy Now</div>
+                <div className={`w-[280px] bg-muted border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
+                  <Badge variant="secondary" className="text-sm font-medium">Buy Now</Badge>
                 </div>
 
                 {localColumns.map((column) => (
