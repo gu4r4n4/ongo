@@ -139,7 +139,7 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
             {/* Column 1 */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Badge className="text-black" variant="secondary" style={{ backgroundColor: '#81d8d0' }}>
+                <Badge className="text-white" variant="secondary" style={{ backgroundColor: '#004287' }}>
                   {t('general')}
                 </Badge>
                 <ul className="space-y-1 ml-2">
@@ -148,7 +148,7 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
               </div>
 
               <div className="space-y-2">
-                <Badge className="text-black" variant="secondary" style={{ backgroundColor: '#81d8d0' }}>
+                <Badge className="text-white" variant="secondary" style={{ backgroundColor: '#004287' }}>
                   {t('alternative')}
                 </Badge>
                 <ul className="space-y-1 ml-2">
@@ -158,7 +158,7 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
               </div>
 
               <div className="space-y-2">
-                <Badge className="text-black" variant="secondary" style={{ backgroundColor: '#81d8d0' }}>
+                <Badge className="text-white" variant="secondary" style={{ backgroundColor: '#004287' }}>
                   {t('academic')}
                 </Badge>
                 <ul className="space-y-1 ml-2">
@@ -170,7 +170,7 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
             {/* Column 2 */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Badge className="text-black" variant="secondary" style={{ backgroundColor: '#81d8d0' }}>
+                <Badge className="text-white" variant="secondary" style={{ backgroundColor: '#004287' }}>
                   {t('specialist')}
                 </Badge>
                 <ul className="space-y-1 ml-2">
@@ -180,7 +180,7 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
               </div>
 
               <div className="space-y-2">
-                <Badge className="text-black" variant="secondary" style={{ backgroundColor: '#81d8d0' }}>
+                <Badge className="text-white" variant="secondary" style={{ backgroundColor: '#004287' }}>
                   {t('sports')}
                 </Badge>
                 <ul className="space-y-1 ml-2">
@@ -189,7 +189,7 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
               </div>
 
               <div className="space-y-2">
-                <Badge className="text-black" variant="secondary" style={{ backgroundColor: '#81d8d0' }}>
+                <Badge className="text-white" variant="secondary" style={{ backgroundColor: '#004287' }}>
                   {t('mental')}
                 </Badge>
                 <ul className="space-y-1 ml-2">
@@ -202,7 +202,7 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
             {/* Column 3 */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Badge className="text-black" variant="secondary" style={{ backgroundColor: '#81d8d0' }}>
+                <Badge className="text-white" variant="secondary" style={{ backgroundColor: '#004287' }}>
                   {t('skin')}
                 </Badge>
                 <ul className="space-y-1 ml-2">
@@ -211,7 +211,7 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
               </div>
 
               <div className="space-y-2">
-                <Badge className="text-black" variant="secondary" style={{ backgroundColor: '#81d8d0' }}>
+                <Badge className="text-white" variant="secondary" style={{ backgroundColor: '#004287' }}>
                   {t('therapy')}
                 </Badge>
                 <ul className="space-y-1 ml-2">
@@ -221,7 +221,7 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
               </div>
 
               <div className="space-y-2">
-                <Badge className="text-black" variant="secondary" style={{ backgroundColor: '#81d8d0' }}>
+                <Badge className="text-white" variant="secondary" style={{ backgroundColor: '#004287' }}>
                   {t('remote')}
                 </Badge>
                 <ul className="space-y-1 ml-2">
