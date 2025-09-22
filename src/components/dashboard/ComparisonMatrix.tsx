@@ -366,7 +366,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
       setEditingColumn(columnId);
       setEditFormData({
         premium_eur: column.premium_eur?.toString() ?? "",
-        base_sum_eur: column.base_sum_er?.toString() ?? "",
+        base_sum_eur: column.base_sum_eur?.toString() ?? "",
         payment_method: column.payment_method ?? "",
         insurer: column.insurer ?? "",
         program_code: column.program_code ?? "",
