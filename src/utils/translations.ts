@@ -181,6 +181,7 @@ export const translations = {
     // Share functionality
     share: 'Dalīties',
     confirm: 'Apstiprināt',
+    edit: 'Rediģēt',
     
     // Processing status
     processedFiles: 'Apstrādāti faili',
@@ -389,6 +390,7 @@ export const translations = {
     // Share functionality
     share: 'Share',
     confirm: 'Confirm',
+    edit: 'Edit',
     
     // Processing status
     processedFiles: 'Processed Files',
@@ -597,6 +599,7 @@ export const translations = {
     // Share functionality
     share: 'Поделиться',
     confirm: 'Подтвердить',
+    edit: 'Редактировать',
     
     // Processing status
     processedFiles: 'Обработанные файлы',
@@ -791,6 +794,7 @@ export const translations = {
     // Share functionality
     share: 'Jaga',
     confirm: 'Kinnita',
+    edit: 'Muuda',
     
     // Share page content
     includedInPolicy: 'poliisilehes kaasatud',
@@ -981,6 +985,7 @@ export const translations = {
     // Share functionality
     share: 'Dalintis',
     confirm: 'Patvirtinti',
+    edit: 'Redaguoti',
     
     // Share page content
     includedInPolicy: 'įtraukta į poliso padengimą',
@@ -1171,6 +1176,7 @@ export const translations = {
     // Share functionality
     share: 'Del',
     confirm: 'Bekreft',
+    edit: 'Rediger',
     
     // Badge categories
     general: 'Generell',
@@ -1350,6 +1356,7 @@ export const translations = {
     // Share functionality
     share: 'Dela',  
     confirm: 'Bekräfta',
+    edit: 'Redigera',
     
     // Share page content
     includedInPolicy: 'inkluderad i försäkringsskydd',
@@ -1540,6 +1547,7 @@ export const translations = {
     // Share functionality
     share: 'Del',
     confirm: 'Bekræft',
+    edit: 'Rediger',
     
     // Share page content
     includedInPolicy: 'inkluderet i forsikringsdækning',
@@ -1730,6 +1738,7 @@ export const translations = {
     // Share functionality
     share: 'Partager',
     confirm: 'Confirmer',
+    edit: 'Modifier',
     
     // Badge categories
     general: 'Général',
@@ -1909,6 +1918,7 @@ export const translations = {
     // Share functionality
     share: 'Teilen',
     confirm: 'Bestätigen',
+    edit: 'Bearbeiten',
     
     // Share page content
     includedInPolicy: 'in Versicherungsdeckung enthalten',
@@ -2099,6 +2109,7 @@ export const translations = {
     // Share functionality
     share: 'Compartir',
     confirm: 'Confirmar',
+    edit: 'Editar',
     
     // Share page content
     includedInPolicy: 'incluido en la cobertura del seguro',
