@@ -96,6 +96,72 @@ async function resolveRowIdForColumn(column: Column, backendUrl: string): Promis
   }
 }
 
+// Create insurer-specific share link
+async function createInsurerShareLink(opts: {
+  backendUrl: string;
+  insurer: string;  
+  columns: Column[];
+  orgId?: number;
+  userId?: number;
+  editable?: boolean;
+  role?: "insurer" | "broker";
+  allowEditFields?: string[];
+  ttlHours?: number;
+  title?: string;
+}) {
+  const {
+    backendUrl, insurer, columns, orgId, userId,
+    editable = false,
+    role = "insurer", 
+    allowEditFields = [],
+    ttlHours = 720,
+    title = `Confirmation – ${insurer}`,
+  } = opts;
+
+  // dedupe document_ids from the visible matrix
+  const document_ids = Array.from(new Set(columns.map(c => c.source_file)));
+
+  const res = await fetch(`${backendUrl}/shares`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(orgId != null ? { "X-Org-Id": String(orgId) } : {}),
+      ...(userId != null ? { "X-User-Id": String(userId) } : {}),
+    },
+    body: JSON.stringify({
+      title,
+      document_ids,
+      expires_in_hours: ttlHours,
+      // the key switch: only this insurer's programs will be visible
+      insurer_only: insurer,
+      // permissions in the shared view
+      editable,
+      role,
+      allow_edit_fields: allowEditFields, // e.g. ["premium_eur","payment_method","features"]
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error(await res.text());
+  }
+  const data = await res.json(); // { ok, token, url, title }
+  return data.url as string;
+}
+
+// Payment method options: store canonical values, show Latvian labels
+const PAYMENT_METHOD_OPTIONS = [
+  { value: "monthly",   label: "Cenrāža programma" },
+  { value: "quarterly", label: "100% apmaksa līgumiestādēs" },
+  { value: "yearly",    label: "100% apmaksa līgumiestādēs un ja pakalpojums ir nopirkts" },
+  { value: "one-time",  label: "Procentuāla programma" },
+];
+
+const paymentMethodLabel = (v?: string | null) => {
+  if (!v) return "—";
+  const m = PAYMENT_METHOD_OPTIONS.find(o => o.value === v);
+  return m?.label ?? v; // if DB has a free-text value, show it as-is
+};
+
 // Feature label translations
 const translateFeatureName = (featureKey: string, t: (key: any) => string): string => {
   const featureTranslations: Record<string, string> = {
@@ -459,12 +525,11 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="Cenrāža programma">Cenrāža programma</SelectItem>
-                            <SelectItem value="100% apmaksa līgumiestādēs">100% apmaksa līgumiestādēs</SelectItem>
-                            <SelectItem value="100% apmaksa līgumiestādēs un ja pakalpojums ir nopirkts">
-                              100% apmaksa līgumiestādēs un ja pakalpojums ir nopirkts
-                            </SelectItem>
-                            <SelectItem value="Procentuāla programma">Procentuāla programma</SelectItem>
+                            {PAYMENT_METHOD_OPTIONS.map(o => (
+                              <SelectItem key={o.value} value={o.value}>
+                                {o.label}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       ) : isEditing && row.key === "base_sum_eur" ? (
@@ -480,11 +545,13 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                           }
                           className="text-center"
                         />
-                      ) : row.key === "base_sum_eur" ? (
-                        <span className="text-sm font-medium">€{value?.toLocaleString() || "—"}</span>
-                      ) : (
-                        <span className="text-sm">{value || "—"}</span>
-                      )}
+                       ) : row.key === "base_sum_eur" ? (
+                         <span className="text-sm font-medium">€{value?.toLocaleString() || "—"}</span>
+                       ) : row.key === "payment_method" ? (
+                         <span className="text-sm">{paymentMethodLabel(value)}</span>
+                       ) : (
+                         <span className="text-sm">{value || "—"}</span>
+                       )}
                     </div>
                   );
                 })}
@@ -536,15 +603,50 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
 
                 {localColumns.map((column) => (
                   <div key={column.id} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 flex items-center justify-center">
-                    <Button
-                      size="sm"
-                      className="w-full"
-                      onClick={() => {
-                        toast.success(`Buying ${column.insurer} plan...`);
-                      }}
-                    >
-                      Pirkt
-                    </Button>
+                     <Button
+                       size="sm"
+                       className="w-full"
+                       onClick={async () => {
+                         try {
+                           if (!backendUrl) {
+                             toast.error("Missing backend URL");
+                             return;
+                           }
+
+                           // decide if you want insurer to edit (false = read-only confirmation view)
+                           const url = await createInsurerShareLink({
+                             backendUrl,
+                             insurer: column.insurer || "",
+                             columns: localColumns,
+                             // optionally pass your context headers if you use them
+                             // orgId: currentOrgId,
+                             // userId: currentUserId,
+
+                             // if you want them to be able to tweak a few fields:
+                             // editable: true,
+                             // allowEditFields: ["premium_eur", "payment_method", "features"],
+
+                             // default is read-only:
+                             editable: false,
+                             role: "insurer",
+                             ttlHours: 168, // 7 days; or keep default 720
+                           });
+
+                           // Option A: copy link
+                           await navigator.clipboard.writeText(url);
+                           toast.success("Insurer-only link copied!");
+
+                           // Option B: open email draft to the insurer with the link
+                           // const mailto = `mailto:${encodeURIComponent(insurerEmail)}?subject=${encodeURIComponent("Offer confirmation")}&body=${encodeURIComponent(`Please confirm your offer here:\n\n${url}\n`)}`;
+                           // window.location.href = mailto;
+
+                         } catch (e: any) {
+                           toast.error(`Failed to create share: ${e.message}`);
+                         }
+                       }}
+                     >
+                       Pirkt
+                     </Button>
                   </div>
                 ))}
               </div>
