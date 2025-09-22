@@ -180,6 +180,7 @@ export const translations = {
     
     // Share functionality
     share: 'Dalīties',
+    confirm: 'Apstiprināt',
     
     // Processing status
     processedFiles: 'Apstrādāti faili',
@@ -387,6 +388,7 @@ export const translations = {
     
     // Share functionality
     share: 'Share',
+    confirm: 'Confirm',
     
     // Processing status
     processedFiles: 'Processed Files',
@@ -594,6 +596,7 @@ export const translations = {
     
     // Share functionality
     share: 'Поделиться',
+    confirm: 'Подтвердить',
     
     // Processing status
     processedFiles: 'Обработанные файлы',
@@ -787,6 +790,7 @@ export const translations = {
     
     // Share functionality
     share: 'Jaga',
+    confirm: 'Kinnita',
     
     // Share page content
     includedInPolicy: 'poliisilehes kaasatud',
@@ -976,6 +980,7 @@ export const translations = {
     
     // Share functionality
     share: 'Dalintis',
+    confirm: 'Patvirtinti',
     
     // Share page content
     includedInPolicy: 'įtraukta į poliso padengimą',
@@ -1163,6 +1168,10 @@ export const translations = {
     company: 'Selskap',
     employeeCount: 'Antall ansatte',
     
+    // Share functionality
+    share: 'Del',
+    confirm: 'Bekreft',
+    
     // Badge categories
     general: 'Generell',
     specialist: 'Spesialist',
@@ -1339,7 +1348,8 @@ export const translations = {
     employeeCount: 'Antal anställda',
     
     // Share functionality
-    share: 'Dela',
+    share: 'Dela',  
+    confirm: 'Bekräfta',
     
     // Share page content
     includedInPolicy: 'inkluderad i försäkringsskydd',
@@ -1529,6 +1539,7 @@ export const translations = {
     
     // Share functionality
     share: 'Del',
+    confirm: 'Bekræft',
     
     // Share page content
     includedInPolicy: 'inkluderet i forsikringsdækning',
@@ -1716,6 +1727,10 @@ export const translations = {
     company: 'Entreprise',
     employeeCount: 'Nombre d\'employés',
     
+    // Share functionality
+    share: 'Partager',
+    confirm: 'Confirmer',
+    
     // Badge categories
     general: 'Général',
     specialist: 'Spécialiste',
@@ -1893,6 +1908,7 @@ export const translations = {
     
     // Share functionality
     share: 'Teilen',
+    confirm: 'Bestätigen',
     
     // Share page content
     includedInPolicy: 'in Versicherungsdeckung enthalten',
@@ -2082,6 +2098,7 @@ export const translations = {
     
     // Share functionality
     share: 'Compartir',
+    confirm: 'Confirmar',
     
     // Share page content
     includedInPolicy: 'incluido en la cobertura del seguro',

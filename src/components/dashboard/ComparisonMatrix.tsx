@@ -773,9 +773,9 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
             {/* CTA row (optional) */}
             {showBuyButtons && (
               <div className="flex border-b">
-                <div className={`w-[280px] bg-muted border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
-                  <Badge variant="secondary" className="text-sm font-medium">Buy Now</Badge>
-                </div>
+                 <div className={`w-[280px] bg-muted border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
+                   <Badge variant="secondary" className="text-sm font-medium">{t("confirm")}</Badge>
+                 </div>
 
                 {localColumns.map((column) => (
                   <div key={column.id} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 flex items-center justify-center">
