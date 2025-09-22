@@ -162,7 +162,7 @@ export default function ShareView() {
           onShare={undefined}
           companyName={payload.company_name || ""}
           employeesCount={payload.employees_count || 0}
-          canEdit={false}
+          canEdit={true}
           showBuyButtons={true}
           isShareView={true}
           backendUrl={BACKEND_URL}
