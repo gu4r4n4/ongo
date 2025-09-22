@@ -29,6 +29,103 @@ type EditForm = {
   features?: Record<string, any>;
 };
 
+// === Canonical order for the main table (LV labels shown in the left sticky column) ===
+const MAIN_FEATURE_ORDER: string[] = [
+  "Pamatsumma",
+  // "Programmas nosaukums",            // shown in header -> do not render as row
+  "Pakalpojuma apmaksas veids",
+  // "Apdrošinājuma summa pamatpolisei, EUR", // header/meta -> do not render as row
+  "Pacientu iemaksa",
+  "Maksas ģimenes ārsta mājas vizītes, limits EUR",
+  "Maksas ģimenes ārsta, internista, terapeita un pediatra konsultācija, limits EUR",
+  "Maksas ārsta-specialista konsultācija, limits EUR",
+  "Profesora, docenta, internista konsultācija, limits EUR",
+  "Homeopāts",
+  "Psihoterapeits",
+  "Sporta ārsts",
+  "ONLINE ārstu konsultācijas",
+  "Laboratoriskie izmeklējumi",
+  "Maksas diagnostika, piem., rentgens, elektrokradiogramma, USG, utml.",
+  "Augsto tehnoloģiju izmeklējumi, piem., MRG, CT, limits, ja ir (reižu skaits vai EUR)",
+  "Obligātās veselības pārbaudes, limits EUR",
+  "Ārstnieciskās manipulācijas",
+  "Medicīniskās izziņas",
+  "Fizikālā terapija",
+  "Procedūras",
+  "Vakcinācija, limits EUR",
+  "Maksas grūtnieču aprūpe",
+  "Maksas onkoloģiskā, hematoloģiskā ārstēšana",
+  "Neatliekamā palīdzība valsts un privātā (limits privātai, EUR)",
+  "Maksas stacionārie pakalpojumi, limits EUR",
+  "Maksas stacionārā rehabilitācija, limits EUR",
+  "Ambulatorā rehabilitācija",
+  // "Pamatpolises prēmija 1 darbiniekam, EUR",  // premium is in header
+  "Piemaksa par plastikāta kartēm, EUR",
+];
+
+// === Add-on block (“Papildus programmas”) in this exact order ===
+const ADDON_ORDER: string[] = [
+  "Zobārstniecība ar 50% atlaidi (pamatpolise)",
+  "Zobārstniecība ar 50% atlaidi (pp)",
+  "Vakcinācija pret ērcēm un gripu",
+  "Ambulatorā rehabilitācija (pp)",
+  "Medikamenti ar 50% atlaidi",
+  "Sports",
+  "Kritiskās saslimšanas",
+  "Maksas stacionārie pakalpojumi, limits EUR (pp)",
+];
+
+// === Feature key aliases coming from OCR/PDFs -> canonical keys above ===
+const KEY_ALIASES: Record<string, string> = {
+  // header/meta duplicates:
+  "Programmas nosaukums": "Programmas nosaukums",
+  "Apdrošinājuma summa pamatpolisei, EUR": "Apdrošinājuma summa pamatpolisei, EUR",
+  "Pamatpolises prēmija 1 darbiniekam, EUR": "Pamatpolises prēmija 1 darbiniekam, EUR",
+
+  // common variants / EN -> LV / typos
+  "Remote consultations": "ONLINE ārstu konsultācijas",
+  "ONLINE ārstu konsultācijas": "ONLINE ārstu konsultācijas",
+  "Laboratoriskie izmeklējumi": "Laboratoriskie izmeklējumi",
+  "Fizikālā terapija": "Fizikālā terapija",
+  "Physical therapy": "Fizikālā terapija",
+  "Procedūras": "Procedūras",
+  "Sports": "Sports",
+  "Sporta ārsts": "Sporta ārsts",
+  "Psychologist": "Psihoterapeits",
+  "Psihologs / Psihoterapeits": "Psihoterapeits",
+  "Homeopāts": "Homeopāts",
+  "Ārstnieciskās manipulācijas": "Ārstnieciskās manipulācijas",
+  "Medicīniskās izziņas": "Medicīniskās izziņas",
+  "Maksas diagnostika": "Maksas diagnostika, piem., rentgens, elektrokradiogramma, USG, utml.",
+  "Augsto tehnoloģiju izmeklējumi": "Augsto tehnoloģiju izmeklējumi, piem., MRG, CT, limits, ja ir (reižu skaits vai EUR)",
+  "MR": "Augsto tehnoloģiju izmeklējumi, piem., MRG, CT, limits, ja ir (reižu skaits vai EUR)",
+  "MRG": "Augsto tehnoloģiju izmeklējumi, piem., MRG, CT, limits, ja ir (reižu skaits vai EUR)",
+  "CT": "Augsto tehnoloģiju izmeklējumi, piem., MRG, CT, limits, ja ir (reižu skaits vai EUR)",
+
+  // meta/payment
+  "Pakalpojuma apmaksas veids": "Pakalpojuma apmaksas veids",
+
+  // add-ons
+  "Zobārstniecība ar 50% atlaidi (pamatpolise)": "Zobārstniecība ar 50% atlaidi (pamatpolise)",
+  "Zobārstniecība ar 50% atlaidi, apdrošinājuma summa (pp)": "Zobārstniecība ar 50% atlaidi (pp)",
+  "Zobārstniecība ar 50% atlaidi (pp)": "Zobārstniecība ar 50% atlaidi (pp)",
+  "Vakcinācija pret ērcēm un gripu": "Vakcinācija pret ērcēm un gripu",
+  "Ambulatorā rehabilitācija (pp)": "Ambulatorā rehabilitācija (pp)",
+  "Medikamenti ar 50% atlaidi": "Medikamenti ar 50% atlaidi",
+  "Kritiskās saslimšanas": "Kritiskās saslimšanas",
+  "Maksas stacionārie pakalpojumi, limits EUR (pp)": "Maksas stacionārie pakalpojumi, limits EUR (pp)",
+};
+
+const HIDE_IN_TABLE = new Set<string>([
+  "Programmas nosaukums",
+  "Apdrošinājuma summa pamatpolisei, EUR",
+  "Pamatpolises prēmija 1 darbiniekam, EUR",
+]);
+
+function canonicalKey(rawKey: string): string {
+  return KEY_ALIASES[rawKey] || rawKey;
+}
+
 function toNumOrThrow(v: any, name: string): number {
   const n = Number(
     String(v).trim().replace("€", "").replace(/\s/g, "").replace(",", ".").replace(/[^\d.-]/g, "")
@@ -162,20 +259,9 @@ const paymentMethodLabel = (v?: string | null) => {
   return m?.label ?? v; // if DB has a free-text value, show it as-is
 };
 
-// Feature label translations
-const translateFeatureName = (featureKey: string, t: (key: any) => string): string => {
-  const featureTranslations: Record<string, string> = {
-    "Doctor visits": t("doctorVisits"),
-    "General practitioner": t("familyDoctorPaid"),
-    Specialist: t("specialist"),
-    Dermatologist: t("dermatologist"),
-    Cardiologist: t("cardiologistEtc"),
-    Psychologist: t("psychologistTherapist"),
-    "Sports doctor": t("sportsDoctor"),
-    "Physical therapy": t("physicalTherapyDoctor"),
-    "Remote consultations": t("remoteDoctorConsultations"),
-  };
-  return featureTranslations[featureKey] || featureKey;
+// (kept for backwards compat where we used t() on some EN keys)
+const translateFeatureName = (_featureKey: string, _t: (key: any) => string): string => {
+  return _featureKey;
 };
 
 interface ComparisonMatrixProps {
@@ -194,7 +280,7 @@ interface ComparisonMatrixProps {
 
 export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
   columns,
-  allFeatureKeys,
+  allFeatureKeys, // not used directly anymore; we compute from columns to respect aliases
   currentLanguage,
   onShare,
   companyName,
@@ -280,7 +366,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
       setEditingColumn(columnId);
       setEditFormData({
         premium_eur: column.premium_eur?.toString() ?? "",
-        base_sum_eur: column.base_sum_eur?.toString() ?? "",
+        base_sum_eur: column.base_sum_er?.toString() ?? "",
         payment_method: column.payment_method ?? "",
         insurer: column.insurer ?? "",
         program_code: column.program_code ?? "",
@@ -336,10 +422,15 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
         changes.program_code = editFormData.program_code;
       }
       if (editFormData.features) {
+        // normalize feature keys to canonical names before saving
+        const normalized: Record<string, any> = {};
+        for (const [k, v] of Object.entries(editFormData.features)) {
+          normalized[canonicalKey(k)] = v;
+        }
         const originalFeatures = JSON.stringify(column.features || {});
-        const newFeatures = JSON.stringify(editFormData.features);
+        const newFeatures = JSON.stringify(normalized);
         if (originalFeatures !== newFeatures) {
-          changes.features = editFormData.features;
+          changes.features = normalized;
         }
       }
 
@@ -368,6 +459,19 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
     { key: "base_sum_eur", label: t("baseSum") },
     { key: "payment_method", label: t("payment") },
   ];
+
+  // --- Build ordered rows (main + addons + leftovers) from actual columns ---
+  const presentKeys = new Set<string>();
+  for (const col of localColumns) {
+    Object.keys(col.features || {}).forEach((k) => presentKeys.add(canonicalKey(k)));
+  }
+  const mainKnown = MAIN_FEATURE_ORDER.filter((k) => !HIDE_IN_TABLE.has(k));
+  const addonKnown = ADDON_ORDER;
+  const mainToRender = mainKnown.filter((k) => presentKeys.has(k));
+  const addonsToRender = addonKnown.filter((k) => presentKeys.has(k));
+
+  const knownAll = new Set<string>([...mainKnown, ...addonKnown, ...HIDE_IN_TABLE]);
+  const leftovers: string[] = Array.from(presentKeys).filter((k) => !knownAll.has(k)).sort();
 
   return (
     <div className="space-y-4">
@@ -558,22 +662,21 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
               </div>
             ))}
 
-            {/* Feature rows */}
-            {allFeatureKeys.map((featureKey, index) => (
+            {/* ===== MAIN BLOCK (ordered) ===== */}
+            {mainToRender.map((featureKey, index) => (
               <div key={featureKey} className={`flex border-b ${index % 2 === 0 ? "bg-muted/10" : ""}`}>
                 <div className={`w-[280px] bg-black border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
-                  <div className="text-sm font-medium text-white">{translateFeatureName(featureKey, t)}</div>
+                  <div className="text-sm font-medium text-white">{featureKey}</div>
                 </div>
 
                 {localColumns.map((column) => {
                   const isEditing = editingColumn === column.id;
-                  const value = column.features?.[featureKey];
-
+                  const value = column.features?.[featureKey] ?? column.features?.[canonicalKey(featureKey)];
                   return (
                     <div key={column.id} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 flex items-center justify-center">
                       {isEditing ? (
                         <Input
-                          value={editFormData.features?.[featureKey] || ""}
+                          value={(editFormData.features?.[featureKey] ?? value) || ""}
                           onChange={(e) =>
                             setEditFormData((prev) => ({
                               ...prev,
@@ -594,6 +697,79 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
               </div>
             ))}
 
+            {/* ===== PAPILDUS PROGRAMMAS ===== */}
+            {addonsToRender.length > 0 && (
+              <>
+                <div className="flex border-b bg-card">
+                  <div className={`w-[280px] border-r p-3 font-semibold text-sm ${isMobile ? "" : "sticky left-0 bg-card z-10"}`}>
+                    Papildus programmas
+                  </div>
+                  <div className="flex-1 p-3 text-xs text-muted-foreground" />
+                </div>
+
+                {addonsToRender.map((featureKey, index) => (
+                  <div key={featureKey} className={`flex border-b ${index % 2 === 0 ? "bg-muted/10" : ""}`}>
+                    <div className={`w-[280px] bg-black border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
+                      <div className="text-sm font-medium text-white">{featureKey}</div>
+                    </div>
+
+                    {localColumns.map((column) => {
+                      const isEditing = editingColumn === column.id;
+                      const value = column.features?.[featureKey] ?? column.features?.[canonicalKey(featureKey)];
+                      return (
+                        <div key={column.id} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 flex items-center justify-center">
+                          {isEditing ? (
+                            <Input
+                              value={(editFormData.features?.[featureKey] ?? value) || ""}
+                              onChange={(e) =>
+                                setEditFormData((prev) => ({
+                                  ...prev,
+                                  features: {
+                                    ...(prev.features || {}),
+                                    [featureKey]: e.target.value,
+                                  },
+                                }))
+                              }
+                              className="text-center"
+                            />
+                          ) : (
+                            renderValue(value)
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
+              </>
+            )}
+
+            {/* ===== LEFTOVERS (optional; remove later if not needed) ===== */}
+            {leftovers.length > 0 && (
+              <>
+                <div className="flex border-b bg-card">
+                  <div className={`w-[280px] border-r p-3 font-semibold text-sm ${isMobile ? "" : "sticky left-0 bg-card z-10"}`}>
+                    Citi lauki
+                  </div>
+                </div>
+                {leftovers.map((featureKey, index) => (
+                  <div key={featureKey} className={`flex border-b ${index % 2 === 0 ? "bg-muted/10" : ""}`}>
+                    <div className={`w-[280px] bg-black border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
+                      <div className="text-sm font-medium text-white">{featureKey}</div>
+                    </div>
+
+                    {localColumns.map((column) => {
+                      const value = column.features?.[featureKey] ?? column.features?.[canonicalKey(featureKey)];
+                      return (
+                        <div key={column.id} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 flex items-center justify-center">
+                          {renderValue(value)}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
+              </>
+            )}
+
             {/* CTA row (optional) */}
             {showBuyButtons && (
               <div className="flex border-b">
@@ -613,33 +789,19 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                              return;
                            }
 
-                           // decide if you want insurer to edit (false = read-only confirmation view)
                            const url = await createInsurerShareLink({
                              backendUrl,
                              insurer: column.insurer || "",
                              columns: localColumns,
-                             // optionally pass your context headers if you use them
                              // orgId: currentOrgId,
                              // userId: currentUserId,
-
-                             // if you want them to be able to tweak a few fields:
-                             // editable: true,
-                             // allowEditFields: ["premium_eur", "payment_method", "features"],
-
-                             // default is read-only:
                              editable: false,
                              role: "insurer",
-                             ttlHours: 168, // 7 days; or keep default 720
+                             ttlHours: 168,
                            });
 
-                           // Option A: copy link
                            await navigator.clipboard.writeText(url);
                            toast.success("Insurer-only link copied!");
-
-                           // Option B: open email draft to the insurer with the link
-                           // const mailto = `mailto:${encodeURIComponent(insurerEmail)}?subject=${encodeURIComponent("Offer confirmation")}&body=${encodeURIComponent(`Please confirm your offer here:\n\n${url}\n`)}`;
-                           // window.location.href = mailto;
-
                          } catch (e: any) {
                            toast.error(`Failed to create share: ${e.message}`);
                          }
