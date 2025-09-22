@@ -11,20 +11,6 @@ import { Language, useTranslation } from "@/utils/translations";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-// Payment method options: store canonical values, show Latvian labels
-const PAYMENT_METHOD_OPTIONS = [
-  { value: "monthly",   label: "Cenrāža programma" },
-  { value: "quarterly", label: "100% apmaksa līgumiestādēs" },
-  { value: "yearly",    label: "100% apmaksa līgumiestādēs un ja pakalpojums ir nopirkts" },
-  { value: "one-time",  label: "Procentuāla programma" },
-];
-
-const paymentMethodLabel = (v?: string | null) => {
-  if (!v) return "—";
-  const m = PAYMENT_METHOD_OPTIONS.find(o => o.value === v);
-  return m?.label ?? v; // if DB has a free-text value, show it as-is
-};
-
 type OfferPatch = {
   premium_eur?: number;
   base_sum_eur?: number;
@@ -473,11 +459,12 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            {PAYMENT_METHOD_OPTIONS.map(o => (
-                              <SelectItem key={o.value} value={o.value}>
-                                {o.label}
-                              </SelectItem>
-                            ))}
+                            <SelectItem value="Cenrāža programma">Cenrāža programma</SelectItem>
+                            <SelectItem value="100% apmaksa līgumiestādēs">100% apmaksa līgumiestādēs</SelectItem>
+                            <SelectItem value="100% apmaksa līgumiestādēs un ja pakalpojums ir nopirkts">
+                              100% apmaksa līgumiestādēs un ja pakalpojums ir nopirkts
+                            </SelectItem>
+                            <SelectItem value="Procentuāla programma">Procentuāla programma</SelectItem>
                           </SelectContent>
                         </Select>
                       ) : isEditing && row.key === "base_sum_eur" ? (
@@ -495,8 +482,6 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                         />
                       ) : row.key === "base_sum_eur" ? (
                         <span className="text-sm font-medium">€{value?.toLocaleString() || "—"}</span>
-                      ) : row.key === "payment_method" ? (
-                        <span className="text-sm">{paymentMethodLabel(value)}</span>
                       ) : (
                         <span className="text-sm">{value || "—"}</span>
                       )}
@@ -546,7 +531,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
             {showBuyButtons && (
               <div className="flex border-b">
                 <div className={`w-[280px] bg-black border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
-                  <div className="text-sm font-medium text-white"></div>
+                  <div className="text-sm font-medium text-white">Buy Now</div>
                 </div>
 
                 {localColumns.map((column) => (
