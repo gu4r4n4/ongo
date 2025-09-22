@@ -83,33 +83,10 @@ export default function ShareView() {
         const pl: SharePayload = data.payload || { mode: "snapshot" };
         setPayload(pl);
 
-        if (pl.mode === "snapshot" && pl.results) {
-          setOffers(pl.results);
-          setLoading(false);
-          return;
-        }
-
-        // by-documents: start polling those exact doc ids
-        const docIds = pl.document_ids || [];
-        const poll = async () => {
-          try {
-            const rr = await fetch(`${BACKEND_URL}/offers/by-documents`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ document_ids: docIds }),
-            });
-            if (rr.ok) {
-              const current = await rr.json();
-              if (!stopped) setOffers(current || []);
-            }
-          } catch (error) {
-            console.error('Polling error:', error);
-          }
-        };
-
-        // initial + interval
-        await poll();
-        pollRef.current = window.setInterval(poll, 2500);
+        // Use the server-filtered offers directly from the share response
+        // This preserves any filtering like insurer_only that was applied server-side
+        const serverOffers = data.offers || [];
+        setOffers(serverOffers);
         setLoading(false);
       } catch (error) {
         console.error('Fetch share error:', error);
