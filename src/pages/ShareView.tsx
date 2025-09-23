@@ -152,22 +152,12 @@ export default function ShareView() {
   return (
     <BrandThemeProvider theme={selectedTheme}>
       <div className="p-4 md:p-6 space-y-6 max-w-[1400px] mx-auto">
-        {/* Header with Logo and Language Switcher */}
-        <div className="flex justify-between items-start">
-          {/* Insurer Logo - Top Left */}
-          {isInsurerView && (
-            <div className="flex items-center">
-              <InsurerLogo name={insurerName} className="h-12 w-auto" />
-            </div>
-          )}
-          
-          {/* Language Switcher - Top Right */}
-          <div className={isInsurerView ? "" : "w-full flex justify-end"}>
-            <LanguageSwitcher 
-              currentLanguage={currentLanguage} 
-              onLanguageChange={setCurrentLanguage} 
-            />
-          </div>
+        {/* Header with Language Switcher */}
+        <div className="flex justify-end items-start">
+          <LanguageSwitcher 
+            currentLanguage={currentLanguage} 
+            onLanguageChange={setCurrentLanguage} 
+          />
         </div>
 
         {/* Title */}
