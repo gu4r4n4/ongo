@@ -424,11 +424,10 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
 
-  // Keep incoming props in sync, but don't clobber while editing
+  // Keep incoming props in sync (only when props actually change)
   useEffect(() => {
-    if (editingColumn) return;
     setLocalColumns(columns);
-  }, [columns, editingColumn]);
+  }, [columns]);
 
   // drag-to-scroll UX
   useEffect(() => {
