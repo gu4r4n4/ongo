@@ -687,7 +687,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
             >
               {/* Sticky feature header */}
               <div className={`w-[280px] bg-card border-r p-4 ${isMobile ? "" : "sticky left-0 z-30"}`}>
-                <div className="font-semibold text-sm">{t("features")}</div>
+                <div className="font-semibold text-sm invisible">{t("features")}</div>
               </div>
 
               {/* Program columns */}
@@ -912,7 +912,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
             {showBuyButtons && (
               <div className="flex border-b">
                  <div className={`w-[280px] bg-muted border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
-                   <Badge variant="secondary" className="text-sm font-medium">{t("confirm")}</Badge>
+                   <Badge variant="secondary" className="text-sm font-medium invisible">{t("confirm")}</Badge>
                  </div>
 
                 {localColumns.map((column) => (
