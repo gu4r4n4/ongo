@@ -27,12 +27,12 @@ export const appTheme: BrandTheme = {
 // Broker look (ShareView)
 export const brokerTheme: BrandTheme = {
   name: "broker",
-  primary: "#0EA5E9",
-  primaryHover: "#0284C7",
+  primary: "#004287",
+  primaryHover: "#003066",
   surface: "white",
   text: "rgb(15,23,42)",
   mutedText: "rgb(100,116,139)",
-  ring: "#0EA5E9",
+  ring: "#004287",
   rounded: "rounded-2xl",
   // fontClass: "font-broker", // if you have a custom font class
 };
