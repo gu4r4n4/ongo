@@ -504,7 +504,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
   const saveEdit = async () => {
     if (!editingColumn) return;
     if (!backendUrl) {
-      toast.error("Missing backend URL");
+      toast.error(t('missingBackendUrl'));
       return;
     }
 
@@ -517,7 +517,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
       if (!rowId) {
         rowId = await resolveRowIdForColumn(column, backendUrl);
         if (!rowId) {
-          toast.error("Could not resolve record id yet. Try again in a moment.");
+          toast.error(t('couldNotResolveRecordId'));
           return;
         }
         setLocalColumns((prev) =>
@@ -557,7 +557,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
       if (Object.keys(changes).length === 0) {
         setEditingColumn(null);
         setEditFormData({});
-        toast.message("No changes to save");
+        toast.message(t('noChangesToSave'));
         return;
       }
 
@@ -584,7 +584,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
 
       setEditingColumn(null);
       setEditFormData({});
-      toast.success("Program updated successfully");
+      toast.success(t('programUpdatedSuccessfully'));
     } catch (error: any) {
       // rollback optimistic update by refetching if we can
       if (isShareView && backendUrl) {
@@ -593,7 +593,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
           setLocalColumns(refetched);
         } catch {}
       }
-      toast.error(`Failed to save: ${error.message}`);
+      toast.error(`${t('failedToSave')}: ${error.message}`);
     }
   };
 
@@ -933,10 +933,10 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                        className="w-full bg-green-600 hover:bg-green-700 text-white"
                        onClick={async () => {
                          try {
-                           if (!backendUrl) {
-                             toast.error("Missing backend URL");
-                             return;
-                           }
+                            if (!backendUrl) {
+                              toast.error(t('missingBackendUrl'));
+                              return;
+                            }
 
                            const url = await createInsurerShareLink({
                              backendUrl,
@@ -950,9 +950,9 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                            });
 
                            await navigator.clipboard.writeText(url);
-                           toast.success("Insurer-only link copied!");
+                           toast.success(t('insurerLinkCopied'));
                          } catch (e: any) {
-                           toast.error(`Failed to create share: ${e.message}`);
+                           toast.error(`${t('failedToCreateShare')}: ${e.message}`);
                          }
                        }}
                      >

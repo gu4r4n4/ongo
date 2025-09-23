@@ -341,8 +341,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
       const { job_id, documents } = await startAsyncProcessing(items, inquiryId || undefined);
       setCurrentJobId(job_id);
       setDocIds(documents);            // <-- Save ALL doc ids
-      console.log('All document IDs saved:', documents);
-      toast.success('Processing started...');
+      toast.success(t('processingStarted'));
     } catch (err: any) {
       toast.error(`${t('failed') || 'Failed'}: ${err?.message || 'Upload error'}`);
       setIsUploading(false);
@@ -352,7 +351,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
   // Share functionality
   const shareResults = async () => {
     if (!docIds.length) {
-      toast.error('No processed results to share.');
+      toast.error(t('noResultsToShare'));
       return;
     }
 
@@ -375,7 +374,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
 
       const { url } = await response.json();
       window.open(url, '_blank', 'noopener,noreferrer');
-      toast.success('Share link created');
+      toast.success(t('shareLinkCreated'));
     } catch (err: any) {
       toast.error(`${t('failed') || 'Failed'}: ${err?.message || 'Share error'}`);
     }
