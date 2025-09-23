@@ -144,15 +144,6 @@ export default function ShareView() {
 
   // Get company info from offers data (database) first, fallback to payload
   const firstProgram = offers[0]?.programs?.[0];
-  
-  // Debug logging to see what data we're getting
-  console.log('ShareView Debug - isInsurerView:', isInsurerView);
-  console.log('ShareView Debug - offers:', offers);
-  console.log('ShareView Debug - firstProgram:', firstProgram);
-  console.log('ShareView Debug - company_name from DB:', firstProgram?.company_name);
-  console.log('ShareView Debug - employee_count from DB:', firstProgram?.employee_count);
-  console.log('ShareView Debug - payload:', payload);
-  
   const companyName = firstProgram?.company_name || payload.company_name || payload.customer?.name || "";
   const employeesCount = firstProgram?.employee_count ?? payload.employees_count ?? payload.customer?.employees_count ?? 0;
 

@@ -77,6 +77,8 @@ serve(async (req) => {
         base_sum_eur: offer.base_sum_eur,
         premium_eur: offer.premium_eur,
         payment_method: offer.payment_method,
+        company_name: offer.company_name,
+        employee_count: offer.employee_count,
         features: offer.features || {}
       }))
     }] : []
