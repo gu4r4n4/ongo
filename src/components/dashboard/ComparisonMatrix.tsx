@@ -589,7 +589,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                             €{column.premium_eur?.toLocaleString() || "—"}
                           </div>
                           {canEdit && (
-                             <Button size="sm" variant="ghost" onClick={() => startEdit(column.id)} className="h-6 w-full p-0 text-xs">
+                             <Button size="sm" variant="default" onClick={() => startEdit(column.id)} className="h-6 w-full p-0 text-xs bg-green-600 hover:bg-green-700 text-white">
                                <Edit className="h-3 w-3 mr-1" />
                                {t("edit")}
                              </Button>
