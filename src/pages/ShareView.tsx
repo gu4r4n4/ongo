@@ -155,6 +155,32 @@ export default function ShareView() {
           </div>
         </div>
 
+        {/* Company Info Header for Insurer View */}
+        {isInsurerView && payload && (
+          <div className="bg-muted/50 border rounded-lg p-4 mb-4">
+            <div className="flex items-center gap-6 text-sm">
+              <div className="flex items-center gap-2">
+                <span className="text-green-600">✓</span>
+                <span>{t('includedInPolicy') || 'iekļauts polises segumā'}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-red-600">−</span>
+                <span>{t('notIncludedInPolicy') || 'nav iekļauts polises segumā'}</span>
+              </div>
+            </div>
+            <div className="flex gap-8 mt-3 text-sm">
+              <div>
+                <span className="text-muted-foreground">Kompānija:</span>
+                <span className="ml-2 font-medium">{payload.company_name || '-'}</span>
+              </div>
+              <div>
+                <span className="text-muted-foreground">Nodarbināto skaits:</span>
+                <span className="ml-2 font-medium">{payload.employees_count || 0}</span>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Title */}
         {columns.length > 0 && (
           <h3 className="text-lg font-semibold">{t('healthInsurance')}</h3>
