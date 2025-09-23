@@ -29,12 +29,12 @@ type EditForm = {
   features?: Record<string, any>;
 };
 
-// === Canonical order for the main table (LV labels shown in the left sticky column) ===
+/** ======================
+ *  Canonical order (LV)
+ *  ====================== */
 const MAIN_FEATURE_ORDER: string[] = [
   "Pamatsumma",
-  // "Programmas nosaukums",
   "Pakalpojuma apmaksas veids",
-  // "Apdrošinājuma summa pamatpolisei, EUR",
   "Pacientu iemaksa",
   "Maksas ģimenes ārsta mājas vizītes, limits EUR",
   "Maksas ģimenes ārsta, internista, terapeita un pediatra konsultācija, limits EUR",
@@ -46,7 +46,8 @@ const MAIN_FEATURE_ORDER: string[] = [
   "ONLINE ārstu konsultācijas",
   "Laboratoriskie izmeklējumi",
   "Maksas diagnostika, piem., rentgens, elektrokradiogramma, USG, utml.",
-  "Augsto tehnoloģiju izmeklējumi, piem., MRG, CT, limits, ja ir (reižu skaits vai EUR)",
+  // ↓ keep this immediately after “Maksas diagnostika…”
+  "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai EUR)",
   "Obligātās veselības pārbaudes, limits EUR",
   "Ārstnieciskās manipulācijas",
   "Medicīniskās izziņas",
@@ -59,11 +60,9 @@ const MAIN_FEATURE_ORDER: string[] = [
   "Maksas stacionārie pakalpojumi, limits EUR",
   "Maksas stacionārā rehabilitācija, limits EUR",
   "Ambulatorā rehabilitācija",
-  // "Pamatpolises prēmija 1 darbiniekam, EUR",
   "Piemaksa par plastikāta kartēm, EUR",
 ];
 
-// === Add-on block (“Papildus programmas”) in this exact order ===
 const ADDON_ORDER: string[] = [
   "Zobārstniecība ar 50% atlaidi (pamatpolise)",
   "Zobārstniecība ar 50% atlaidi (pp)",
@@ -75,14 +74,32 @@ const ADDON_ORDER: string[] = [
   "Maksas stacionārie pakalpojumi, limits EUR (pp)",
 ];
 
-// === Feature key aliases coming from OCR/PDFs -> canonical keys above ===
+/** ======================
+ *  Aliases -> Canonical
+ *  (canonical uses MR)
+ *  ====================== */
 const KEY_ALIASES: Record<string, string> = {
-  // header/meta duplicates:
+  // header/meta
   "Programmas nosaukums": "Programmas nosaukums",
   "Apdrošinājuma summa pamatpolisei, EUR": "Apdrošinājuma summa pamatpolisei, EUR",
   "Pamatpolises prēmija 1 darbiniekam, EUR": "Pamatpolises prēmija 1 darbiniekam, EUR",
 
-  // common variants / EN -> LV / typos
+  // diagnostics
+  "Maksas diagnostika": "Maksas diagnostika, piem., rentgens, elektrokradiogramma, USG, utml.",
+
+  // high-tech variants → MR canonical
+  "Augsto tehnoloģiju izmeklējumi": "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai EUR)",
+  "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits (reižu skaits vai EUR)":
+    "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai EUR)",
+  "Augsto tehnoloģiju izmeklējumi, piem., MRG, CT, limits (reižu skaits vai EUR)":
+    "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai EUR)",
+  "Augsto tehnoloģiju izmeklējumi, piem., MRG, CT, limits, ja ir (reižu skaits vai EUR)":
+    "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai EUR)",
+  "MR": "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai EUR)",
+  "MRG": "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai EUR)",
+  "CT": "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai EUR)",
+
+  // common variants / EN
   "Remote consultations": "ONLINE ārstu konsultācijas",
   "ONLINE ārstu konsultācijas": "ONLINE ārstu konsultācijas",
   "Laboratoriskie izmeklējumi": "Laboratoriskie izmeklējumi",
@@ -96,11 +113,6 @@ const KEY_ALIASES: Record<string, string> = {
   "Homeopāts": "Homeopāts",
   "Ārstnieciskās manipulācijas": "Ārstnieciskās manipulācijas",
   "Medicīniskās izziņas": "Medicīniskās izziņas",
-  "Maksas diagnostika": "Maksas diagnostika, piem., rentgens, elektrokradiogramma, USG, utml.",
-  "Augsto tehnoloģiju izmeklējumi": "Augsto tehnoloģiju izmeklējumi, piem., MRG, CT, limits, ja ir (reižu skaits vai EUR)",
-  "MR": "Augsto tehnoloģiju izmeklējumi, piem., MRG, CT, limits, ja ir (reižu skaits vai EUR)",
-  "MRG": "Augsto tehnoloģiju izmeklējumi, piem., MRG, CT, limits, ja ir (reižu skaits vai EUR)",
-  "CT": "Augsto tehnoloģiju izmeklējumi, piem., MRG, CT, limits, ja ir (reižu skaits vai EUR)",
 
   // meta/payment
   "Pakalpojuma apmaksas veids": "Pakalpojuma apmaksas veids",
@@ -150,7 +162,9 @@ function normalizeChanges(changes: Record<string, any>): OfferPatch {
   return out;
 }
 
-// Payment method options for dropdown (keep canonical values used by backend/db)
+/** ======================
+ *  Payment methods (LV)
+ *  ====================== */
 const PAYMENT_METHOD_OPTIONS = [
   { value: "monthly",   label: "Cenrāža programma" },
   { value: "quarterly", label: "100% apmaksa līgumiestādēs" },
@@ -164,7 +178,9 @@ function paymentMethodLabel(v?: string | null): string {
   return m?.label ?? v;
 }
 
-// Resolve DB row id for a column via /offers/by-documents (matches by insurer+program_code)
+/** ======================
+ *  Backend helpers
+ *  ====================== */
 async function resolveRowIdForColumn(
   column: Column,
   backendUrl: string
@@ -198,7 +214,6 @@ async function resolveRowIdForColumn(
   }
 }
 
-// Create insurer-specific share link (matches FastAPI /shares contract)
 async function createInsurerShareLink(opts: {
   backendUrl: string;
   insurer: string;
@@ -233,7 +248,7 @@ async function createInsurerShareLink(opts: {
       title,
       document_ids,
       expires_in_hours: ttlHours,
-      insurer_only: insurer,          // <-- backend expects this key
+      insurer_only: insurer,
       editable,
       role,
       allow_edit_fields: allowEditFields,
@@ -241,8 +256,8 @@ async function createInsurerShareLink(opts: {
   });
 
   if (!res.ok) throw new Error(await res.text());
-  const data = await res.json();     // { ok, token, url, title }
-  return data.url as string;         // use server-provided URL
+  const data = await res.json(); // { ok, token, url, title }
+  return data.url as string;
 }
 
 async function updateOffer(row_id: number, changes: Record<string, any>, API: string) {
@@ -255,7 +270,6 @@ async function updateOffer(row_id: number, changes: Record<string, any>, API: st
   if (!res.ok) throw new Error(await res.text());
 }
 
-/** Rebuild Column[] from OfferGroup[] */
 function buildColumnsFromGroups(groups: OfferGroup[]): Column[] {
   const cols: Column[] = [];
   for (const g of groups) {
@@ -279,11 +293,6 @@ function buildColumnsFromGroups(groups: OfferGroup[]): Column[] {
   return cols;
 }
 
-/**
- * Share-view refresh helper:
- * - if shareToken provided => GET /shares/{token} (keeps insurer-only filtering)
- * - else => POST /offers/by-documents (falls back to all programs for those docs)
- */
 async function refetchColumnsAfterSave(
   backendUrl: string,
   currentColumns: Column[],
@@ -311,12 +320,28 @@ async function refetchColumnsAfterSave(
   }
 }
 
-// (kept for backwards compat where we used t() on some EN keys)
-const translateFeatureName = (_featureKey: string, _t: (key: any) => string): string => {
-  return _featureKey;
-};
+/** Back-compat name passthrough */
+const translateFeatureName = (k: string, _t: (key: any) => string): string => k;
 
-// Optimistic update helpers for better editing experience
+/** ======================
+ *  Defensive value lookup
+ *  ====================== */
+function getFeatureValue(col: Column, canonical: string) {
+  // exact canonical
+  if (col.features && canonical in col.features) return col.features[canonical];
+  // alias of canonical
+  const alias = canonicalKey(canonical);
+  if (col.features && alias in col.features) return col.features[alias];
+  // scan raw keys and match by canonicalization
+  for (const [raw, v] of Object.entries(col.features || {})) {
+    if (canonicalKey(raw) === canonical) return v;
+  }
+  return undefined;
+}
+
+/** ======================
+ *  Optimistic update utils
+ *  ====================== */
 type ChangeSet = {
   premium_eur?: string | number;
   base_sum_eur?: string | number;
@@ -367,18 +392,11 @@ function applyChangesToColumn(col: Column, changes: ChangeSet): Column {
   return next;
 }
 
-function optimisticMergeColumns(
-  columns: Column[],
-  columnId: string,
-  changes: ChangeSet
-): Column[] {
+function optimisticMergeColumns(columns: Column[], columnId: string, changes: ChangeSet): Column[] {
   return columns.map((c) => (c.id === columnId ? applyChangesToColumn(c, changes) : c));
 }
 
-function reconcileRefetchWithOptimistic(
-  refetched: Column[],
-  edits: Array<{ columnId: string; changes: ChangeSet }>
-): Column[] {
+function reconcileRefetchWithOptimistic(refetched: Column[], edits: Array<{ columnId: string; changes: ChangeSet }>): Column[] {
   if (!edits.length) return refetched;
   const map = new Map(edits.map((e) => [e.columnId, e.changes]));
   return refetched.map((c) => (map.has(c.id) ? applyChangesToColumn(c, map.get(c.id)!) : c));
@@ -395,8 +413,7 @@ interface ComparisonMatrixProps {
   showBuyButtons?: boolean;
   isShareView?: boolean;
   backendUrl?: string;
-  /** pass this ONLY on share pages (so refresh preserves insurer-only filtering) */
-  shareToken?: string;
+  shareToken?: string; // ONLY on share pages
   onRefreshOffers?: () => Promise<void>;
 }
 
@@ -425,7 +442,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
 
-  // Keep incoming props in sync (only when props actually change)
+  // Sync from props (when props actually change)
   useEffect(() => {
     setLocalColumns(columns);
   }, [columns]);
@@ -505,7 +522,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
   const saveEdit = async () => {
     if (!editingColumn) return;
     if (!backendUrl) {
-      toast.error(t('missingBackendUrl'));
+      toast.error(t("missingBackendUrl") || "Missing backend URL");
       return;
     }
 
@@ -518,7 +535,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
       if (!rowId) {
         rowId = await resolveRowIdForColumn(column, backendUrl);
         if (!rowId) {
-          toast.error(t('couldNotResolveRecordId'));
+          toast.error(t("couldNotResolveRecordId") || "Could not resolve record id yet. Try again in a moment.");
           return;
         }
         setLocalColumns((prev) =>
@@ -558,43 +575,41 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
       if (Object.keys(changes).length === 0) {
         setEditingColumn(null);
         setEditFormData({});
-        toast.message(t('noChangesToSave'));
+        toast.message(t("noChangesToSave") || "No changes to save");
         return;
       }
 
-      // 1) Optimistic UI update (instant)
+      // 1) Optimistic UI update
       setLocalColumns((prev) => optimisticMergeColumns(prev, column.id, changes));
 
-      // 2) Persist to backend
+      // 2) Persist
       await updateOffer(rowId!, changes, backendUrl);
 
       // 3) Reconcile with fresh data
       if (onRefreshOffers) {
-        // PAS/upload view: parent re-fetch keeps batch intact
-        await onRefreshOffers();
+        await onRefreshOffers(); // PAS/upload: parent manages the batch state
       } else if (isShareView && backendUrl) {
         try {
           const refetched = await refetchColumnsAfterSave(backendUrl, localColumns, shareToken);
-          // Keep our just-edited values even if the refetch is stale
           const merged = reconcileRefetchWithOptimistic(refetched, [{ columnId: column.id, changes }]);
           setLocalColumns(merged);
         } catch {
-          // non-fatal: we already applied the optimistic change
+          // non-fatal
         }
       }
 
       setEditingColumn(null);
       setEditFormData({});
-      toast.success(t('programUpdatedSuccessfully'));
+      toast.success(t("programUpdatedSuccessfully") || "Program updated successfully");
     } catch (error: any) {
-      // rollback optimistic update by refetching if we can
+      // rollback by refetch if possible
       if (isShareView && backendUrl) {
         try {
           const refetched = await refetchColumnsAfterSave(backendUrl, localColumns, shareToken);
           setLocalColumns(refetched);
         } catch {}
       }
-      toast.error(`${t('failedToSave')}: ${error.message}`);
+      toast.error(`${t("failedToSave") || "Failed to save"}: ${error.message}`);
     }
   };
 
@@ -605,7 +620,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
     { key: "payment_method", label: t("payment") },
   ];
 
-  // --- Build ordered rows (main + addons + leftovers) from actual columns ---
+  // Build ordered rows (main + addons) from actual columns
   const presentKeys = new Set<string>();
   for (const col of localColumns) {
     Object.keys(col.features || {}).forEach((k) => presentKeys.add(canonicalKey(k)));
@@ -614,9 +629,6 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
   const addonKnown = ADDON_ORDER;
   const mainToRender = mainKnown.filter((k) => presentKeys.has(k));
   const addonsToRender = addonKnown.filter((k) => presentKeys.has(k));
-
-  const knownAll = new Set<string>([...mainKnown, ...addonKnown, ...HIDE_IN_TABLE]);
-  const leftovers: string[] = Array.from(presentKeys).filter((k) => !knownAll.has(k)).sort();
 
   return (
     <div className="space-y-4">
@@ -755,7 +767,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
             {/* Meta rows */}
             {metaRows.map((row) => (
               <div key={row.key} className="flex border-b hover:bg-[#f1f5f9] transition-colors">
-                    <div className={`w-[280px] bg-muted border-r p-4 z-10 shadow-lg hover:text-foreground ${isMobile ? "" : "sticky left-0"}`}>
+                <div className={`w-[280px] bg-muted border-r p-4 z-10 shadow-lg hover:text-foreground ${isMobile ? "" : "sticky left-0"}`}>
                   <Badge variant="secondary" className="font-medium text-sm">{row.label}</Badge>
                 </div>
 
@@ -812,16 +824,16 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
               </div>
             ))}
 
-            {/* ===== MAIN BLOCK (ordered) ===== */}
-{mainToRender.map((featureKey, index) => (
+            {/* MAIN BLOCK (ordered) */}
+            {mainToRender.map((featureKey, index) => (
               <div key={featureKey} className={`flex border-b hover:bg-[#f1f5f9] transition-colors ${index % 2 === 0 ? "bg-muted/10" : ""}`}>
                 <div className={`w-[280px] bg-muted border-r p-4 z-10 shadow-lg hover:text-foreground ${isMobile ? "" : "sticky left-0"}`}>
-                  <Badge variant="secondary" className="text-sm font-medium">{featureKey}</Badge>
+                  <Badge variant="secondary" className="text-sm font-medium">{translateFeatureName(featureKey, t)}</Badge>
                 </div>
 
                 {localColumns.map((column) => {
                   const isEditing = editingColumn === column.id;
-                  const value = column.features?.[featureKey] ?? column.features?.[canonicalKey(featureKey)];
+                  const value = getFeatureValue(column, featureKey);
                   return (
                     <div key={column.id} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 flex items-center justify-center">
                       {isEditing ? (
@@ -847,7 +859,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
               </div>
             ))}
 
-            {/* ===== PAPILDUS PROGRAMMAS ===== */}
+            {/* PAPILDUS PROGRAMMAS */}
             {addonsToRender.length > 0 && (
               <>
                 <div className="flex border-b bg-card">
@@ -865,7 +877,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
 
                     {localColumns.map((column) => {
                       const isEditing = editingColumn === column.id;
-                      const value = column.features?.[featureKey] ?? column.features?.[canonicalKey(featureKey)];
+                      const value = getFeatureValue(column, featureKey);
                       return (
                         <div key={column.id} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 flex items-center justify-center">
                           {isEditing ? (
@@ -893,7 +905,6 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
               </>
             )}
 
-
             {/* CTA row (optional) */}
             {showBuyButtons && (
               <div className="flex border-b">
@@ -909,7 +920,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                        onClick={async () => {
                          try {
                             if (!backendUrl) {
-                              toast.error(t('missingBackendUrl'));
+                              toast.error(t("missingBackendUrl") || "Missing backend URL");
                               return;
                             }
 
@@ -917,17 +928,15 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                              backendUrl,
                              insurer: column.insurer || "",
                              columns: localColumns,
-                             // orgId: currentOrgId,
-                             // userId: currentUserId,
                              editable: false,
                              role: "insurer",
                              ttlHours: 168,
                            });
 
                            await navigator.clipboard.writeText(url);
-                           toast.success(t('insurerLinkCopied'));
+                           toast.success(t("insurerLinkCopied") || "Insurer-only link copied!");
                          } catch (e: any) {
-                           toast.error(`${t('failedToCreateShare')}: ${e.message}`);
+                           toast.error(`${t("failedToCreateShare") || "Failed to create share"}: ${e.message}`);
                          }
                        }}
                      >
