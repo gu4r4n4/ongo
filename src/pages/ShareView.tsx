@@ -65,6 +65,8 @@ export default function ShareView() {
           premium_eur: p.premium_eur ?? null,   // Use full property name
           base_sum_eur: p.base_sum_eur ?? null, // Use full property name
           payment_method: p.payment_method || null,
+          company_name: p.company_name || null,
+          employee_count: p.employee_count ?? null,
           features: p.features || {},
           source_file: g.source_file,
         });
