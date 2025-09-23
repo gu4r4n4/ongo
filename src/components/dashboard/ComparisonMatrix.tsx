@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Check, Minus, Edit, Save, X, Share2 } from "lucide-react";
 import { InsurerLogo } from "@/components/InsurerLogo";
-import { Column } from "@/hooks/useAsyncOffers";
+import { Column, OfferGroup } from "@/hooks/useAsyncOffers";
 import { Language, useTranslation } from "@/utils/translations";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -32,9 +32,9 @@ type EditForm = {
 // === Canonical order for the main table (LV labels shown in the left sticky column) ===
 const MAIN_FEATURE_ORDER: string[] = [
   "Pamatsumma",
-  // "Programmas nosaukums",            // shown in header -> do not render as row
+  // "Programmas nosaukums",
   "Pakalpojuma apmaksas veids",
-  // "Apdrošinājuma summa pamatpolisei, EUR", // header/meta -> do not render as row
+  // "Apdrošinājuma summa pamatpolisei, EUR",
   "Pacientu iemaksa",
   "Maksas ģimenes ārsta mājas vizītes, limits EUR",
   "Maksas ģimenes ārsta, internista, terapeita un pediatra konsultācija, limits EUR",
@@ -59,7 +59,7 @@ const MAIN_FEATURE_ORDER: string[] = [
   "Maksas stacionārie pakalpojumi, limits EUR",
   "Maksas stacionārā rehabilitācija, limits EUR",
   "Ambulatorā rehabilitācija",
-  // "Pamatpolises prēmija 1 darbiniekam, EUR",  // premium is in header
+  // "Pamatpolises prēmija 1 darbiniekam, EUR",
   "Piemaksa par plastikāta kartēm, EUR",
 ];
 
@@ -159,105 +159,61 @@ async function updateOffer(row_id: number, changes: Record<string, any>, API: st
   if (!res.ok) throw new Error(await res.text());
 }
 
+/** Rebuild Column[] from OfferGroup[] */
+function buildColumnsFromGroups(groups: OfferGroup[]): Column[] {
+  const cols: Column[] = [];
+  for (const g of groups) {
+    for (const p of g.programs || []) {
+      const rid = (p as any).row_id ?? (p as any).id;
+      cols.push({
+        id: `${g.source_file}::${p.insurer ?? ""}::${p.program_code ?? ""}`,
+        label: p.insurer || g.source_file,
+        source_file: g.source_file,
+        row_id: rid,
+        insurer: p.insurer,
+        program_code: p.program_code,
+        premium_eur: p.premium_eur ?? null,
+        base_sum_eur: p.base_sum_eur ?? null,
+        payment_method: p.payment_method ?? null,
+        features: p.features || {},
+        group: g,
+      });
+    }
+  }
+  return cols;
+}
+
 /**
- * Try to resolve the DB id for a program without forcing a full-page refresh.
- * We fetch /offers/by-documents for just this file and match by (insurer, program_code).
+ * Share-view refresh helper:
+ * - if shareToken provided => GET /shares/{token} (keeps insurer-only filtering)
+ * - else => POST /offers/by-documents (falls back to all programs for those docs)
  */
-async function resolveRowIdForColumn(column: Column, backendUrl: string): Promise<number | undefined> {
-  try {
+async function refetchColumnsAfterSave(
+  backendUrl: string,
+  currentColumns: Column[],
+  shareToken?: string
+): Promise<Column[]> {
+  if (shareToken) {
+    const res = await fetch(`${backendUrl}/shares/${encodeURIComponent(shareToken)}`, {
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    const groups = (data?.offers ?? []) as OfferGroup[];
+    return buildColumnsFromGroups(groups);
+  } else {
+    const document_ids = Array.from(new Set(currentColumns.map((c) => c.source_file)));
     const res = await fetch(`${backendUrl}/offers/by-documents`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ document_ids: [column.source_file] }),
+      body: JSON.stringify({ document_ids }),
+      cache: "no-store",
     });
-    if (!res.ok) return undefined;
-    const groups: Array<{
-      source_file: string;
-      programs: Array<{ row_id?: number; id?: number; insurer?: string; program_code?: string | null }>;
-    }> = await res.json();
-
-    const g = groups.find((x) => x.source_file === column.source_file);
-    if (!g) return undefined;
-
-    // match on insurer + program_code
-    const match = g.programs.find(
-      (p) =>
-        (p.insurer ?? "") === (column.insurer ?? "") &&
-        (p.program_code ?? "") === (column.program_code ?? "")
-    );
-
-    const rid = match?.row_id ?? match?.id;
-    return typeof rid === "number" ? rid : undefined;
-  } catch {
-    return undefined;
+    if (!res.ok) throw new Error(await res.text());
+    const groups = (await res.json()) as OfferGroup[];
+    return buildColumnsFromGroups(groups);
   }
 }
-
-// Create insurer-specific share link
-async function createInsurerShareLink(opts: {
-  backendUrl: string;
-  insurer: string;  
-  columns: Column[];
-  orgId?: number;
-  userId?: number;
-  editable?: boolean;
-  role?: "insurer" | "broker";
-  allowEditFields?: string[];
-  ttlHours?: number;
-  title?: string;
-}) {
-  const {
-    backendUrl, insurer, columns, orgId, userId,
-    editable = false,
-    role = "insurer", 
-    allowEditFields = [],
-    ttlHours = 720,
-    title = `Confirmation – ${insurer}`,
-  } = opts;
-
-  // dedupe document_ids from the visible matrix
-  const document_ids = Array.from(new Set(columns.map(c => c.source_file)));
-
-  const res = await fetch(`${backendUrl}/shares`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(orgId != null ? { "X-Org-Id": String(orgId) } : {}),
-      ...(userId != null ? { "X-User-Id": String(userId) } : {}),
-    },
-    body: JSON.stringify({
-      title,
-      document_ids,
-      expires_in_hours: ttlHours,
-      // the key switch: only this insurer's programs will be visible
-      insurer_only: insurer,
-      // permissions in the shared view
-      editable,
-      role,
-      allow_edit_fields: allowEditFields, // e.g. ["premium_eur","payment_method","features"]
-    }),
-  });
-
-  if (!res.ok) {
-    throw new Error(await res.text());
-  }
-  const data = await res.json(); // { ok, token, url, title }
-  return data.url as string;
-}
-
-// Payment method options: store canonical values, show Latvian labels
-const PAYMENT_METHOD_OPTIONS = [
-  { value: "monthly",   label: "Cenrāža programma" },
-  { value: "quarterly", label: "100% apmaksa līgumiestādēs" },
-  { value: "yearly",    label: "100% apmaksa līgumiestādēs un ja pakalpojums ir nopirkts" },
-  { value: "one-time",  label: "Procentuāla programma" },
-];
-
-const paymentMethodLabel = (v?: string | null) => {
-  if (!v) return "—";
-  const m = PAYMENT_METHOD_OPTIONS.find(o => o.value === v);
-  return m?.label ?? v; // if DB has a free-text value, show it as-is
-};
 
 // (kept for backwards compat where we used t() on some EN keys)
 const translateFeatureName = (_featureKey: string, _t: (key: any) => string): string => {
@@ -275,6 +231,8 @@ interface ComparisonMatrixProps {
   showBuyButtons?: boolean;
   isShareView?: boolean;
   backendUrl?: string;
+  /** pass this ONLY on share pages (so refresh preserves insurer-only filtering) */
+  shareToken?: string;
   onRefreshOffers?: () => Promise<void>;
 }
 
@@ -289,6 +247,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
   showBuyButtons = false,
   isShareView = false,
   backendUrl,
+  shareToken,
   onRefreshOffers,
 }) => {
   const { t } = useTranslation(currentLanguage);
@@ -443,10 +402,22 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
 
       await updateOffer(rowId, changes, backendUrl);
 
-      // end edit so new props can flow in, then optionally refresh offers
+      // ✅ Refresh:
+      // - PAS/upload page: let parent re-fetch (preserves the freshly scanned matrix).
+      // - Share pages: re-fetch locally to show new values without losing anything.
+      if (onRefreshOffers) {
+        await onRefreshOffers();
+      } else if (isShareView && backendUrl) {
+        try {
+          const cols = await refetchColumnsAfterSave(backendUrl, localColumns, shareToken);
+          setLocalColumns(cols);
+        } catch {
+          /* non-fatal */
+        }
+      }
+
       setEditingColumn(null);
       setEditFormData({});
-      if (onRefreshOffers) await onRefreshOffers();
       toast.success("Program updated successfully");
     } catch (error: any) {
       toast.error(`Failed to save: ${error.message}`);
@@ -535,14 +506,14 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                 const isEditing = editingColumn === column.id;
 
                 // Error column rendering, if any
-                if (column.type === "error") {
+                if ((column as any).type === "error") {
                   return (
                     <div key={column.id} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 bg-red-50 dark:bg-red-950/20">
                       <div className="flex flex-col items-center text-center space-y-2">
                         <div className="w-12 h-12 flex items-center justify-center rounded-md bg-red-100 dark:bg-red-900/30">
                           <X className="h-6 w-6 text-red-600" />
                         </div>
-                        <div className="font-semibold text-sm text-red-600">{column.label}</div>
+                        <div className="font-semibold text-sm text-red-600">{(column as any).label}</div>
                         <Badge variant="destructive" className="text-xs">FAILED</Badge>
                         <div className="text-xs text-red-600 max-w-full break-words">Processing Failed</div>
                       </div>
@@ -589,10 +560,15 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                             €{column.premium_eur?.toLocaleString() || "—"}
                           </div>
                           {canEdit && (
-                             <Button size="sm" variant="default" onClick={() => startEdit(column.id)} className="h-8 w-full px-3 py-1 text-sm bg-green-600 hover:bg-green-700 text-white font-medium rounded-md">
-                               <Edit className="h-4 w-4 mr-2" />
-                               {t("edit")}
-                             </Button>
+                            <Button
+                              size="sm"
+                              variant="default"
+                              onClick={() => startEdit(column.id)}
+                              className="h-8 w-full px-3 py-1 text-sm bg-green-600 hover:bg-green-700 text-white font-medium rounded-md"
+                            >
+                              <Edit className="h-4 w-4 mr-2" />
+                              {t("edit")}
+                            </Button>
                           )}
                         </div>
                       )}
@@ -743,7 +719,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
               </>
             )}
 
-            {/* ===== LEFTOVERS (optional; remove later if not needed) ===== */}
+            {/* ===== LEFTOVERS (optional) ===== */}
             {leftovers.length > 0 && (
               <>
                 <div className="flex border-b bg-card">
