@@ -226,6 +226,8 @@ async function createInsurerShareLink(opts: {
   allowEditFields?: string[];
   ttlHours?: number;
   title?: string;
+  companyName?: string;
+  employeesCount?: number;
 }): Promise<string> {
   const {
     backendUrl, insurer, columns, orgId, userId,
@@ -234,6 +236,8 @@ async function createInsurerShareLink(opts: {
     allowEditFields = [],
     ttlHours = 720,
     title = `Confirmation – ${insurer}`,
+    companyName,
+    employeesCount,
   } = opts;
 
   const document_ids = Array.from(new Set(columns.map(c => c.source_file)));
@@ -253,6 +257,10 @@ async function createInsurerShareLink(opts: {
       editable,
       role,
       allow_edit_fields: allowEditFields,
+      customer: (companyName || employeesCount != null) ? {
+        name: companyName,
+        employees_count: employeesCount
+      } : undefined,
     }),
   });
 
@@ -949,14 +957,16 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                               return;
                             }
 
-                           const url = await createInsurerShareLink({
-                             backendUrl,
-                             insurer: column.insurer || "",
-                             columns: localColumns,
-                             editable: false,
-                             role: "insurer",
-                             ttlHours: 168,
-                           });
+                            const url = await createInsurerShareLink({
+                              backendUrl,
+                              insurer: column.insurer || "",
+                              columns: localColumns,
+                              editable: false,
+                              role: "insurer",
+                              ttlHours: 168,
+                              companyName,
+                              employeesCount,
+                            });
 
                            await navigator.clipboard.writeText(url);
                            toast.success(t("insurerLinkCopied") || "Insurer-only link copied!");
