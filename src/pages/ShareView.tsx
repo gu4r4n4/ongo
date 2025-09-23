@@ -7,7 +7,8 @@ import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useTranslation, Language } from "@/utils/translations";
 import { BACKEND_URL } from "@/config";
 import { BrandThemeProvider } from "@/theme/BrandThemeProvider";
-import { brokerTheme } from "@/theme/brandTheme";
+import { brokerTheme, insurerThemes, appTheme } from "@/theme/brandTheme";
+import { InsurerLogo } from "@/components/InsurerLogo";
 
 type Program = {
   row_id?: number;
@@ -44,7 +45,7 @@ export default function ShareView() {
   const pollRef = useRef<number | null>(null);
 
   // turn API offers -> ComparisonMatrix props - match expected structure
-  const { columns, allFeatureKeys } = useMemo(() => {
+  const { columns, allFeatureKeys, insurerName, isInsurerView } = useMemo(() => {
     const cols: any[] = [];
     const keys = new Set<string>();
     for (const g of offers) {
@@ -63,7 +64,18 @@ export default function ShareView() {
         Object.keys(p.features || {}).forEach((k) => keys.add(k));
       }
     }
-    return { columns: cols, allFeatureKeys: Array.from(keys) };
+    
+    // Detect if this is an insurer view (all columns from same insurer)
+    const uniqueInsurers = [...new Set(cols.map(c => c.insurer))];
+    const singleInsurer = uniqueInsurers.length === 1 ? uniqueInsurers[0] : null;
+    const isInsurerView = singleInsurer !== null && singleInsurer !== "-";
+    
+    return { 
+      columns: cols, 
+      allFeatureKeys: Array.from(keys),
+      insurerName: singleInsurer || "",
+      isInsurerView
+    };
   }, [offers]);
 
   useEffect(() => {
@@ -117,15 +129,30 @@ export default function ShareView() {
     return <div className="p-6 text-sm text-destructive">Share not found or expired.</div>;
   }
 
+  // Choose theme based on view type
+  const selectedTheme = isInsurerView 
+    ? (insurerThemes[insurerName] || appTheme)
+    : brokerTheme;
+
   return (
-    <BrandThemeProvider theme={brokerTheme}>
+    <BrandThemeProvider theme={selectedTheme}>
       <div className="p-4 md:p-6 space-y-6 max-w-[1400px] mx-auto">
-        {/* Language Switcher */}
-        <div className="flex justify-end">
-          <LanguageSwitcher 
-            currentLanguage={currentLanguage} 
-            onLanguageChange={setCurrentLanguage} 
-          />
+        {/* Header with Logo and Language Switcher */}
+        <div className="flex justify-between items-start">
+          {/* Insurer Logo - Top Left */}
+          {isInsurerView && (
+            <div className="flex items-center">
+              <InsurerLogo name={insurerName} className="h-12 w-auto" />
+            </div>
+          )}
+          
+          {/* Language Switcher - Top Right */}
+          <div className={isInsurerView ? "" : "w-full flex justify-end"}>
+            <LanguageSwitcher 
+              currentLanguage={currentLanguage} 
+              onLanguageChange={setCurrentLanguage} 
+            />
+          </div>
         </div>
 
         {/* Title */}
