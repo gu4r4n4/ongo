@@ -663,7 +663,10 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
 
       {canEdit && (
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold">{t("processingResults")}</h3>
+          <div>
+            <h3 className="text-xl font-bold">PAS</h3>
+            <p className="text-sm text-muted-foreground">Piedāvājumu Apstrādes Serviss</p>
+          </div>
           {onShare && (
             <Button variant="outline" onClick={onShare} disabled={localColumns.length === 0} className="flex items-center gap-2">
               <Share2 className="h-4 w-4" />
