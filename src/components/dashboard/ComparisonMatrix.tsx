@@ -643,7 +643,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
 
   return (
     <div className="space-y-4">
-      {(companyName || employeesCount) && (
+      {(companyName || employeesCount != null) && (
         <div className="grid gap-4 sm:grid-cols-2 p-4 border rounded-lg bg-card">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
@@ -662,7 +662,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                 <span className="ml-2 font-medium">{companyName}</span>
               </div>
             )}
-            {employeesCount && (
+            {employeesCount != null && (
               <div className="text-sm">
                 <span className="text-muted-foreground">{t("employeeCount")}:</span>
                 <span className="ml-2 font-medium">{employeesCount}</span>
