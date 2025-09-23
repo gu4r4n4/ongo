@@ -315,6 +315,74 @@ const translateFeatureName = (_featureKey: string, _t: (key: any) => string): st
   return _featureKey;
 };
 
+// Optimistic update helpers for better editing experience
+type ChangeSet = {
+  premium_eur?: string | number;
+  base_sum_eur?: string | number;
+  payment_method?: string | null;
+  insurer?: string;
+  program_code?: string;
+  features?: Record<string, any>;
+};
+
+function toNumOrNull(v: any): number | null {
+  if (v === undefined || v === null || String(v).trim() === "") return null;
+  try {
+    return Number(
+      String(v).trim().replace("€", "").replace(/\s/g, "").replace(",", ".").replace(/[^\d.-]/g, "")
+    );
+  } catch {
+    return null;
+  }
+}
+
+function applyChangesToColumn(col: Column, changes: ChangeSet): Column {
+  const next: Column = { ...col };
+
+  if (changes.premium_eur !== undefined) {
+    const n = toNumOrNull(changes.premium_eur);
+    next.premium_eur = n !== null ? n : next.premium_eur;
+  }
+  if (changes.base_sum_eur !== undefined) {
+    const n = toNumOrNull(changes.base_sum_eur);
+    next.base_sum_eur = n !== null ? n : next.base_sum_eur;
+  }
+  if (changes.payment_method !== undefined) {
+    next.payment_method = (changes.payment_method ?? null) as any;
+  }
+  if (changes.insurer !== undefined) {
+    next.insurer = changes.insurer;
+  }
+  if (changes.program_code !== undefined) {
+    next.program_code = changes.program_code;
+  }
+  if (changes.features) {
+    const normalized: Record<string, any> = {};
+    for (const [k, v] of Object.entries(changes.features)) {
+      normalized[canonicalKey(k)] = v;
+    }
+    next.features = { ...(next.features || {}), ...normalized };
+  }
+  return next;
+}
+
+function optimisticMergeColumns(
+  columns: Column[],
+  columnId: string,
+  changes: ChangeSet
+): Column[] {
+  return columns.map((c) => (c.id === columnId ? applyChangesToColumn(c, changes) : c));
+}
+
+function reconcileRefetchWithOptimistic(
+  refetched: Column[],
+  edits: Array<{ columnId: string; changes: ChangeSet }>
+): Column[] {
+  if (!edits.length) return refetched;
+  const map = new Map(edits.map((e) => [e.columnId, e.changes]));
+  return refetched.map((c) => (map.has(c.id) ? applyChangesToColumn(c, map.get(c.id)!) : c));
+}
+
 interface ComparisonMatrixProps {
   columns: Column[];
   allFeatureKeys: string[];
@@ -445,7 +513,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
       const column = localColumns.find((col) => col.id === editingColumn);
       if (!column) return;
 
-      // resolve row id (without a destructive refresh)
+      // resolve row id if needed
       let rowId = column.row_id;
       if (!rowId) {
         rowId = await resolveRowIdForColumn(column, backendUrl);
@@ -453,12 +521,12 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
           toast.error("Could not resolve record id yet. Try again in a moment.");
           return;
         }
-        // update the local copy so subsequent edits don't need to resolve again
         setLocalColumns((prev) =>
           prev.map((c) => (c.id === column.id ? { ...c, row_id: rowId } : c))
         );
       }
 
+      // build changes payload
       const changes: Record<string, any> = {};
       if (editFormData.premium_eur !== undefined && String(editFormData.premium_eur).trim() !== "") {
         changes.premium_eur = editFormData.premium_eur;
@@ -476,7 +544,6 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
         changes.program_code = editFormData.program_code;
       }
       if (editFormData.features) {
-        // normalize feature keys to canonical names before saving
         const normalized: Record<string, any> = {};
         for (const [k, v] of Object.entries(editFormData.features)) {
           normalized[canonicalKey(k)] = v;
@@ -495,19 +562,24 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
         return;
       }
 
-      await updateOffer(rowId, changes, backendUrl);
+      // 1) Optimistic UI update (instant)
+      setLocalColumns((prev) => optimisticMergeColumns(prev, column.id, changes));
 
-      // ✅ Refresh:
-      // - PAS/upload page: let parent re-fetch (preserves the freshly scanned matrix).
-      // - Share pages: re-fetch locally to show new values without losing anything.
+      // 2) Persist to backend
+      await updateOffer(rowId!, changes, backendUrl);
+
+      // 3) Reconcile with fresh data
       if (onRefreshOffers) {
+        // PAS/upload view: parent re-fetch keeps batch intact
         await onRefreshOffers();
       } else if (isShareView && backendUrl) {
         try {
-          const cols = await refetchColumnsAfterSave(backendUrl, localColumns, shareToken);
-          setLocalColumns(cols);
+          const refetched = await refetchColumnsAfterSave(backendUrl, localColumns, shareToken);
+          // Keep our just-edited values even if the refetch is stale
+          const merged = reconcileRefetchWithOptimistic(refetched, [{ columnId: column.id, changes }]);
+          setLocalColumns(merged);
         } catch {
-          /* non-fatal */
+          // non-fatal: we already applied the optimistic change
         }
       }
 
@@ -515,6 +587,13 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
       setEditFormData({});
       toast.success("Program updated successfully");
     } catch (error: any) {
+      // rollback optimistic update by refetching if we can
+      if (isShareView && backendUrl) {
+        try {
+          const refetched = await refetchColumnsAfterSave(backendUrl, localColumns, shareToken);
+          setLocalColumns(refetched);
+        } catch {}
+      }
       toast.error(`Failed to save: ${error.message}`);
     }
   };
