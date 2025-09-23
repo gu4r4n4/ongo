@@ -9,6 +9,7 @@ import { BACKEND_URL } from "@/config";
 import { BrandThemeProvider } from "@/theme/BrandThemeProvider";
 import { brokerTheme, insurerThemes, appTheme } from "@/theme/brandTheme";
 import { InsurerLogo } from "@/components/InsurerLogo";
+import { Check, Minus } from "lucide-react";
 
 type Program = {
   row_id?: number;
@@ -155,28 +156,32 @@ export default function ShareView() {
           </div>
         </div>
 
-        {/* Company Info Header for Insurer View */}
+        {/* Company Info Header - matching ComparisonMatrix style */}
         {isInsurerView && payload && (
-          <div className="bg-muted/50 border rounded-lg p-4 mb-4">
-            <div className="flex items-center gap-6 text-sm">
+          <div className="grid gap-4 sm:grid-cols-2 p-4 border rounded-lg bg-card">
+            <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <span className="text-green-600">✓</span>
-                <span>{t('includedInPolicy') || 'iekļauts polises segumā'}</span>
+                <Check className="h-4 w-4 text-green-600" />
+                <span className="text-sm text-muted-foreground">{t("includedInPolicy")}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-red-600">−</span>
-                <span>{t('notIncludedInPolicy') || 'nav iekļauts polises segumā'}</span>
+                <Minus className="h-4 w-4 text-red-600" />
+                <span className="text-sm text-muted-foreground">{t("notIncludedInPolicy")}</span>
               </div>
             </div>
-            <div className="flex gap-8 mt-3 text-sm">
-              <div>
-                <span className="text-muted-foreground">Kompānija:</span>
-                <span className="ml-2 font-medium">{payload.company_name || '-'}</span>
-              </div>
-              <div>
-                <span className="text-muted-foreground">Nodarbināto skaits:</span>
-                <span className="ml-2 font-medium">{payload.employees_count || 0}</span>
-              </div>
+            <div className="space-y-1">
+              {payload.company_name && (
+                <div className="text-sm">
+                  <span className="text-muted-foreground">{t("company")}:</span>
+                  <span className="ml-2 font-medium">{payload.company_name}</span>
+                </div>
+              )}
+              {payload.employees_count && (
+                <div className="text-sm">
+                  <span className="text-muted-foreground">{t("employeeCount")}:</span>
+                  <span className="ml-2 font-medium">{payload.employees_count}</span>
+                </div>
+              )}
             </div>
           </div>
         )}
