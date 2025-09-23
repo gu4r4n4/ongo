@@ -781,7 +781,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                   <div key={column.id} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 flex items-center justify-center">
                      <Button
                        size="sm"
-                       className="w-full"
+                       className="w-full bg-green-600 hover:bg-green-700 text-white"
                        onClick={async () => {
                          try {
                            if (!backendUrl) {
@@ -807,7 +807,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                          }
                        }}
                      >
-                       Pirkt
+                       {t("approve")}
                      </Button>
                   </div>
                 ))}

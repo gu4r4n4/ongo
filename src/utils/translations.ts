@@ -182,6 +182,7 @@ export const translations = {
     share: 'Dalīties',
     confirm: 'Apstiprināt',
     edit: 'Rediģēt',
+    approve: 'Apstiprināt',
     
     // Processing status
     processedFiles: 'Apstrādāti faili',
@@ -391,6 +392,7 @@ export const translations = {
     share: 'Share',
     confirm: 'Confirm',
     edit: 'Edit',
+    approve: 'Approve',
     
     // Processing status
     processedFiles: 'Processed Files',
@@ -600,6 +602,7 @@ export const translations = {
     share: 'Поделиться',
     confirm: 'Подтвердить',
     edit: 'Редактировать',
+    approve: 'Утвердить',
     
     // Processing status
     processedFiles: 'Обработанные файлы',
@@ -795,6 +798,7 @@ export const translations = {
     share: 'Jaga',
     confirm: 'Kinnita',
     edit: 'Muuda',
+    approve: 'Kinnita',
     
     // Share page content
     includedInPolicy: 'poliisilehes kaasatud',
@@ -986,6 +990,7 @@ export const translations = {
     share: 'Dalintis',
     confirm: 'Patvirtinti',
     edit: 'Redaguoti',
+    approve: 'Patvirtinti',
     
     // Share page content
     includedInPolicy: 'įtraukta į poliso padengimą',
@@ -1177,6 +1182,7 @@ export const translations = {
     share: 'Del',
     confirm: 'Bekreft',
     edit: 'Rediger',
+    approve: 'Godkjenne',
     
     // Badge categories
     general: 'Generell',
@@ -1357,6 +1363,7 @@ export const translations = {
     share: 'Dela',  
     confirm: 'Bekräfta',
     edit: 'Redigera',
+    approve: 'Godkänn',
     
     // Share page content
     includedInPolicy: 'inkluderad i försäkringsskydd',
@@ -1548,6 +1555,7 @@ export const translations = {
     share: 'Del',
     confirm: 'Bekræft',
     edit: 'Rediger',
+    approve: 'Godkend',
     
     // Share page content
     includedInPolicy: 'inkluderet i forsikringsdækning',
@@ -1739,6 +1747,7 @@ export const translations = {
     share: 'Partager',
     confirm: 'Confirmer',
     edit: 'Modifier',
+    approve: 'Approuver',
     
     // Badge categories
     general: 'Général',
@@ -1919,6 +1928,7 @@ export const translations = {
     share: 'Teilen',
     confirm: 'Bestätigen',
     edit: 'Bearbeiten',
+    approve: 'Genehmigen',
     
     // Share page content
     includedInPolicy: 'in Versicherungsdeckung enthalten',
@@ -2110,6 +2120,7 @@ export const translations = {
     share: 'Compartir',
     confirm: 'Confirmar',
     edit: 'Editar',
+    approve: 'Aprobar',
     
     // Share page content
     includedInPolicy: 'incluido en la cobertura del seguro',
