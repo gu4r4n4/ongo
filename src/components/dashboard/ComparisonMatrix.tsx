@@ -149,6 +149,73 @@ function normalizeChanges(changes: Record<string, any>): OfferPatch {
   return out;
 }
 
+// Payment method options for dropdown
+const PAYMENT_METHOD_OPTIONS = [
+  { value: "monthly", label: "Monthly" },
+  { value: "quarterly", label: "Quarterly" },
+  { value: "annually", label: "Annually" },
+  { value: "single", label: "Single Payment" },
+];
+
+// Function to get payment method label
+function paymentMethodLabel(value: string | null | undefined): string {
+  if (!value) return "—";
+  const option = PAYMENT_METHOD_OPTIONS.find(opt => opt.value === value);
+  return option?.label || value;
+}
+
+// Function to resolve row ID for a column
+async function resolveRowIdForColumn(column: Column, backendUrl: string): Promise<number | null> {
+  try {
+    const res = await fetch(`${backendUrl}/offers/by-documents`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ document_ids: [column.source_file] }),
+    });
+    if (!res.ok) return null;
+    const groups = await res.json() as OfferGroup[];
+    
+    for (const group of groups) {
+      for (const program of group.programs || []) {
+        if (program.insurer === column.insurer && program.program_code === column.program_code) {
+          return (program as any).row_id ?? (program as any).id ?? null;
+        }
+      }
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+// Function to create insurer share link
+async function createInsurerShareLink(params: {
+  backendUrl: string;
+  insurer: string;
+  columns: Column[];
+  editable: boolean;
+  role: string;
+  ttlHours: number;
+}): Promise<string> {
+  const { backendUrl, insurer, columns, editable, role, ttlHours } = params;
+  
+  const res = await fetch(`${backendUrl}/shares`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      insurer_filter: insurer,
+      document_ids: Array.from(new Set(columns.map(c => c.source_file))),
+      editable,
+      role,
+      ttl_hours: ttlHours,
+    }),
+  });
+  
+  if (!res.ok) throw new Error(await res.text());
+  const data = await res.json();
+  return `${window.location.origin}/share/${data.share_token}`;
+}
+
 async function updateOffer(row_id: number, changes: Record<string, any>, API: string) {
   const patch = normalizeChanges(changes);
   const res = await fetch(`${API}/offers/${row_id}`, {
