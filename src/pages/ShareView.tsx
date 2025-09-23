@@ -34,6 +34,10 @@ type SharePayload = {
   employees_count?: number | null;
   document_ids?: string[];
   results?: OfferGroup[] | null;
+  customer?: {
+    name?: string;
+    employees_count?: number;
+  } | null;
 };
 
 export default function ShareView() {
@@ -96,6 +100,12 @@ export default function ShareView() {
         if (stopped) return;
 
         const pl: SharePayload = data.payload || { mode: "snapshot" };
+        
+        // Handle customer data from backend - can be in payload directly or in customer object
+        if (data.customer && !pl.customer) {
+          pl.customer = data.customer;
+        }
+        
         setPayload(pl);
 
         // Use the server-filtered offers directly from the share response
@@ -130,6 +140,10 @@ export default function ShareView() {
     return <div className="p-6 text-sm text-destructive">Share not found or expired.</div>;
   }
 
+  // Get company info from payload or customer object
+  const companyName = payload.company_name || payload.customer?.name || "";
+  const employeesCount = payload.employees_count || payload.customer?.employees_count || 0;
+
   // Choose theme based on view type
   const selectedTheme = isInsurerView 
     ? (insurerThemes[insurerName] || appTheme)
@@ -162,7 +176,7 @@ export default function ShareView() {
         )}
 
         {/* Company Info Header - matching ComparisonMatrix style */}
-        {isInsurerView && payload && (
+        {isInsurerView && payload && (companyName || employeesCount > 0) && (
           <div className="grid gap-4 sm:grid-cols-2 p-4 border rounded-lg bg-card">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
@@ -175,16 +189,16 @@ export default function ShareView() {
               </div>
             </div>
             <div className="space-y-1">
-              {payload.company_name && (
+              {companyName && (
                 <div className="text-sm">
                   <span className="text-muted-foreground">{t("company")}:</span>
-                  <span className="ml-2 font-medium">{payload.company_name}</span>
+                  <span className="ml-2 font-medium">{companyName}</span>
                 </div>
               )}
-              {payload.employees_count && (
+              {employeesCount > 0 && (
                 <div className="text-sm">
                   <span className="text-muted-foreground">{t("employeeCount")}:</span>
-                  <span className="ml-2 font-medium">{payload.employees_count}</span>
+                  <span className="ml-2 font-medium">{employeesCount}</span>
                 </div>
               )}
             </div>
@@ -198,8 +212,8 @@ export default function ShareView() {
             allFeatureKeys={allFeatureKeys}
             currentLanguage={currentLanguage}
             onShare={undefined}
-            companyName={payload.company_name || ""}
-            employeesCount={payload.employees_count || 0}
+            companyName={companyName}
+            employeesCount={employeesCount > 0 ? employeesCount : undefined}
             canEdit={true}
             showBuyButtons={true}
             isShareView={true}
