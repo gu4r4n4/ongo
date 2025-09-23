@@ -156,6 +156,11 @@ export default function ShareView() {
           </div>
         </div>
 
+        {/* Title */}
+        {columns.length > 0 && (
+          <h3 className="text-lg font-semibold">{t('healthInsurance')}</h3>
+        )}
+
         {/* Company Info Header - matching ComparisonMatrix style */}
         {isInsurerView && payload && (
           <div className="grid gap-4 sm:grid-cols-2 p-4 border rounded-lg bg-card">
@@ -184,11 +189,6 @@ export default function ShareView() {
               )}
             </div>
           </div>
-        )}
-
-        {/* Title */}
-        {columns.length > 0 && (
-          <h3 className="text-lg font-semibold">{t('healthInsurance')}</h3>
         )}
 
         {/* Results Matrix */}
