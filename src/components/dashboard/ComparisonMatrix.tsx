@@ -754,8 +754,8 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
 
             {/* Meta rows */}
             {metaRows.map((row) => (
-              <div key={row.key} className="flex border-b">
-                <div className={`w-[280px] bg-muted border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
+              <div key={row.key} className="flex border-b hover:bg-[#f1f5f9] transition-colors">
+                    <div className={`w-[280px] bg-muted border-r p-4 z-10 shadow-lg hover:text-foreground ${isMobile ? "" : "sticky left-0"}`}>
                   <Badge variant="secondary" className="font-medium text-sm">{row.label}</Badge>
                 </div>
 
@@ -813,9 +813,9 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
             ))}
 
             {/* ===== MAIN BLOCK (ordered) ===== */}
-            {mainToRender.map((featureKey, index) => (
-              <div key={featureKey} className={`flex border-b ${index % 2 === 0 ? "bg-muted/10" : ""}`}>
-                <div className={`w-[280px] bg-muted border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
+{mainToRender.map((featureKey, index) => (
+              <div key={featureKey} className={`flex border-b hover:bg-[#f1f5f9] transition-colors ${index % 2 === 0 ? "bg-muted/10" : ""}`}>
+                <div className={`w-[280px] bg-muted border-r p-4 z-10 shadow-lg hover:text-foreground ${isMobile ? "" : "sticky left-0"}`}>
                   <Badge variant="secondary" className="text-sm font-medium">{featureKey}</Badge>
                 </div>
 
@@ -858,8 +858,8 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                 </div>
 
                 {addonsToRender.map((featureKey, index) => (
-                  <div key={featureKey} className={`flex border-b ${index % 2 === 0 ? "bg-muted/10" : ""}`}>
-                    <div className={`w-[280px] bg-muted border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
+                  <div key={featureKey} className={`flex border-b hover:bg-[#f1f5f9] transition-colors ${index % 2 === 0 ? "bg-muted/10" : ""}`}>
+                    <div className={`w-[280px] bg-muted border-r p-4 z-10 shadow-lg hover:text-foreground ${isMobile ? "" : "sticky left-0"}`}>
                       <Badge variant="secondary" className="text-sm font-medium">{featureKey}</Badge>
                     </div>
 
