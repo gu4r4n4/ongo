@@ -6,6 +6,8 @@ import MedicalServicesHeader from "@/components/MedicalServicesHeader";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useTranslation, Language } from "@/utils/translations";
 import { BACKEND_URL } from "@/config";
+import { BrandThemeProvider } from "@/theme/BrandThemeProvider";
+import { brokerTheme } from "@/theme/brandTheme";
 
 type Program = {
   row_id?: number;
@@ -116,49 +118,51 @@ export default function ShareView() {
   }
 
   return (
-    <div className="p-4 md:p-6 space-y-6 max-w-[1400px] mx-auto">
-      {/* Language Switcher */}
-      <div className="flex justify-end">
-        <LanguageSwitcher 
-          currentLanguage={currentLanguage} 
-          onLanguageChange={setCurrentLanguage} 
-        />
+    <BrandThemeProvider theme={brokerTheme}>
+      <div className="p-4 md:p-6 space-y-6 max-w-[1400px] mx-auto">
+        {/* Language Switcher */}
+        <div className="flex justify-end">
+          <LanguageSwitcher 
+            currentLanguage={currentLanguage} 
+            onLanguageChange={setCurrentLanguage} 
+          />
+        </div>
+
+        {/* Title */}
+        {columns.length > 0 && (
+          <h3 className="text-lg font-semibold">{t('healthInsurance')}</h3>
+        )}
+
+        {/* Results Matrix */}
+        {columns.length > 0 && (
+          <ComparisonMatrix
+            columns={columns}
+            allFeatureKeys={allFeatureKeys}
+            currentLanguage={currentLanguage}
+            onShare={undefined}
+            companyName={payload.company_name || ""}
+            employeesCount={payload.employees_count || 0}
+            canEdit={true}
+            showBuyButtons={true}
+            isShareView={true}
+            backendUrl={BACKEND_URL}
+          />
+        )}
+
+        {/* Medical Services Footer - Legend */}
+        {columns.length > 0 && (
+          <MedicalServicesHeader currentLanguage={currentLanguage} />
+        )}
+
+        {/* No data message */}
+        {columns.length === 0 && (
+          <Card>
+            <CardContent className="p-6 text-center">
+              <div className="text-sm text-muted-foreground">No data yet…</div>
+            </CardContent>
+          </Card>
+        )}
       </div>
-
-      {/* Title */}
-      {columns.length > 0 && (
-        <h3 className="text-lg font-semibold">{t('healthInsurance')}</h3>
-      )}
-
-      {/* Results Matrix */}
-      {columns.length > 0 && (
-        <ComparisonMatrix
-          columns={columns}
-          allFeatureKeys={allFeatureKeys}
-          currentLanguage={currentLanguage}
-          onShare={undefined}
-          companyName={payload.company_name || ""}
-          employeesCount={payload.employees_count || 0}
-          canEdit={true}
-          showBuyButtons={true}
-          isShareView={true}
-          backendUrl={BACKEND_URL}
-        />
-      )}
-
-      {/* Medical Services Footer - Legend */}
-      {columns.length > 0 && (
-        <MedicalServicesHeader currentLanguage={currentLanguage} />
-      )}
-
-      {/* No data message */}
-      {columns.length === 0 && (
-        <Card>
-          <CardContent className="p-6 text-center">
-            <div className="text-sm text-muted-foreground">No data yet…</div>
-          </CardContent>
-        </Card>
-      )}
-    </div>
+    </BrandThemeProvider>
   );
 }

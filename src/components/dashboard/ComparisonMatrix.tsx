@@ -10,6 +10,7 @@ import { Column, OfferGroup } from "@/hooks/useAsyncOffers";
 import { Language, useTranslation } from "@/utils/translations";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useBrandTheme } from "@/theme/BrandThemeProvider";
 
 type OfferPatch = {
   premium_eur?: number;
@@ -433,6 +434,8 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
 }) => {
   const { t } = useTranslation(currentLanguage);
   const isMobile = useIsMobile();
+  const theme = useBrandTheme();
+  const rounded = theme?.rounded ?? "rounded-xl";
   const [editingColumn, setEditingColumn] = useState<string | null>(null);
   const [editFormData, setEditFormData] = useState<EditForm>({});
   const [localColumns, setLocalColumns] = useState<Column[]>(columns);
@@ -676,7 +679,21 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
         </div>
       )}
 
-      <Card>
+      <Card className="relative overflow-hidden">
+        {theme?.logoUrl && (
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0"
+            style={{
+              backgroundImage: `url(${theme.logoUrl})`,
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "calc(100% - 24px) calc(100% - 24px)",
+              backgroundSize: "220px auto",
+              opacity: theme.watermarkOpacity ?? 0.06,
+              filter: "grayscale(100%)",
+            }}
+          />
+        )}
         <div ref={scrollContainerRef} className="overflow-x-auto select-none">
           <div className="min-w-fit">
             {/* Header Row */}
@@ -684,6 +701,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
               className={`flex border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 ${
                 isShareView && !isMobile ? "sticky top-0 z-50" : "sticky top-0 z-20"
               }`}
+              style={{ background: "var(--brand-surface)" }}
             >
               {/* Sticky feature header */}
               <div className={`w-[280px] bg-card border-r p-4 ${isMobile ? "" : "sticky left-0 z-30"}`}>
@@ -735,7 +753,11 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                             className="text-center"
                           />
                           <div className="flex gap-1">
-                            <Button size="sm" onClick={saveEdit} className="flex-1">
+                            <Button 
+                              size="sm" 
+                              onClick={saveEdit} 
+                              className={`flex-1 ${rounded} text-white bg-[var(--brand-primary)] hover:bg-[var(--brand-primary-hover)] focus:ring-2 focus:ring-[var(--brand-ring)]`}
+                            >
                               <Save className="h-3 w-3" />
                             </Button>
                             <Button size="sm" variant="ghost" onClick={cancelEdit} className="flex-1">
@@ -753,7 +775,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                               size="sm"
                               variant="default"
                               onClick={() => startEdit(column.id)}
-                              className="h-8 w-full px-3 py-1 text-sm bg-green-600 hover:bg-green-700 text-white font-medium rounded-md"
+                              className={`h-8 w-full px-3 py-1 text-sm text-white font-medium ${rounded} bg-[var(--brand-primary)] hover:bg-[var(--brand-primary-hover)] focus:ring-2 focus:ring-[var(--brand-ring)]`}
                             >
                               <Edit className="h-4 w-4 mr-2" />
                               {t("edit")}
@@ -919,7 +941,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                   <div key={column.id} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 flex items-center justify-center">
                      <Button
                        size="sm"
-                       className="w-full bg-green-600 hover:bg-green-700 text-white"
+                       className={`w-full ${rounded} text-white bg-[var(--brand-primary)] hover:bg-[var(--brand-primary-hover)] focus:ring-2 focus:ring-[var(--brand-ring)]`}
                        onClick={async () => {
                          try {
                             if (!backendUrl) {
