@@ -19,6 +19,8 @@ type Program = {
   premium_eur?: number | null;
   payment_method?: string | null;
   features?: Record<string, any>;
+  company_name?: string | null;
+  employee_count?: number | null;
 };
 
 type OfferGroup = {
@@ -140,9 +142,10 @@ export default function ShareView() {
     return <div className="p-6 text-sm text-destructive">Share not found or expired.</div>;
   }
 
-  // Get company info from payload or customer object
-  const companyName = payload.company_name || payload.customer?.name || "";
-  const employeesCount = payload.employees_count || payload.customer?.employees_count || 0;
+  // Get company info from offers data (database) first, fallback to payload
+  const firstProgram = offers[0]?.programs?.[0];
+  const companyName = firstProgram?.company_name || payload.company_name || payload.customer?.name || "";
+  const employeesCount = firstProgram?.employee_count ?? payload.employees_count ?? payload.customer?.employees_count ?? 0;
 
   // Choose theme based on view type
   const selectedTheme = isInsurerView 
@@ -165,36 +168,6 @@ export default function ShareView() {
           <h3 className="text-lg font-semibold">{t('healthInsurance')}</h3>
         )}
 
-        {/* Company Info Header - matching ComparisonMatrix style */}
-        {isInsurerView && payload && (companyName || employeesCount >= 0) && (
-          <div className="grid gap-4 sm:grid-cols-2 p-4 border rounded-lg bg-card">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Check className="h-4 w-4 text-green-600" />
-                <span className="text-sm text-muted-foreground">{t("includedInPolicy")}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Minus className="h-4 w-4 text-red-600" />
-                <span className="text-sm text-muted-foreground">{t("notIncludedInPolicy")}</span>
-              </div>
-            </div>
-            <div className="space-y-1">
-              {companyName && (
-                <div className="text-sm">
-                  <span className="text-muted-foreground">{t("company")}:</span>
-                  <span className="ml-2 font-medium">{companyName}</span>
-                </div>
-              )}
-              {employeesCount >= 0 && (
-                <div className="text-sm">
-                  <span className="text-muted-foreground">{t("employeeCount")}:</span>
-                  <span className="ml-2 font-medium">{employeesCount}</span>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
         {/* Results Matrix */}
         {columns.length > 0 && (
           <ComparisonMatrix
@@ -203,7 +176,7 @@ export default function ShareView() {
             currentLanguage={currentLanguage}
             onShare={undefined}
             companyName={companyName}
-            employeesCount={employeesCount > 0 ? employeesCount : undefined}
+            employeesCount={employeesCount >= 0 ? employeesCount : undefined}
             canEdit={true}
             showBuyButtons={true}
             isShareView={true}
