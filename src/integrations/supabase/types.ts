@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_users: {
+        Row: {
+          created_at: string | null
+          email: string
+          full_name: string | null
+          id: number
+          role: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          full_name?: string | null
+          id?: number
+          role?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          full_name?: string | null
+          id?: number
+          role?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       insurance_inquiries: {
         Row: {
           area_m2: number | null
@@ -25,6 +52,7 @@ export type Database = {
           cargo_type: string | null
           cattle_type: string | null
           country_code: string | null
+          created_by_user_id: number | null
           crop_area_ha: number | null
           crop_risks: string | null
           crop_type: string | null
@@ -41,6 +69,7 @@ export type Database = {
           invoiced_at: string | null
           leisure_activities: boolean | null
           license_plate: string | null
+          org_id: number | null
           phone: string | null
           price: number | null
           product_type: string
@@ -67,6 +96,7 @@ export type Database = {
           cargo_type?: string | null
           cattle_type?: string | null
           country_code?: string | null
+          created_by_user_id?: number | null
           crop_area_ha?: number | null
           crop_risks?: string | null
           crop_type?: string | null
@@ -83,6 +113,7 @@ export type Database = {
           invoiced_at?: string | null
           leisure_activities?: boolean | null
           license_plate?: string | null
+          org_id?: number | null
           phone?: string | null
           price?: number | null
           product_type: string
@@ -109,6 +140,7 @@ export type Database = {
           cargo_type?: string | null
           cattle_type?: string | null
           country_code?: string | null
+          created_by_user_id?: number | null
           crop_area_ha?: number | null
           crop_risks?: string | null
           crop_type?: string | null
@@ -125,6 +157,7 @@ export type Database = {
           invoiced_at?: string | null
           leisure_activities?: boolean | null
           license_plate?: string | null
+          org_id?: number | null
           phone?: string | null
           price?: number | null
           product_type?: string
@@ -141,16 +174,33 @@ export type Database = {
           units?: number | null
           year?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "insurance_inquiries_created_by_user_id_fkey"
+            columns: ["created_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "app_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "insurance_inquiries_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       invoices: {
         Row: {
           amount: number
           created_at: string | null
+          created_by_user_id: number | null
           id: number
           inquiry_id: number | null
           invoice_number: string | null
           notes: string | null
+          org_id: number | null
           paid_at: string | null
           sent_at: string | null
           status: string | null
@@ -158,10 +208,12 @@ export type Database = {
         Insert: {
           amount: number
           created_at?: string | null
+          created_by_user_id?: number | null
           id?: number
           inquiry_id?: number | null
           invoice_number?: string | null
           notes?: string | null
+          org_id?: number | null
           paid_at?: string | null
           sent_at?: string | null
           status?: string | null
@@ -169,20 +221,36 @@ export type Database = {
         Update: {
           amount?: number
           created_at?: string | null
+          created_by_user_id?: number | null
           id?: number
           inquiry_id?: number | null
           invoice_number?: string | null
           notes?: string | null
+          org_id?: number | null
           paid_at?: string | null
           sent_at?: string | null
           status?: string | null
         }
         Relationships: [
           {
+            foreignKeyName: "invoices_created_by_user_id_fkey"
+            columns: ["created_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "app_users"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "invoices_inquiry_id_fkey"
             columns: ["inquiry_id"]
             isOneToOne: false
             referencedRelation: "insurance_inquiries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -258,12 +326,52 @@ export type Database = {
           },
         ]
       }
+      offer_templates: {
+        Row: {
+          created_at: string
+          created_by_user_id: number | null
+          defaults: Json
+          employees_bucket: number | null
+          id: number
+          insurer: string | null
+          label: string | null
+          org_id: number | null
+          program_code: string | null
+          usage_count: number
+        }
+        Insert: {
+          created_at?: string
+          created_by_user_id?: number | null
+          defaults?: Json
+          employees_bucket?: number | null
+          id?: number
+          insurer?: string | null
+          label?: string | null
+          org_id?: number | null
+          program_code?: string | null
+          usage_count?: number
+        }
+        Update: {
+          created_at?: string
+          created_by_user_id?: number | null
+          defaults?: Json
+          employees_bucket?: number | null
+          id?: number
+          insurer?: string | null
+          label?: string | null
+          org_id?: number | null
+          program_code?: string | null
+          usage_count?: number
+        }
+        Relationships: []
+      }
       offers: {
         Row: {
           base_sum_eur: number | null
           company_hint: string | null
           company_name: string | null
           created_at: string | null
+          created_by_user_id: number | null
           employee_count: number | null
           error: string | null
           features: Json
@@ -271,6 +379,7 @@ export type Database = {
           id: number
           inquiry_id: number | null
           insurer: string | null
+          org_id: number | null
           payment_method: string | null
           premium_eur: number | null
           program_code: string | null
@@ -283,6 +392,7 @@ export type Database = {
           company_hint?: string | null
           company_name?: string | null
           created_at?: string | null
+          created_by_user_id?: number | null
           employee_count?: number | null
           error?: string | null
           features?: Json
@@ -290,6 +400,7 @@ export type Database = {
           id?: number
           inquiry_id?: number | null
           insurer?: string | null
+          org_id?: number | null
           payment_method?: string | null
           premium_eur?: number | null
           program_code?: string | null
@@ -302,6 +413,7 @@ export type Database = {
           company_hint?: string | null
           company_name?: string | null
           created_at?: string | null
+          created_by_user_id?: number | null
           employee_count?: number | null
           error?: string | null
           features?: Json
@@ -309,6 +421,7 @@ export type Database = {
           id?: number
           inquiry_id?: number | null
           insurer?: string | null
+          org_id?: number | null
           payment_method?: string | null
           premium_eur?: number | null
           program_code?: string | null
@@ -318,45 +431,142 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "offers_created_by_user_id_fkey"
+            columns: ["created_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "app_users"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "offers_inquiry_fk"
             columns: ["inquiry_id"]
             isOneToOne: false
             referencedRelation: "insurance_inquiries"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "offers_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      organizations: {
+        Row: {
+          created_at: string | null
+          domain: string | null
+          id: number
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          domain?: string | null
+          id?: number
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          domain?: string | null
+          id?: number
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       share_links: {
         Row: {
           created_at: string
+          created_by_user_id: number | null
           expires_at: string | null
           id: number
           inquiry_id: number | null
+          org_id: number | null
           payload: Json
           token: string
         }
         Insert: {
           created_at?: string
+          created_by_user_id?: number | null
           expires_at?: string | null
           id?: number
           inquiry_id?: number | null
+          org_id?: number | null
           payload?: Json
           token: string
         }
         Update: {
           created_at?: string
+          created_by_user_id?: number | null
           expires_at?: string | null
           id?: number
           inquiry_id?: number | null
+          org_id?: number | null
           payload?: Json
           token?: string
         }
         Relationships: [
           {
+            foreignKeyName: "share_links_created_by_user_id_fkey"
+            columns: ["created_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "app_users"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "share_links_inquiry_id_fkey"
             columns: ["inquiry_id"]
             isOneToOne: false
             referencedRelation: "insurance_inquiries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "share_links_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_org_memberships: {
+        Row: {
+          created_at: string | null
+          id: number
+          org_id: number
+          org_role: string
+          user_id: number
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          org_id: number
+          org_role?: string
+          user_id: number
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          org_id?: number
+          org_role?: string
+          user_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_org_memberships_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_org_memberships_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "app_users"
             referencedColumns: ["id"]
           },
         ]
@@ -383,7 +593,9 @@ export type Database = {
         Args: { share_token: string }
         Returns: {
           base_sum_eur: number
+          company_name: string
           created_at: string
+          employee_count: number
           features: Json
           filename: string
           id: number
