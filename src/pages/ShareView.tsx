@@ -155,6 +155,22 @@ export default function ShareView() {
           </div>
         </div>
 
+        {/* Company Information Header */}
+        {columns.length > 0 && (payload.company_name || payload.employees_count) && (
+          <div className="space-y-2">
+            {payload.company_name && (
+              <div className="text-lg font-semibold text-[var(--brand-text)]">
+                {payload.company_name}
+              </div>
+            )}
+            {payload.employees_count && (
+              <div className="text-sm text-[var(--brand-muted-text)]">
+                {t('employeeCount')}: {payload.employees_count}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Title */}
         {columns.length > 0 && (
           <h3 className="text-lg font-semibold">{t('healthInsurance')}</h3>
