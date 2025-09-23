@@ -149,71 +149,99 @@ function normalizeChanges(changes: Record<string, any>): OfferPatch {
   return out;
 }
 
-// Payment method options for dropdown
+// Payment method options for dropdown (keep canonical values used by backend/db)
 const PAYMENT_METHOD_OPTIONS = [
-  { value: "monthly", label: "Monthly" },
-  { value: "quarterly", label: "Quarterly" },
-  { value: "annually", label: "Annually" },
-  { value: "single", label: "Single Payment" },
+  { value: "monthly",   label: "Cenrāža programma" },
+  { value: "quarterly", label: "100% apmaksa līgumiestādēs" },
+  { value: "yearly",    label: "100% apmaksa līgumiestādēs un ja pakalpojums ir nopirkts" },
+  { value: "one-time",  label: "Procentuāla programma" },
 ];
 
-// Function to get payment method label
-function paymentMethodLabel(value: string | null | undefined): string {
-  if (!value) return "—";
-  const option = PAYMENT_METHOD_OPTIONS.find(opt => opt.value === value);
-  return option?.label || value;
+function paymentMethodLabel(v?: string | null): string {
+  if (!v) return "—";
+  const m = PAYMENT_METHOD_OPTIONS.find(o => o.value === v);
+  return m?.label ?? v;
 }
 
-// Function to resolve row ID for a column
-async function resolveRowIdForColumn(column: Column, backendUrl: string): Promise<number | null> {
+// Resolve DB row id for a column via /offers/by-documents (matches by insurer+program_code)
+async function resolveRowIdForColumn(
+  column: Column,
+  backendUrl: string
+): Promise<number | undefined> {
   try {
     const res = await fetch(`${backendUrl}/offers/by-documents`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ document_ids: [column.source_file] }),
     });
-    if (!res.ok) return null;
-    const groups = await res.json() as OfferGroup[];
-    
-    for (const group of groups) {
-      for (const program of group.programs || []) {
-        if (program.insurer === column.insurer && program.program_code === column.program_code) {
-          return (program as any).row_id ?? (program as any).id ?? null;
-        }
-      }
-    }
-    return null;
+    if (!res.ok) return undefined;
+
+    const groups: Array<{
+      source_file: string;
+      programs: Array<{ row_id?: number; id?: number; insurer?: string; program_code?: string | null }>;
+    }> = await res.json();
+
+    const g = groups.find((x) => x.source_file === column.source_file);
+    if (!g) return undefined;
+
+    const match = g.programs.find(
+      (p) =>
+        (p.insurer ?? "") === (column.insurer ?? "") &&
+        (p.program_code ?? "") === (column.program_code ?? "")
+    );
+
+    const rid = match?.row_id ?? match?.id;
+    return typeof rid === "number" ? rid : undefined;
   } catch {
-    return null;
+    return undefined;
   }
 }
 
-// Function to create insurer share link
-async function createInsurerShareLink(params: {
+// Create insurer-specific share link (matches FastAPI /shares contract)
+async function createInsurerShareLink(opts: {
   backendUrl: string;
   insurer: string;
   columns: Column[];
-  editable: boolean;
-  role: string;
-  ttlHours: number;
+  orgId?: number;
+  userId?: number;
+  editable?: boolean;
+  role?: "insurer" | "broker";
+  allowEditFields?: string[];
+  ttlHours?: number;
+  title?: string;
 }): Promise<string> {
-  const { backendUrl, insurer, columns, editable, role, ttlHours } = params;
-  
+  const {
+    backendUrl, insurer, columns, orgId, userId,
+    editable = false,
+    role = "insurer",
+    allowEditFields = [],
+    ttlHours = 720,
+    title = `Confirmation – ${insurer}`,
+  } = opts;
+
+  const document_ids = Array.from(new Set(columns.map(c => c.source_file)));
+
   const res = await fetch(`${backendUrl}/shares`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(orgId != null ? { "X-Org-Id": String(orgId) } : {}),
+      ...(userId != null ? { "X-User-Id": String(userId) } : {}),
+    },
     body: JSON.stringify({
-      insurer_filter: insurer,
-      document_ids: Array.from(new Set(columns.map(c => c.source_file))),
+      title,
+      document_ids,
+      expires_in_hours: ttlHours,
+      insurer_only: insurer,          // <-- backend expects this key
       editable,
       role,
-      ttl_hours: ttlHours,
+      allow_edit_fields: allowEditFields,
     }),
   });
-  
+
   if (!res.ok) throw new Error(await res.text());
-  const data = await res.json();
-  return `${window.location.origin}/share/${data.share_token}`;
+  const data = await res.json();     // { ok, token, url, title }
+  return data.url as string;         // use server-provided URL
 }
 
 async function updateOffer(row_id: number, changes: Record<string, any>, API: string) {
