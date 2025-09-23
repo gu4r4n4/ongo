@@ -157,15 +157,21 @@ export default function ShareView() {
       <div className="p-4 md:p-6 space-y-6 max-w-[1400px] mx-auto">
         {/* Header with Logo and Language Switcher */}
         <div className="flex justify-between items-start">
-          {/* Insurer Logo - Top Left - ONLY for InsurerView */}
-          {isInsurerView && (
-            <div className="flex items-center">
+          {/* Logo - Top Left */}
+          <div className="flex items-center">
+            {isInsurerView ? (
               <InsurerLogo name={insurerName} className="h-12 w-auto" />
-            </div>
-          )}
+            ) : (
+              <img 
+                src="/logos/broker-logo.png" 
+                alt="Broker Logo" 
+                className="h-12 w-auto"
+              />
+            )}
+          </div>
           
           {/* Language Switcher - Top Right */}
-          <div className={isInsurerView ? "" : "w-full flex justify-end"}>
+          <div>
             <LanguageSwitcher 
               currentLanguage={currentLanguage} 
               onLanguageChange={setCurrentLanguage} 
