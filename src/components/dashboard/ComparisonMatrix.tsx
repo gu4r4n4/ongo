@@ -118,6 +118,7 @@ const KEY_ALIASES: Record<string, string> = {
 
 const HIDE_IN_TABLE = new Set<string>([
   "Programmas nosaukums",
+  "Programmas kods",
   "Apdrošinājuma summa pamatpolisei, EUR",
   "Pamatpolises prēmija 1 darbiniekam, EUR",
 ]);
@@ -892,32 +893,6 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
               </>
             )}
 
-            {/* ===== LEFTOVERS (optional) ===== */}
-            {leftovers.length > 0 && (
-              <>
-                <div className="flex border-b bg-card">
-                  <div className={`w-[280px] border-r p-3 font-semibold text-sm ${isMobile ? "" : "sticky left-0 bg-card z-10"}`}>
-                    Citi lauki
-                  </div>
-                </div>
-                {leftovers.map((featureKey, index) => (
-                  <div key={featureKey} className={`flex border-b ${index % 2 === 0 ? "bg-muted/10" : ""}`}>
-                    <div className={`w-[280px] bg-muted border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
-                      <Badge variant="secondary" className="text-sm font-medium">{featureKey}</Badge>
-                    </div>
-
-                    {localColumns.map((column) => {
-                      const value = column.features?.[featureKey] ?? column.features?.[canonicalKey(featureKey)];
-                      return (
-                        <div key={column.id} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 flex items-center justify-center">
-                          {renderValue(value)}
-                        </div>
-                      );
-                    })}
-                  </div>
-                ))}
-              </>
-            )}
 
             {/* CTA row (optional) */}
             {showBuyButtons && (
