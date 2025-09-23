@@ -19,8 +19,6 @@ type Program = {
   premium_eur?: number | null;
   payment_method?: string | null;
   features?: Record<string, any>;
-  company_name?: string | null;
-  employee_count?: number | null;
 };
 
 type OfferGroup = {
@@ -142,33 +140,9 @@ export default function ShareView() {
     return <div className="p-6 text-sm text-destructive">Share not found or expired.</div>;
   }
 
-  // Get company info from database offers first, then fallback to payload
-  const getCompanyInfoFromOffers = () => {
-    for (const group of offers) {
-      for (const program of group.programs || []) {
-        if (program.company_name || program.employee_count != null) {
-          return {
-            companyName: program.company_name || "",
-            employeesCount: program.employee_count || 0
-          };
-        }
-      }
-    }
-    return { companyName: "", employeesCount: 0 };
-  };
-
-  const offersCompanyInfo = getCompanyInfoFromOffers();
-  const companyName = offersCompanyInfo.companyName || payload.company_name || payload.customer?.name || "";
-  const employeesCount = offersCompanyInfo.employeesCount || payload.employees_count || payload.customer?.employees_count || 0;
-
-  console.log('ShareView Debug:', {
-    isInsurerView,
-    insurerName,
-    offersCompanyInfo,
-    companyName,
-    employeesCount,
-    showCompanyBlock: isInsurerView && payload && (companyName || employeesCount > 0)
-  });
+  // Get company info from payload or customer object
+  const companyName = payload.company_name || payload.customer?.name || "";
+  const employeesCount = payload.employees_count || payload.customer?.employees_count || 0;
 
   // Choose theme based on view type
   const selectedTheme = isInsurerView 
