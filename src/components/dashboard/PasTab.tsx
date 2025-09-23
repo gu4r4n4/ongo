@@ -406,7 +406,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
               <Input
                 id="emp"
                 type="number"
-                min="1"
+                min="0"
                 placeholder="45"
                 value={employeesCount}
                 onChange={(e) => setEmployeesCount(Number(e.target.value) || 0)}
