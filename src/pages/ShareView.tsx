@@ -161,6 +161,15 @@ export default function ShareView() {
   const companyName = offersCompanyInfo.companyName || payload.company_name || payload.customer?.name || "";
   const employeesCount = offersCompanyInfo.employeesCount || payload.employees_count || payload.customer?.employees_count || 0;
 
+  console.log('ShareView Debug:', {
+    isInsurerView,
+    insurerName,
+    offersCompanyInfo,
+    companyName,
+    employeesCount,
+    showCompanyBlock: isInsurerView && payload && (companyName || employeesCount > 0)
+  });
+
   // Choose theme based on view type
   const selectedTheme = isInsurerView 
     ? (insurerThemes[insurerName] || appTheme)
