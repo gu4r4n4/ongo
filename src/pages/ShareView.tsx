@@ -27,6 +27,8 @@ type OfferGroup = {
   source_file: string;            // aka document_id used as filename in DB
   programs: Program[];
   inquiry_id?: number | null;
+  company_name?: string | null;   // <- add
+  employee_count?: number | null; // <- add
 };
 
 type SharePayload = {
@@ -65,8 +67,8 @@ export default function ShareView() {
           premium_eur: p.premium_eur ?? null,   // Use full property name
           base_sum_eur: p.base_sum_eur ?? null, // Use full property name
           payment_method: p.payment_method || null,
-          company_name: p.company_name || null,
-          employee_count: p.employee_count ?? null,
+          company_name: g.company_name ?? null,   // carry group meta
+          employee_count: g.employee_count ?? null,  // carry group meta
           features: p.features || {},
           source_file: g.source_file,
         });
@@ -144,10 +146,18 @@ export default function ShareView() {
     return <div className="p-6 text-sm text-destructive">Share not found or expired.</div>;
   }
 
-  // Get company info from offers data (database) first, fallback to payload
-  const firstProgram = offers[0]?.programs?.[0];
-  const companyName = firstProgram?.company_name || payload.company_name || payload.customer?.name || "";
-  const employeesCount = firstProgram?.employee_count ?? payload.employees_count ?? payload.customer?.employees_count ?? 0;
+  // Get company info from group level (correct), fallback to payload
+  const firstGroup = offers[0];
+  const companyName =
+    firstGroup?.company_name ??
+    payload.company_name ??
+    payload.customer?.name ??
+    "";
+  const employeesCount =
+    (firstGroup?.employee_count ?? null) ??
+    (payload.employees_count ?? null) ??
+    (payload.customer?.employees_count ?? null) ??
+    0;
 
   // Choose theme based on view type
   const selectedTheme = isInsurerView 
