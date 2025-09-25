@@ -763,7 +763,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                             <Button 
                               size="sm" 
                               onClick={saveEdit} 
-                              className={`flex-1 ${rounded} text-white bg-[var(--brand-primary)] hover:bg-[var(--brand-primary-hover)] focus:ring-2 focus:ring-[var(--brand-ring)]`}
+                              className={`flex-1 ${rounded} bg-primary text-primary-foreground hover:bg-primary/90`}
                             >
                               <Save className="h-3 w-3" />
                             </Button>
@@ -782,7 +782,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                               size="sm"
                               variant="default"
                               onClick={() => startEdit(column.id)}
-                              className={`h-8 w-full px-3 py-1 text-sm text-white font-medium ${rounded} bg-[var(--brand-primary)] hover:bg-[var(--brand-primary-hover)] focus:ring-2 focus:ring-[var(--brand-ring)]`}
+                              className={`h-8 w-full px-3 py-1 text-sm font-medium ${rounded} bg-primary text-primary-foreground hover:bg-primary/90`}
                             >
                               <Edit className="h-4 w-4 mr-2" />
                               {t("edit")}
