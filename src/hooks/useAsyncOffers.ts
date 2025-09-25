@@ -175,10 +175,13 @@ export function useAsyncOffers({
       }
 
       // Normal program columns
-      for (const program of g.programs) {
-        const rid = program.row_id ?? program.id; // accept either from backend
+      for (const [i, program] of (g.programs || []).entries()) {
+        const rid = program.row_id ?? program.id; // prefer DB id
+        // Always unique & stable:
+        const fallbackId = `${g.source_file}::${program.insurer ?? ""}::${program.program_code ?? ""}::${i}`;
+
         cols.push({
-          id: `${g.source_file}::${program.insurer ?? ""}::${program.program_code ?? ""}`,
+          id: rid ? String(rid) : fallbackId,
           label: program.insurer || g.source_file,
           source_file: g.source_file,
           type: "program",
