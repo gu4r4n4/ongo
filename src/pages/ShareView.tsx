@@ -198,18 +198,19 @@ export default function ShareView() {
 
         {/* Results Matrix */}
         {columns.length > 0 && (
-          <ComparisonMatrix
-            columns={columns}
-            allFeatureKeys={allFeatureKeys}
-            currentLanguage={currentLanguage}
-            onShare={undefined}
-            companyName={companyName}
-            employeesCount={employeesCount >= 0 ? employeesCount : undefined}
-            canEdit={true}
-            showBuyButtons={true}
-            isShareView={true}
-            backendUrl={BACKEND_URL}
-          />
+        <ComparisonMatrix
+          columns={columns}
+          allFeatureKeys={allFeatureKeys}
+          currentLanguage={currentLanguage}
+          onShare={undefined}
+          companyName={companyName}
+          employeesCount={employeesCount >= 0 ? employeesCount : undefined}
+          canEdit={true}
+          showBuyButtons={true}
+          isShareView={true}
+          backendUrl={BACKEND_URL}
+          shareToken={token}
+        />
         )}
 
         {/* Medical Services Footer - Legend */}

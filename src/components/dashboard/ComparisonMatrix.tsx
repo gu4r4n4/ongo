@@ -257,10 +257,8 @@ async function createInsurerShareLink(opts: {
       editable,
       role,
       allow_edit_fields: allowEditFields,
-      customer: (companyName || employeesCount != null) ? {
-        name: companyName,
-        employees_count: employeesCount
-      } : undefined,
+      company_name: companyName ?? undefined,
+      employees_count: employeesCount ?? undefined,
     }),
   });
 
