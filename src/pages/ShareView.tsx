@@ -60,7 +60,7 @@ export default function ShareView() {
     for (const g of offers) {
       for (const p of g.programs || []) {
         cols.push({
-          id: `${g.source_file}:${p.insurer || "-"}:${p.program_code || "-"}`,
+          id: p.row_id ? String(p.row_id) : `${g.source_file}:${p.insurer || "-"}:${p.program_code || "-"}:${cols.length}`,
           insurer: p.insurer || "-",
           program_code: p.program_code || "-",  // Use underscore to match ComparisonMatrix
           row_id: p.row_id,

@@ -284,8 +284,9 @@ function buildColumnsFromGroups(groups: OfferGroup[]): Column[] {
   for (const g of groups) {
     for (const p of g.programs || []) {
       const rid = (p as any).row_id ?? (p as any).id;
+      const fallbackId = `${g.source_file}::${p.insurer ?? ""}::${p.program_code ?? ""}`;
       cols.push({
-        id: `${g.source_file}::${p.insurer ?? ""}::${p.program_code ?? ""}`,
+        id: rid ? String(rid) : `${fallbackId}::${cols.length}`,
         label: p.insurer || g.source_file,
         source_file: g.source_file,
         row_id: rid,
