@@ -498,6 +498,12 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
     };
   }, [isDragging, startX, scrollLeft]);
 
+  // Utility to handle object values properly
+  const cellVal = (v: any) =>
+    v && typeof v === 'object' && !Array.isArray(v)
+      ? ('value' in v ? v.value : JSON.stringify(v))
+      : v ?? '—';
+
   const renderValue = (value: any) => {
     if (value === true || value === "v" || value === "Yes") {
       return <Check className="h-4 w-4 text-green-600" />;
@@ -505,7 +511,8 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
     if (value === false || value === "-" || value === "No" || value === null || value === "") {
       return <Minus className="h-4 w-4 text-red-600" />;
     }
-    return <span className="text-sm">{String(value)}</span>;
+    const displayValue = cellVal(value);
+    return <span className="text-sm">{displayValue}</span>;
   };
 
   const startEdit = (columnId: string) => {
