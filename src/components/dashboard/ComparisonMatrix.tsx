@@ -50,10 +50,8 @@ const columnKey = (c: Pick<Column, "source_file" | "insurer" | "program_code">) 
 
 const mergeOrder = (prevKeys: string[], nextCols: Column[]) => {
   const nextKeys = nextCols.map(columnKey);
-  // keep existing order for still-present items
-  const kept = prevKeys.filter(k => nextKeys.includes(k));
-  // append any newcomers at the end (in their incoming order)
-  const added = nextKeys.filter(k => !kept.includes(k));
+  const kept = prevKeys.filter((k) => nextKeys.includes(k));
+  const added = nextKeys.filter((k) => !kept.includes(k));
   return [...kept, ...added];
 };
 
@@ -68,6 +66,11 @@ const sortByOrder = (cols: Column[], orderKeys: string[]) => {
 /* ============================================
    Types
    ============================================ */
+export type ViewPrefs = {
+  column_order: string[];
+  hidden_features: string[];
+};
+
 type OfferPatch = {
   premium_eur?: number;
   base_sum_eur?: number;
@@ -153,9 +156,9 @@ const KEY_ALIASES: Record<string, string> = {
     "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai EUR)",
   "Augsto tehnoloģiju izmeklējumi, piem., MRG, CT, limits, ja ir (reižu skaits vai EUR)":
     "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai EUR)",
-  "MR": "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai EUR)",
-  "MRG": "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai EUR)",
-  "CT": "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai EUR)",
+  MR: "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai EUR)",
+  MRG: "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai EUR)",
+  CT: "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai EUR)",
 
   // common variants / EN
   "Remote consultations": "ONLINE ārstu konsultācijas",
@@ -164,11 +167,11 @@ const KEY_ALIASES: Record<string, string> = {
   "Fizikālā terapija": "Fizikālā terapija",
   "Physical therapy": "Fizikālā terapija",
   "Procedūras": "Procedūras",
-  "Sports": "Sports",
+  Sports: "Sports",
   "Sporta ārsts": "Sporta ārsts",
-  "Psychologist": "Psihoterapeits",
+  Psychologist: "Psihoterapeits",
   "Psihologs / Psihoterapeits": "Psihoterapeits",
-  "Homeopāts": "Homeopāts",
+  Homeopāts: "Homeopāts",
   "Ārstnieciskās manipulācijas": "Ārstnieciskās manipulācijas",
   "Medicīniskās izziņas": "Medicīniskās izziņas",
 
@@ -225,25 +228,22 @@ function normalizeChanges(changes: Record<string, any>): OfferPatch {
  *  Payment methods (LV)
  *  ====================== */
 const PAYMENT_METHOD_OPTIONS = [
-  { value: "monthly",   label: "Cenrāža programma" },
+  { value: "monthly", label: "Cenrāža programma" },
   { value: "quarterly", label: "100% apmaksa līgumiestādēs" },
-  { value: "yearly",    label: "100% apmaksa līgumiestādēs un ja pakalpojums ir nopirkts" },
-  { value: "one-time",  label: "Procentuāla programma" },
+  { value: "yearly", label: "100% apmaksa līgumiestādēs un ja pakalpojums ir nopirkts" },
+  { value: "one-time", label: "Procentuāla programma" },
 ];
 
 function paymentMethodLabel(v?: string | null): string {
   if (!v) return "—";
-  const m = PAYMENT_METHOD_OPTIONS.find(o => o.value === v);
+  const m = PAYMENT_METHOD_OPTIONS.find((o) => o.value === v);
   return m?.label ?? v;
 }
 
 /** ======================
  *  Backend helpers
  *  ====================== */
-async function resolveRowIdForColumn(
-  column: Column,
-  backendUrl: string
-): Promise<number | undefined> {
+async function resolveRowIdForColumn(column: Column, backendUrl: string): Promise<number | undefined> {
   try {
     const res = await fetch(`${backendUrl}/offers/by-documents`, {
       method: "POST",
@@ -261,9 +261,7 @@ async function resolveRowIdForColumn(
     if (!g) return undefined;
 
     const match = g.programs.find(
-      (p) =>
-        (p.insurer ?? "") === (column.insurer ?? "") &&
-        (p.program_code ?? "") === (column.program_code ?? "")
+      (p) => (p.insurer ?? "") === (column.insurer ?? "") && (p.program_code ?? "") === (column.program_code ?? "")
     );
 
     const rid = match?.row_id ?? match?.id;
@@ -272,12 +270,6 @@ async function resolveRowIdForColumn(
     return undefined;
   }
 }
-
-// View preferences type for sharing
-type ViewPrefs = {
-  column_order: string[];
-  hidden_features: string[];
-};
 
 async function createInsurerShareLink(opts: {
   backendUrl: string;
@@ -295,7 +287,11 @@ async function createInsurerShareLink(opts: {
   viewPrefs?: ViewPrefs;
 }): Promise<string> {
   const {
-    backendUrl, insurer, columns, orgId, userId,
+    backendUrl,
+    insurer,
+    columns,
+    orgId,
+    userId,
     editable = false,
     role = "insurer",
     allowEditFields = [],
@@ -306,7 +302,7 @@ async function createInsurerShareLink(opts: {
     viewPrefs,
   } = opts;
 
-  const document_ids = Array.from(new Set(columns.map(c => c.source_file)));
+  const document_ids = Array.from(new Set(columns.map((c) => c.source_file)));
 
   const res = await fetch(`${backendUrl}/shares`, {
     method: "POST",
@@ -419,6 +415,7 @@ function getFeatureValue(col: Column, canonical: string) {
 /** ======================
  *  Optimistic update utils
  *  ====================== */
+
 type ChangeSet = {
   premium_eur?: string | number;
   base_sum_eur?: string | number;
@@ -431,9 +428,7 @@ type ChangeSet = {
 function toNumOrNull(v: any): number | null {
   if (v === undefined || v === null || String(v).trim() === "") return null;
   try {
-    return Number(
-      String(v).trim().replace("€", "").replace(/\s/g, "").replace(",", ".").replace(/[^\d.-]/g, "")
-    );
+    return Number(String(v).trim().replace("€", "").replace(/\s/g, "").replace(",", ".").replace(/[^\d.-]/g, ""));
   } catch {
     return null;
   }
@@ -472,7 +467,10 @@ function optimisticMergeColumns(columns: Column[], columnId: string, changes: Ch
   return columns.map((c) => (c.id === columnId ? applyChangesToColumn(c, changes) : c));
 }
 
-function reconcileRefetchWithOptimistic(refetched: Column[], edits: Array<{ columnId: string; changes: ChangeSet }>): Column[] {
+function reconcileRefetchWithOptimistic(
+  refetched: Column[],
+  edits: Array<{ columnId: string; changes: ChangeSet }>
+): Column[] {
   if (!edits.length) return refetched;
   const map = new Map(edits.map((e) => [e.columnId, e.changes]));
   return refetched.map((c) => (map.has(c.id) ? applyChangesToColumn(c, map.get(c.id)!) : c));
@@ -481,11 +479,11 @@ function reconcileRefetchWithOptimistic(refetched: Column[], edits: Array<{ colu
 /* ============================================
    Component
    ============================================ */
-interface ComparisonMatrixProps {
+export interface ComparisonMatrixProps {
   columns: Column[];
   allFeatureKeys: string[];
   currentLanguage: Language;
-  onShare?: () => void;
+  onShare?: (prefs: ViewPrefs) => void; // pass prefs up
   companyName?: string;
   employeesCount?: number;
   canEdit?: boolean;
@@ -495,14 +493,10 @@ interface ComparisonMatrixProps {
   shareToken?: string; // ONLY on share pages
   onRefreshOffers?: () => Promise<void>;
   onDeleteColumn?: (columnId: string) => void;
-  /** Optional share preferences from backend */
-  sharePrefs?: { 
-    column_order?: string[]; 
-    hidden_features?: string[] 
-  };
+  sharePrefs?: { column_order?: string[]; hidden_features?: string[] };
 }
 
-export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
+const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
   columns,
   allFeatureKeys,
   currentLanguage,
@@ -527,52 +521,48 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
   const [editFormData, setEditFormData] = useState<EditForm>({});
   const [localColumns, setLocalColumns] = useState<Column[]>(columns);
 
-  // 🔒 persistent order (by stable key) to prevent “jump to last” after save/refetch
+  // persistent order
   const [orderKeys, setOrderKeys] = useState<string[]>(columns.map(columnKey));
 
   // DnD state
   const [draggingKey, setDraggingKey] = useState<string | null>(null);
   const [dragOverKey, setDragOverKey] = useState<string | null>(null);
 
-  // Company edit + row hiding (your existing UX)
+  // Company edit + row hiding
   const [editingCompany, setEditingCompany] = useState<string | null>(null);
   const [hiddenFeatures, setHiddenFeatures] = useState<Set<string>>(new Set());
   const toggleFeatureVisibility = (k: string) =>
-    setHiddenFeatures(prev => {
+    setHiddenFeatures((prev) => {
       const next = new Set(prev);
       next.has(k) ? next.delete(k) : next.add(k);
       return next;
     });
   const clearHidden = () => setHiddenFeatures(new Set());
 
-  // Keep local data in sync with props but preserve our order
+  // Sync columns but keep order
   useEffect(() => {
     setLocalColumns(columns);
-    setOrderKeys(prev => mergeOrder(prev.length ? prev : columns.map(columnKey), columns));
+    setOrderKeys((prev) => mergeOrder(prev.length ? prev : columns.map(columnKey), columns));
   }, [columns]);
 
-  // Ordered view derived from localColumns + orderKeys
-  const orderedColumns = useMemo(
-    () => sortByOrder(localColumns, orderKeys),
-    [localColumns, orderKeys]
-  );
+  // Ordered view
+  const orderedColumns = useMemo(() => sortByOrder(localColumns, orderKeys), [localColumns, orderKeys]);
 
-  // Apply hidden rows automatically on the share page from URL or sharePrefs
+  // Apply hidden rows & saved order on share view
   useEffect(() => {
     if (!isShareView) return;
-    
-    // First try backend-stored prefs
+
     if (sharePrefs) {
-      if (sharePrefs.column_order?.length) {
-        setOrderKeys(prev => mergeOrder(sharePrefs.column_order!, localColumns));
+      const incoming = (sharePrefs.column_order || []).filter((k) => localColumns.some((c) => columnKey(c) === k));
+      if (incoming.length) {
+        setOrderKeys((_) => mergeOrder(incoming, localColumns));
       }
       if (sharePrefs.hidden_features?.length) {
         setHiddenFeatures(new Set(sharePrefs.hidden_features));
       }
-      return; // Skip URL parsing if we have backend prefs
+      return;
     }
-    
-    // Fallback to URL-based hidden features
+
     try {
       const sp = new URLSearchParams(window.location.search);
       const hf = sp.get("hf");
@@ -580,23 +570,20 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
         const set = decodeHiddenFeaturesParam(hf);
         if (set.size) setHiddenFeatures(set);
       }
-    } catch {
-      // silently ignore decode errors
-    }
+    } catch {}
   }, [isShareView, sharePrefs, localColumns]);
 
-  // Prepare view preferences for sharing
-  const viewPrefs = useMemo(() => ({
-    column_order: orderKeys,
-    hidden_features: Array.from(hiddenFeatures),
-  }), [orderKeys, hiddenFeatures]);
+  // Build prefs snapshot from current state
+  const viewPrefs: ViewPrefs = useMemo(
+    () => ({ column_order: orderKeys, hidden_features: Array.from(hiddenFeatures) }),
+    [orderKeys, hiddenFeatures]
+  );
 
-  /* ========= Drag & Drop handlers (no external libs) ========= */
+  /* ========= Drag & Drop ========= */
   const onDragStart = (k: string) => (e: React.DragEvent) => {
     if (!canEdit) return;
     setDraggingKey(k);
     e.dataTransfer.effectAllowed = "move";
-    // Needed for Firefox to start DnD
     e.dataTransfer.setData("text/plain", k);
   };
 
@@ -611,7 +598,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
   };
 
   const reorderKeys = (fromKey: string, toKey: string) => {
-    setOrderKeys(prev => {
+    setOrderKeys((prev) => {
       if (!fromKey || !toKey || fromKey === toKey) return prev;
       const next = [...prev];
       const fromIdx = next.indexOf(fromKey);
@@ -632,7 +619,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
     setDragOverKey(null);
   };
 
-  // Horizontal scroll drag (your existing UX)
+  // Horizontal scroll drag
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isDraggingScroll, setIsDraggingScroll] = useState(false);
   const [startX, setStartX] = useState(0);
@@ -678,11 +665,8 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
     };
   }, [isDraggingScroll, startX, scrollLeft]);
 
-  // Utility to handle object values properly
-  const cellVal = (v: any) =>
-    v && typeof v === "object" && !Array.isArray(v)
-      ? ("value" in v ? v.value : JSON.stringify(v))
-      : v ?? "—";
+  // Cell rendering helpers
+  const cellVal = (v: any) => (v && typeof v === "object" && !Array.isArray(v) ? ("value" in v ? v.value : JSON.stringify(v)) : v ?? "—");
 
   const renderValue = (value: any) => {
     let normalizedValue = value;
@@ -692,10 +676,10 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
     const strValue = String(normalizedValue ?? "").trim().toLowerCase();
 
     if (normalizedValue === true || strValue === "v" || strValue === "yes" || strValue === "✓") {
-      return <Check className="h-4 w-4 text-green-600 mx-auto" />;
+      return <Check className="h-4 w-4 mx-auto text-green-600" />;
     }
     if (normalizedValue === false || strValue === "-" || strValue === "no" || normalizedValue == null || strValue === "") {
-      return <Minus className="h-4 w-4 text-red-600 mx-auto" />;
+      return <Minus className="h-4 w-4 mx-auto text-red-600" />;
     }
     return <span className="text-sm text-center block">{cellVal(value)}</span>;
   };
@@ -719,15 +703,17 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
     setEditFormData({});
   };
 
-  const saveEdit = async () => {
-    if (!editingColumn) return;
+  // NOTE: accepts optional explicit id to avoid setState race
+  const saveEdit = async (forcedColumnId?: string) => {
+    const activeId = forcedColumnId ?? editingColumn;
+    if (!activeId) return;
     if (!backendUrl) {
       toast.error(t("missingBackendUrl") || "Missing backend URL");
       return;
     }
 
     try {
-      const column = localColumns.find((col) => col.id === editingColumn);
+      const column = localColumns.find((col) => col.id === activeId);
       if (!column) return;
 
       // resolve row id if needed
@@ -738,9 +724,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
           toast.error(t("couldNotResolveRecordId") || "Could not resolve record id yet. Try again in a moment.");
           return;
         }
-        setLocalColumns((prev) =>
-          prev.map((c) => (c.id === column.id ? { ...c, row_id: rowId } : c))
-        );
+        setLocalColumns((prev) => prev.map((c) => (c.id === column.id ? { ...c, row_id: rowId } : c)));
       }
 
       // build changes payload
@@ -779,26 +763,22 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
         return;
       }
 
-      // 1) Optimistic UI update (order preserved)
-      setLocalColumns((prev) => optimisticMergeColumns(prev, column.id, changes));
+      // 1) Optimistic UI update
+      setLocalColumns((prev) => optimisticMergeColumns(prev, activeId, changes));
 
       // 2) Persist
       await updateOffer(rowId!, changes, backendUrl);
 
-      // 3) Reconcile with fresh data (but keep orderKeys)
+      // 3) Reconcile
       if (onRefreshOffers) {
-        await onRefreshOffers(); // parent updates `columns` prop — our order is preserved by orderKeys
+        await onRefreshOffers();
       } else if (isShareView && backendUrl) {
         try {
           const refetched = await refetchColumnsAfterSave(backendUrl, localColumns, shareToken);
-          const merged = reconcileRefetchWithOptimistic(refetched, [{ columnId: column.id, changes }]);
-          // keep the same order
+          const merged = reconcileRefetchWithOptimistic(refetched, [{ columnId: activeId, changes }]);
           setLocalColumns(sortByOrder(merged, orderKeys));
-          // Also merge order with potential newcomers
           setOrderKeys((prev) => mergeOrder(prev, merged));
-        } catch {
-          /* non-fatal */
-        }
+        } catch {}
       }
 
       setEditingColumn(null);
@@ -829,24 +809,21 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
           toast.error(t("couldNotResolveRecordId") || "Could not resolve record id yet. Try again in a moment.");
           return;
         }
-        setLocalColumns(prev => prev.map(c => c.id === column.id ? { ...c, row_id: rowId! } : c));
+        setLocalColumns((prev) => prev.map((c) => (c.id === column.id ? { ...c, row_id: rowId! } : c)));
       }
 
-      // optimistic remove (and update order)
       const k = columnKey(column);
-      setLocalColumns(prev => prev.filter(c => columnKey(c) !== k));
-      setOrderKeys(prev => prev.filter(x => x !== k));
+      setLocalColumns((prev) => prev.filter((c) => columnKey(c) !== k));
+      setOrderKeys((prev) => prev.filter((x) => x !== k));
 
-      // persist
       await deleteOffer(rowId!, backendUrl);
 
-      // reconcile with backend
       if (onRefreshOffers) {
         await onRefreshOffers();
       } else {
         const refetched = await refetchColumnsAfterSave(backendUrl, localColumns, shareToken);
         setLocalColumns(sortByOrder(refetched, orderKeys));
-        setOrderKeys(prev => mergeOrder(prev, refetched));
+        setOrderKeys((prev) => mergeOrder(prev, refetched));
       }
 
       onDeleteColumn?.(column.id);
@@ -869,7 +846,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
     Object.keys(col.features || {}).forEach((k) => presentKeys.add(canonicalKey(k)));
   }
 
-  const allFeatureOptions = [...MAIN_FEATURE_ORDER, ...ADDON_ORDER].filter(k => presentKeys.has(k));
+  const allFeatureOptions = [...MAIN_FEATURE_ORDER, ...ADDON_ORDER].filter((k) => presentKeys.has(k));
 
   const mainKnown = MAIN_FEATURE_ORDER.filter((k) => !HIDE_IN_TABLE.has(k));
   const addonKnown = ADDON_ORDER;
@@ -915,7 +892,12 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
           </div>
           <div className="flex items-center gap-2">
             {onShare && (
-              <Button variant="outline" onClick={onShare} disabled={orderedColumns.length === 0} className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                onClick={() => onShare(viewPrefs)}
+                disabled={orderedColumns.length === 0}
+                className="flex items-center gap-2"
+              >
                 <Share2 className="h-4 w-4" />
                 {t("share")}
               </Button>
@@ -937,10 +919,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                 <div className="max-h-64 overflow-auto space-y-1">
                   {allFeatureOptions.map((k) => (
                     <label key={k} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-muted/50 p-1 rounded">
-                      <Checkbox
-                        checked={hiddenFeatures.has(k)}
-                        onCheckedChange={() => toggleFeatureVisibility(k)}
-                      />
+                      <Checkbox checked={hiddenFeatures.has(k)} onCheckedChange={() => toggleFeatureVisibility(k)} />
                       <span>{k}</span>
                     </label>
                   ))}
@@ -995,7 +974,9 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                           <X className="h-6 w-6 text-red-600" />
                         </div>
                         <div className="font-semibold text-sm text-red-600">{(column as any).label}</div>
-                        <Badge variant="destructive" className="text-xs">FAILED</Badge>
+                        <Badge variant="destructive" className="text-xs">
+                          FAILED
+                        </Badge>
                         <div className="text-xs text-red-600 max-w-full break-words">Processing Failed</div>
                       </div>
                     </div>
@@ -1064,9 +1045,8 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                             <Button
                               size="sm"
                               onClick={() => {
-                                setEditingColumn(column.id);
                                 setEditingCompany(null);
-                                saveEdit();
+                                saveEdit(column.id); // pass explicit id to avoid race
                               }}
                               className="flex-1 h-6 text-xs bg-green-600 hover:bg-green-700 text-white"
                             >
@@ -1089,9 +1069,6 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                         <div
                           className="font-semibold text-sm truncate w-full cursor-grab active:cursor-grabbing hover:bg-muted/50 p-1 rounded"
                           title="Drag to reorder"
-                          onMouseDown={(e) => {
-                            // small UX hint: starting drag from this label is nicer
-                          }}
                           onClick={() => canEdit && setEditingCompany(column.id)}
                         >
                           {column.insurer}
@@ -1113,20 +1090,11 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                             inputMode="decimal"
                             type="text"
                             value={editFormData.premium_eur ?? ""}
-                            onChange={(e) =>
-                              setEditFormData((prev) => ({
-                                ...prev,
-                                premium_eur: e.target.value,
-                              }))
-                            }
+                            onChange={(e) => setEditFormData((prev) => ({ ...prev, premium_eur: e.target.value }))}
                             className="text-center"
                           />
                           <div className="flex gap-1">
-                            <Button
-                              size="sm"
-                              onClick={saveEdit}
-                              className={`flex-1 ${rounded} text-white bg-green-600 hover:bg-green-700`}
-                            >
+                            <Button size="sm" onClick={() => saveEdit()} className={`flex-1 ${rounded} text-white bg-green-600 hover:bg-green-700`}>
                               <Save className="h-3 w-3" />
                             </Button>
                             <Button size="sm" variant="ghost" onClick={cancelEdit} className="flex-1">
@@ -1136,9 +1104,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                         </div>
                       ) : (
                         <div className="space-y-1">
-                          <div className="text-lg font-bold text-primary truncate">
-                            €{column.premium_eur?.toLocaleString() || "—"}
-                          </div>
+                          <div className="text-lg font-bold text-primary truncate">€{column.premium_eur?.toLocaleString() || "—"}</div>
                           {canEdit && (
                             <Button
                               size="sm"
@@ -1162,7 +1128,9 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
             {metaRows.map((row) => (
               <div key={row.key} className="flex border-b hover:bg-[#f1f5f9] transition-colors">
                 <div className={`w-[280px] bg-muted border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
-                  <Badge variant="secondary" className="font-medium text-sm">{row.label}</Badge>
+                  <Badge variant="secondary" className="font-medium text-sm">
+                    {row.label}
+                  </Badge>
                 </div>
 
                 {orderedColumns.map((column) => {
@@ -1174,18 +1142,13 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                       {isEditing && row.key === "payment_method" ? (
                         <Select
                           value={editFormData.payment_method || ""}
-                          onValueChange={(value) =>
-                            setEditFormData((prev) => ({
-                              ...prev,
-                              payment_method: value,
-                            }))
-                          }
+                          onValueChange={(value) => setEditFormData((prev) => ({ ...prev, payment_method: value }))}
                         >
                           <SelectTrigger className="w-full">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            {PAYMENT_METHOD_OPTIONS.map(o => (
+                            {PAYMENT_METHOD_OPTIONS.map((o) => (
                               <SelectItem key={o.value} value={o.value}>
                                 {o.label}
                               </SelectItem>
@@ -1197,21 +1160,16 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                           inputMode="decimal"
                           type="text"
                           value={editFormData.base_sum_eur ?? ""}
-                          onChange={(e) =>
-                            setEditFormData((prev) => ({
-                              ...prev,
-                              base_sum_eur: e.target.value,
-                            }))
-                          }
+                          onChange={(e) => setEditFormData((prev) => ({ ...prev, base_sum_eur: e.target.value }))}
                           className="text-center"
                         />
-                       ) : row.key === "base_sum_eur" ? (
-                         <span className="text-sm font-medium">€{value?.toLocaleString() || "—"}</span>
-                       ) : row.key === "payment_method" ? (
-                         <span className="text-sm">{paymentMethodLabel(value)}</span>
-                       ) : (
-                         <span className="text-sm">{value || "—"}</span>
-                       )}
+                      ) : row.key === "base_sum_eur" ? (
+                        <span className="text-sm font-medium">€{value?.toLocaleString() || "—"}</span>
+                      ) : row.key === "payment_method" ? (
+                        <span className="text-sm">{paymentMethodLabel(value)}</span>
+                      ) : (
+                        <span className="text-sm">{value || "—"}</span>
+                      )}
                     </div>
                   );
                 })}
@@ -1222,7 +1180,9 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
             {mainToRender.map((featureKey, index) => (
               <div key={featureKey} className={`flex border-b hover:bg-[#f1f5f9] transition-colors ${index % 2 === 0 ? "bg-muted/10" : ""}`}>
                 <div className={`w-[280px] bg-muted border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
-                  <Badge variant="secondary" className="text-sm font-medium">{translateFeatureName(featureKey, t)}</Badge>
+                  <Badge variant="secondary" className="text-sm font-medium">
+                    {translateFeatureName(featureKey, t)}
+                  </Badge>
                 </div>
 
                 {orderedColumns.map((column) => {
@@ -1236,10 +1196,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                           onChange={(e) =>
                             setEditFormData((prev) => ({
                               ...prev,
-                              features: {
-                                ...(prev.features || {}),
-                                [featureKey]: e.target.value,
-                              },
+                              features: { ...(prev.features || {}), [featureKey]: e.target.value },
                             }))
                           }
                           className="text-center"
@@ -1266,7 +1223,9 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                 {addonsToRender.map((featureKey, index) => (
                   <div key={featureKey} className={`flex border-b hover:bg-[#f1f5f9] transition-colors ${index % 2 === 0 ? "bg-muted/10" : ""}`}>
                     <div className={`w-[280px] bg-muted border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
-                      <Badge variant="secondary" className="text-sm font-medium">{featureKey}</Badge>
+                      <Badge variant="secondary" className="text-sm font-medium">
+                        {featureKey}
+                      </Badge>
                     </div>
 
                     {orderedColumns.map((column) => {
@@ -1280,10 +1239,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                               onChange={(e) =>
                                 setEditFormData((prev) => ({
                                   ...prev,
-                                  features: {
-                                    ...(prev.features || {}),
-                                    [featureKey]: e.target.value,
-                                  },
+                                  features: { ...(prev.features || {}), [featureKey]: e.target.value },
                                 }))
                               }
                               className="text-center"
@@ -1302,46 +1258,46 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
             {/* CTA row (optional) */}
             {showBuyButtons && (
               <div className="flex border-b">
-                 <div className={`w-[280px] bg-muted border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
-                   <Badge variant="secondary" className="text-sm font-medium invisible">{t("confirm")}</Badge>
-                 </div>
+                <div className={`w-[280px] bg-muted border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
+                  <Badge variant="secondary" className="text-sm font-medium invisible">
+                    {t("confirm")}
+                  </Badge>
+                </div>
 
                 {orderedColumns.map((column) => (
                   <div key={columnKey(column)} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 flex items-center justify-center">
-                     <Button
-                       size="sm"
-                       className={`w-full ${rounded} text-white bg-[var(--brand-primary)] hover:bg-[var(--brand-primary-hover)] focus:ring-2 focus:ring-[var(--brand-ring)]`}
-                       onClick={async () => {
-                         try {
-                            if (!backendUrl) {
-                              toast.error(t("missingBackendUrl") || "Missing backend URL");
-                              return;
-                            }
+                    <Button
+                      size="sm"
+                      className={`w-full ${rounded} text-white bg-[var(--brand-primary)] hover:bg-[var(--brand-primary-hover)] focus:ring-2 focus:ring-[var(--brand-ring)]`}
+                      onClick={async () => {
+                        try {
+                          if (!backendUrl) {
+                            toast.error(t("missingBackendUrl") || "Missing backend URL");
+                            return;
+                          }
 
-                            const baseUrl = await createInsurerShareLink({
-                              backendUrl,
-                              insurer: column.insurer || "",
-                              columns: orderedColumns, // share in current user order
-                              editable: false,
-                              role: "insurer",
-                              ttlHours: 168,
-                              companyName,
-                              employeesCount,
-                              viewPrefs,
-                            });
+                          const baseUrl = await createInsurerShareLink({
+                            backendUrl,
+                            insurer: column.insurer || "",
+                            columns: orderedColumns,
+                            editable: false,
+                            role: "insurer",
+                            ttlHours: 168,
+                            companyName,
+                            employeesCount,
+                            viewPrefs, // persist current order + hidden rows
+                          });
 
-                            // Append hidden features to URL
-                            const shareUrl = appendHiddenFeaturesToUrl(baseUrl, hiddenFeatures);
-
-                           await navigator.clipboard.writeText(shareUrl);
-                           toast.success(t("insurerLinkCopied") || "Insurer-only link copied!");
-                         } catch (e: any) {
-                           toast.error(`${t("failedToCreateShare") || "Failed to create share"}: ${e.message}`);
-                         }
-                       }}
-                     >
-                       {t("approve")}
-                     </Button>
+                          const shareUrl = appendHiddenFeaturesToUrl(baseUrl, hiddenFeatures); // optional URL fallback
+                          await navigator.clipboard.writeText(shareUrl);
+                          toast.success(t("insurerLinkCopied") || "Insurer-only link copied!");
+                        } catch (e: any) {
+                          toast.error(`${t("failedToCreateShare") || "Failed to create share"}: ${e.message}`);
+                        }
+                      }}
+                    >
+                      {t("approve")}
+                    </Button>
                   </div>
                 ))}
               </div>
