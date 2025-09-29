@@ -8,7 +8,7 @@ import { Language, useTranslation } from "@/utils/translations";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
 import { InsurerLogo } from "@/components/InsurerLogo";
-import { ComparisonMatrix } from "./ComparisonMatrix";
+import { ComparisonMatrix, ViewPrefs } from "./ComparisonMatrix";
 import MedicalServicesHeader from "@/components/MedicalServicesHeader";
 import { BACKEND_URL } from "@/config";
 
@@ -349,7 +349,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
   };
 
   // Share functionality
-  const shareResults = async () => {
+  const shareResults = async (prefs?: ViewPrefs) => {
     if (!docIds.length) {
       toast.error(t('noResultsToShare'));
       return;
@@ -363,7 +363,10 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
           title: "Piedāvājums",
           company_name: companyName,
           employees_count: employeesCount,
-          document_ids: docIds
+          document_ids: docIds,
+          view_prefs: prefs ?? { column_order: [], hidden_features: [] },
+          editable: true,
+          role: "broker",
         }),
       });
 
