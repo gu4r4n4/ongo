@@ -280,6 +280,11 @@ async function updateOffer(row_id: number, changes: Record<string, any>, API: st
   if (!res.ok) throw new Error(await res.text());
 }
 
+async function deleteOffer(row_id: number, API: string) {
+  const res = await fetch(`${API}/offers/${row_id}`, { method: "DELETE" });
+  if (!res.ok) throw new Error(await res.text());
+}
+
 function buildColumnsFromGroups(groups: OfferGroup[]): Column[] {
   const cols: Column[] = [];
   for (const g of groups) {
@@ -636,6 +641,45 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
     }
   };
 
+  const handleDeleteColumn = async (column: Column) => {
+    if (!backendUrl) {
+      toast.error(t("missingBackendUrl") || "Missing backend URL");
+      return;
+    }
+    try {
+      let rowId = column.row_id;
+      if (!rowId) {
+        rowId = await resolveRowIdForColumn(column, backendUrl);
+        if (!rowId) {
+          toast.error(t("couldNotResolveRecordId") || "Could not resolve record id yet. Try again in a moment.");
+          return;
+        }
+        setLocalColumns(prev => prev.map(c => c.id === column.id ? { ...c, row_id: rowId! } : c));
+      }
+
+      // optimistic remove
+      setLocalColumns(prev => prev.filter(c => c.id !== column.id));
+
+      // persist
+      await deleteOffer(rowId!, backendUrl);
+
+      // reconcile with backend
+      if (onRefreshOffers) {
+        await onRefreshOffers();
+      } else {
+        const refetched = await refetchColumnsAfterSave(backendUrl, localColumns, shareToken);
+        setLocalColumns(refetched);
+      }
+
+      // notify parent if provided
+      onDeleteColumn?.(column.id);
+
+      toast.success("Column deleted");
+    } catch (e: any) {
+      toast.error(`Failed to delete: ${e.message}`);
+    }
+  };
+
   if (localColumns.length === 0) return null;
 
   const metaRows = [
@@ -757,7 +801,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                           <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() => onDeleteColumn(column.id)}
+                            onClick={() => handleDeleteColumn(column)}
                             className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
                           >
                             <Trash2 className="h-3 w-3" />
