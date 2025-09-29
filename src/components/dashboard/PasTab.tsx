@@ -64,19 +64,24 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
       }
       
       // Handle successful processing
-      return g.programs.map((program: any) => ({
-        id: `${g.source_file}::${program.insurer}::${program.program_code}`,
-        label: program.insurer || g.source_file,
-        source_file: g.source_file,
-        type: 'program',
-        insurer: program.insurer,
-        program_code: program.program_code,
-        premium_eur: program.premium_eur,
-        base_sum_eur: program.base_sum_eur,
-        payment_method: program.payment_method,
-        features: program.features || {},
-        group: g,
-      }));
+      return g.programs.map((program: any, i: number) => {
+        const rid = program.row_id ?? program.id; // backend returns row_id; fallback to id if present
+        const fallbackId = `${g.source_file}::${program.insurer}::${program.program_code}::${i}`;
+        return {
+          id: rid ? String(rid) : fallbackId,        // prefer numeric row_id for stability
+          row_id: rid ?? null,                        // carry row_id so edits can save
+          label: program.insurer || g.source_file,
+          source_file: g.source_file,
+          type: 'program',
+          insurer: program.insurer,
+          program_code: program.program_code,
+          premium_eur: program.premium_eur,
+          base_sum_eur: program.base_sum_eur,
+          payment_method: program.payment_method,
+          features: program.features || {},
+          group: g,
+        };
+      });
     });
     setColumns(cols);
 
@@ -537,6 +542,11 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
               setOffers(offers || []);
               buildMatrix(offers || []);
             }
+          }}
+          onDeleteColumn={(columnId: string) => {
+            // Optimistic local remove so the UI feels instant;
+            // matrix will re-sync via onRefreshOffers after backend confirms deletion.
+            setColumns(prev => prev.filter(c => c.id !== columnId));
           }}
         />
       )}
