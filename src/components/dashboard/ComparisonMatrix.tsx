@@ -134,6 +134,7 @@ const HIDE_IN_TABLE = new Set<string>([
   "Programmas kods",
   "Apdrošinājuma summa pamatpolisei, EUR",
   "Pamatpolises prēmija 1 darbiniekam, EUR",
+  "Maksājums",
 ]);
 
 function canonicalKey(rawKey: string): string {
@@ -782,6 +783,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
+                              <SelectItem value="BAN">BAN</SelectItem>
                               <SelectItem value="BTA">BTA</SelectItem>
                               <SelectItem value="BALTA">BALTA</SelectItem>
                               <SelectItem value="COMPENSA">COMPENSA</SelectItem>
