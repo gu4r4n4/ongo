@@ -380,8 +380,13 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
         throw new Error(data?.detail || `Failed (${response.status})`);
       }
 
-      const { url } = await response.json();
-      window.open(url, '_blank', 'noopener,noreferrer');
+      const data = await response.json(); // { ok, token, url, title, ... }
+      const feUrl =
+        data?.url && data.url.includes('/share/')
+          ? data.url
+          : `${window.location.origin.replace(/\/$/, '')}/share/${data.token}`;
+
+      window.open(feUrl, '_blank', 'noopener,noreferrer');
       toast.success(t('shareLinkCreated'));
     } catch (err: any) {
       toast.error(`${t('failed') || 'Failed'}: ${err?.message || 'Share error'}`);
