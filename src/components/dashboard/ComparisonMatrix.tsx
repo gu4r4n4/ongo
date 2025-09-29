@@ -877,7 +877,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                     <div key={column.id} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 flex items-center justify-center">
                       {isEditing ? (
                         <Input
-                          value={(editFormData.features?.[featureKey] ?? value) || ""}
+                          value={cellVal(editFormData.features?.[featureKey] ?? value)}
                           onChange={(e) =>
                             setEditFormData((prev) => ({
                               ...prev,
@@ -921,7 +921,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                         <div key={column.id} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 flex items-center justify-center">
                           {isEditing ? (
                             <Input
-                              value={(editFormData.features?.[featureKey] ?? value) || ""}
+                              value={cellVal(editFormData.features?.[featureKey] ?? value)}
                               onChange={(e) =>
                                 setEditFormData((prev) => ({
                                   ...prev,
