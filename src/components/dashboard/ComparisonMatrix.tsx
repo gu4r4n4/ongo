@@ -15,6 +15,34 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useBrandTheme } from "@/theme/BrandThemeProvider";
 
 /* ============================================
+   Encode/decode hidden features in URL (utf-8 safe)
+   ============================================ */
+const encodeHiddenFeaturesParam = (hidden: Set<string>): string => {
+  const json = JSON.stringify([...hidden]);
+  const b64 = btoa(encodeURIComponent(json));
+  return encodeURIComponent(b64);
+};
+
+const decodeHiddenFeaturesParam = (param: string): Set<string> => {
+  try {
+    const b64 = decodeURIComponent(param);
+    const json = decodeURIComponent(atob(b64));
+    const arr = JSON.parse(json);
+    return new Set(Array.isArray(arr) ? arr : []);
+  } catch {
+    return new Set();
+  }
+};
+
+// Build a URL with ?hf=... appended
+const appendHiddenFeaturesToUrl = (url: string, hidden: Set<string>): string => {
+  if (hidden.size === 0) return url;
+  const hf = encodeHiddenFeaturesParam(hidden);
+  const sep = url.includes("?") ? "&" : "?";
+  return `${url}${sep}hf=${hf}`;
+};
+
+/* ============================================
    Helpers to KEEP ORDER stable across edits
    ============================================ */
 const columnKey = (c: Pick<Column, "source_file" | "insurer" | "program_code">) =>
@@ -507,6 +535,21 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
     setLocalColumns(columns);
     setOrderKeys(prev => mergeOrder(prev.length ? prev : columns.map(columnKey), columns));
   }, [columns]);
+
+  // Apply hidden rows automatically on the share page from URL
+  useEffect(() => {
+    if (!isShareView) return;
+    try {
+      const sp = new URLSearchParams(window.location.search);
+      const hf = sp.get("hf");
+      if (hf) {
+        const set = decodeHiddenFeaturesParam(hf);
+        if (set.size) setHiddenFeatures(set);
+      }
+    } catch {
+      // silently ignore decode errors
+    }
+  }, [isShareView]);
 
   // Ordered view derived from localColumns + orderKeys
   const orderedColumns = useMemo(
@@ -1241,7 +1284,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                               return;
                             }
 
-                            const url = await createInsurerShareLink({
+                            const baseUrl = await createInsurerShareLink({
                               backendUrl,
                               insurer: column.insurer || "",
                               columns: orderedColumns, // share in current user order
@@ -1252,7 +1295,10 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                               employeesCount,
                             });
 
-                           await navigator.clipboard.writeText(url);
+                            // Append hidden features to URL
+                            const shareUrl = appendHiddenFeaturesToUrl(baseUrl, hiddenFeatures);
+
+                           await navigator.clipboard.writeText(shareUrl);
                            toast.success(t("insurerLinkCopied") || "Insurer-only link copied!");
                          } catch (e: any) {
                            toast.error(`${t("failedToCreateShare") || "Failed to create share"}: ${e.message}`);
@@ -1272,4 +1318,5 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
   );
 };
 
+export { appendHiddenFeaturesToUrl };
 export default ComparisonMatrix;
