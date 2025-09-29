@@ -286,6 +286,13 @@ async function createInsurerShareLink(opts: {
   title?: string;
   companyName?: string;
   employeesCount?: number;
+  /** NEW: preferences to persist with the share */
+  prefs?: {
+    /** stable keys for column order */
+    column_order?: string[];
+    /** hidden feature keys (rows) */
+    hidden_features?: string[];
+  };
 }): Promise<string> {
   const {
     backendUrl, insurer, columns, orgId, userId,
@@ -296,6 +303,7 @@ async function createInsurerShareLink(opts: {
     title = `Confirmation – ${insurer}`,
     companyName,
     employeesCount,
+    prefs,
   } = opts;
 
   const document_ids = Array.from(new Set(columns.map(c => c.source_file)));
@@ -317,6 +325,7 @@ async function createInsurerShareLink(opts: {
       allow_edit_fields: allowEditFields,
       company_name: companyName ?? undefined,
       employees_count: employeesCount ?? undefined,
+      prefs,
     }),
   });
 
@@ -486,6 +495,11 @@ interface ComparisonMatrixProps {
   shareToken?: string; // ONLY on share pages
   onRefreshOffers?: () => Promise<void>;
   onDeleteColumn?: (columnId: string) => void;
+  /** Optional share preferences from backend */
+  sharePrefs?: { 
+    column_order?: string[]; 
+    hidden_features?: string[] 
+  };
 }
 
 export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
@@ -502,6 +516,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
   shareToken,
   onRefreshOffers,
   onDeleteColumn,
+  sharePrefs,
 }) => {
   const { t } = useTranslation(currentLanguage);
   const isMobile = useIsMobile();
@@ -536,9 +551,28 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
     setOrderKeys(prev => mergeOrder(prev.length ? prev : columns.map(columnKey), columns));
   }, [columns]);
 
-  // Apply hidden rows automatically on the share page from URL
+  // Ordered view derived from localColumns + orderKeys
+  const orderedColumns = useMemo(
+    () => sortByOrder(localColumns, orderKeys),
+    [localColumns, orderKeys]
+  );
+
+  // Apply hidden rows automatically on the share page from URL or sharePrefs
   useEffect(() => {
     if (!isShareView) return;
+    
+    // First try backend-stored prefs
+    if (sharePrefs) {
+      if (sharePrefs.column_order?.length) {
+        setOrderKeys(prev => mergeOrder(sharePrefs.column_order!, localColumns));
+      }
+      if (sharePrefs.hidden_features?.length) {
+        setHiddenFeatures(new Set(sharePrefs.hidden_features));
+      }
+      return; // Skip URL parsing if we have backend prefs
+    }
+    
+    // Fallback to URL-based hidden features
     try {
       const sp = new URLSearchParams(window.location.search);
       const hf = sp.get("hf");
@@ -549,13 +583,13 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
     } catch {
       // silently ignore decode errors
     }
-  }, [isShareView]);
+  }, [isShareView, sharePrefs, localColumns]);
 
-  // Ordered view derived from localColumns + orderKeys
-  const orderedColumns = useMemo(
-    () => sortByOrder(localColumns, orderKeys),
-    [localColumns, orderKeys]
-  );
+  // Prepare prefs object for sharing
+  const prefs = useMemo(() => ({
+    column_order: orderKeys,
+    hidden_features: Array.from(hiddenFeatures),
+  }), [orderKeys, hiddenFeatures]);
 
   /* ========= Drag & Drop handlers (no external libs) ========= */
   const onDragStart = (k: string) => (e: React.DragEvent) => {
@@ -1293,6 +1327,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                               ttlHours: 168,
                               companyName,
                               employeesCount,
+                              prefs, // Pass order + hidden rows
                             });
 
                             // Append hidden features to URL
