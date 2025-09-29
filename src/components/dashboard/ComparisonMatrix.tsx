@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Check, Minus, Edit, Save, X, Share2, Trash2 } from "lucide-react";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Check, Minus, Edit, Save, X, Share2, Trash2, Filter } from "lucide-react";
 import { InsurerLogo } from "@/components/InsurerLogo";
 import { Column, OfferGroup } from "@/hooks/useAsyncOffers";
 import { Language, useTranslation } from "@/utils/translations";
@@ -457,6 +459,15 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
   const [editFormData, setEditFormData] = useState<EditForm>({});
   const [localColumns, setLocalColumns] = useState<Column[]>(columns);
   const [editingCompany, setEditingCompany] = useState<string | null>(null);
+  const [hiddenFeatures, setHiddenFeatures] = useState<Set<string>>(new Set());
+
+  const toggleFeatureVisibility = (k: string) =>
+    setHiddenFeatures(prev => {
+      const next = new Set(prev);
+      next.has(k) ? next.delete(k) : next.add(k);
+      return next;
+    });
+  const clearHidden = () => setHiddenFeatures(new Set());
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -692,10 +703,15 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
   for (const col of localColumns) {
     Object.keys(col.features || {}).forEach((k) => presentKeys.add(canonicalKey(k)));
   }
+  
+  const allFeatureOptions = [...MAIN_FEATURE_ORDER, ...ADDON_ORDER].filter(k => presentKeys.has(k));
+  
   const mainKnown = MAIN_FEATURE_ORDER.filter((k) => !HIDE_IN_TABLE.has(k));
   const addonKnown = ADDON_ORDER;
-  const mainToRender = mainKnown.filter((k) => presentKeys.has(k));
-  const addonsToRender = addonKnown.filter((k) => presentKeys.has(k));
+  const mainToRender = mainKnown
+    .filter((k) => presentKeys.has(k) && !hiddenFeatures.has(k));
+  const addonsToRender = addonKnown
+    .filter((k) => presentKeys.has(k) && !hiddenFeatures.has(k));
 
   return (
     <div className="space-y-4">
@@ -734,12 +750,41 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
             <h3 className="text-xl font-bold">PAS</h3>
             <p className="text-sm text-muted-foreground">Piedāvājumu Apstrādes Serviss</p>
           </div>
-          {onShare && (
-            <Button variant="outline" onClick={onShare} disabled={localColumns.length === 0} className="flex items-center gap-2">
-              <Share2 className="h-4 w-4" />
-              {t("share")}
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {onShare && (
+              <Button variant="outline" onClick={onShare} disabled={localColumns.length === 0} className="flex items-center gap-2">
+                <Share2 className="h-4 w-4" />
+                {t("share")}
+              </Button>
+            )}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className="flex items-center gap-2">
+                  <Filter className="h-4 w-4" />
+                  Rows
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80 z-50 bg-popover">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-sm font-medium">Hide rows</div>
+                  <Button size="sm" variant="ghost" onClick={clearHidden}>
+                    Reset
+                  </Button>
+                </div>
+                <div className="max-h-64 overflow-auto space-y-1">
+                  {allFeatureOptions.map((k) => (
+                    <label key={k} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-muted/50 p-1 rounded">
+                      <Checkbox
+                        checked={hiddenFeatures.has(k)}
+                        onCheckedChange={() => toggleFeatureVisibility(k)}
+                      />
+                      <span>{k}</span>
+                    </label>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
         </div>
       )}
 
