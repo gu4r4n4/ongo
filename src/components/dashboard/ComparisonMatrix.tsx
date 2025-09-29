@@ -273,6 +273,12 @@ async function resolveRowIdForColumn(
   }
 }
 
+// View preferences type for sharing
+type ViewPrefs = {
+  column_order: string[];
+  hidden_features: string[];
+};
+
 async function createInsurerShareLink(opts: {
   backendUrl: string;
   insurer: string;
@@ -286,13 +292,7 @@ async function createInsurerShareLink(opts: {
   title?: string;
   companyName?: string;
   employeesCount?: number;
-  /** NEW: preferences to persist with the share */
-  prefs?: {
-    /** stable keys for column order */
-    column_order?: string[];
-    /** hidden feature keys (rows) */
-    hidden_features?: string[];
-  };
+  viewPrefs?: ViewPrefs;
 }): Promise<string> {
   const {
     backendUrl, insurer, columns, orgId, userId,
@@ -303,7 +303,7 @@ async function createInsurerShareLink(opts: {
     title = `Confirmation – ${insurer}`,
     companyName,
     employeesCount,
-    prefs,
+    viewPrefs,
   } = opts;
 
   const document_ids = Array.from(new Set(columns.map(c => c.source_file)));
@@ -325,7 +325,7 @@ async function createInsurerShareLink(opts: {
       allow_edit_fields: allowEditFields,
       company_name: companyName ?? undefined,
       employees_count: employeesCount ?? undefined,
-      prefs,
+      view_prefs: viewPrefs ?? { column_order: [], hidden_features: [] },
     }),
   });
 
@@ -585,8 +585,8 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
     }
   }, [isShareView, sharePrefs, localColumns]);
 
-  // Prepare prefs object for sharing
-  const prefs = useMemo(() => ({
+  // Prepare view preferences for sharing
+  const viewPrefs = useMemo(() => ({
     column_order: orderKeys,
     hidden_features: Array.from(hiddenFeatures),
   }), [orderKeys, hiddenFeatures]);
@@ -1327,7 +1327,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                               ttlHours: 168,
                               companyName,
                               employeesCount,
-                              prefs, // Pass order + hidden rows
+                              viewPrefs,
                             });
 
                             // Append hidden features to URL
