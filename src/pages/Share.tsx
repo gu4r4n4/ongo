@@ -35,86 +35,23 @@ const Share = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchShareData = async () => {
+    const load = async () => {
       if (!token) return;
-      
       setLoading(true);
+      setError(null);
       try {
-        // Use secure Supabase Edge Function for share access
-        const response = await fetch(`${window.location.origin}/functions/v1/share-handler/${token}`, {
-          headers: {
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
-          }
-        });
-        
-        if (!response.ok) {
-          if (response.status === 404) {
-            throw new Error('Share not found or expired');
-          }
-          throw new Error('Failed to load share');
-        }
-        
-        const data: ShareData = await response.json();
+        const res = await fetch(`${BACKEND_URL}/shares/${encodeURIComponent(token)}`, { cache: 'no-store' });
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json(); // shape: { ok, token, payload, offers, ... }
         setShareData(data);
-        
-      } catch (err) {
-        console.error('Share fetch error:', err);
-        
-        // Fallback: try direct Supabase function call
-        try {
-          console.log('Trying direct Supabase fallback...');
-          const shareResult = await supabase.rpc('get_share_by_token', { 
-            share_token: token 
-          });
-          
-          if (shareResult.error || !shareResult.data || shareResult.data.length === 0) {
-            throw new Error('Share not found or expired');
-          }
-          
-          const share = shareResult.data[0];
-          
-          const offersResult = await supabase.rpc('get_offers_for_shared_inquiry', { 
-            share_token: token 
-          });
-          
-          if (offersResult.error) {
-            throw new Error('Failed to load offers data');
-          }
-          
-          // Transform data to expected format
-          const offers = offersResult.data && offersResult.data.length > 0 ? [{
-            source_file: 'shared',
-            inquiry_id: share.inquiry_id,
-            programs: offersResult.data.map((offer: any) => ({
-              insurer: offer.insurer,
-              program_code: offer.program_code,
-              base_sum_eur: offer.base_sum_eur,
-              premium_eur: offer.premium_eur,
-              payment_method: offer.payment_method,
-              features: offer.features || {}
-            }))
-          }] : [];
-          
-          const data: ShareData = {
-            ok: true,
-            token: token,
-            inquiry_id: share.inquiry_id,
-            payload: share.payload as { company_name: string; employees_count: number },
-            offers: offers
-          };
-          
-          setShareData(data);
-          
-        } catch (fallbackErr) {
-          console.error('Fallback also failed:', fallbackErr);
-          setError(fallbackErr instanceof Error ? fallbackErr.message : 'Failed to load share');
-        }
+      } catch (e: any) {
+        console.error('Share fetch error:', e);
+        setError(e?.message || 'Failed to load share');
       } finally {
         setLoading(false);
       }
     };
-
-    fetchShareData();
+    load();
   }, [token]);
 
   if (loading) {
@@ -192,7 +129,6 @@ const Share = () => {
           isShareView={true}
           backendUrl={BACKEND_URL}
           shareToken={token}
-          sharePrefs={shareData.view_prefs}
         />
       </div>
     </div>

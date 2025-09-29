@@ -354,33 +354,30 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
   };
 
   // Share functionality
-  const shareResults = async (prefs?: ViewPrefs) => {
+  const shareResults = async () => {
     if (!docIds.length) {
       toast.error(t('noResultsToShare'));
       return;
     }
 
     try {
-      const response = await fetch(`${BACKEND_URL}/shares`, {
+      const res = await fetch(`${BACKEND_URL}/shares`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          title: "Piedāvājums",
+          title: 'Piedāvājums',
           company_name: companyName,
           employees_count: employeesCount,
           document_ids: docIds,
-          view_prefs: prefs ?? { column_order: [], hidden_features: [] },
-          editable: true,
-          role: "broker",
         }),
       });
 
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        throw new Error(data?.detail || `Failed (${response.status})`);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data?.detail || `Failed (${res.status})`);
       }
 
-      const data = await response.json(); // { ok, token, url, title, ... }
+      const data = await res.json(); // { ok, token, url, ... }
       const feUrl =
         data?.url && data.url.includes('/share/')
           ? data.url
