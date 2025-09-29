@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Check, Minus, Edit, Save, X, Share2 } from "lucide-react";
+import { Check, Minus, Edit, Save, X, Share2, Trash2 } from "lucide-react";
 import { InsurerLogo } from "@/components/InsurerLogo";
 import { Column, OfferGroup } from "@/hooks/useAsyncOffers";
 import { Language, useTranslation } from "@/utils/translations";
@@ -423,6 +423,7 @@ interface ComparisonMatrixProps {
   backendUrl?: string;
   shareToken?: string; // ONLY on share pages
   onRefreshOffers?: () => Promise<void>;
+  onDeleteColumn?: (columnId: string) => void;
 }
 
 export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
@@ -438,6 +439,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
   backendUrl,
   shareToken,
   onRefreshOffers,
+  onDeleteColumn,
 }) => {
   const { t } = useTranslation(currentLanguage);
   const isMobile = useIsMobile();
@@ -446,6 +448,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
   const [editingColumn, setEditingColumn] = useState<string | null>(null);
   const [editFormData, setEditFormData] = useState<EditForm>({});
   const [localColumns, setLocalColumns] = useState<Column[]>(columns);
+  const [editingCompany, setEditingCompany] = useState<string | null>(null);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -745,11 +748,87 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                 return (
                   <div key={column.id} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 bg-card">
                     <div className="flex flex-col items-center text-center space-y-2">
+                      {/* Delete button */}
+                      {canEdit && onDeleteColumn && (
+                        <div className="w-full flex justify-end">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => onDeleteColumn(column.id)}
+                            className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      )}
+                      
                       <div className="w-12 h-12 flex items-center justify-center rounded-md bg-muted/30">
                         <InsurerLogo name={column.insurer} className="w-10 h-10 object-contain" />
                       </div>
-                      <div className="font-semibold text-sm truncate w-full">{column.insurer}</div>
-                      <Badge variant="outline" className="text-xs truncate max-w-full">{column.program_code}</Badge>
+                      
+                      {/* Editable company name */}
+                      {editingCompany === column.id ? (
+                        <div className="w-full space-y-2">
+                          <Select
+                            value={editFormData.insurer || column.insurer || ""}
+                            onValueChange={(value) =>
+                              setEditFormData((prev) => ({
+                                ...prev,
+                                insurer: value,
+                              }))
+                            }
+                          >
+                            <SelectTrigger className="w-full text-xs">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="BTA">BTA</SelectItem>
+                              <SelectItem value="BALTA">BALTA</SelectItem>
+                              <SelectItem value="COMPENSA">COMPENSA</SelectItem>
+                              <SelectItem value="ERGO">ERGO</SelectItem>
+                              <SelectItem value="Gjensidige">Gjensidige</SelectItem>
+                              <SelectItem value="IF">IF</SelectItem>
+                              <SelectItem value="SEESAM">SEESAM</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <div className="flex gap-1">
+                            <Button 
+                              size="sm" 
+                              onClick={() => {
+                                setEditingColumn(column.id);
+                                setEditingCompany(null);
+                                saveEdit();
+                              }} 
+                              className="flex-1 h-6 text-xs bg-green-600 hover:bg-green-700 text-white"
+                            >
+                              <Save className="h-3 w-3" />
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="ghost" 
+                              onClick={() => {
+                                setEditingCompany(null);
+                                setEditFormData({});
+                              }} 
+                              className="flex-1 h-6 text-xs"
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div 
+                          className="font-semibold text-sm truncate w-full cursor-pointer hover:bg-muted/50 p-1 rounded"
+                          onClick={() => canEdit && setEditingCompany(column.id)}
+                        >
+                          {column.insurer}
+                        </div>
+                      )}
+                      
+                      {/* Program code with line breaking and black badge */}
+                      <Badge variant="outline" className="text-xs max-w-full bg-black text-white border-black whitespace-normal leading-tight py-1 min-h-[1.5rem] flex items-center justify-center">
+                        <span className="break-words text-center">{column.program_code}</span>
+                      </Badge>
 
                       {isEditing ? (
                         <div className="w-full space-y-2">
