@@ -534,7 +534,7 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
       return <Minus className="h-4 w-4 text-red-600" />;
     }
     const displayValue = cellVal(value);
-    return <span className="text-sm">{displayValue}</span>;
+    return <span className="text-sm text-center">{displayValue}</span>;
   };
 
   const startEdit = (columnId: string) => {
