@@ -187,9 +187,9 @@ const Share = () => {
           currentLanguage={currentLanguage}
           companyName={shareData.payload?.company_name}
           employeesCount={shareData.payload?.employees_count}
-          canEdit={shareData?.editable ?? true}
-          showBuyButtons
-          isShareView
+          canEdit={true}
+          showBuyButtons={true}
+          isShareView={true}
           backendUrl={BACKEND_URL}
           shareToken={token}
           sharePrefs={shareData.view_prefs}
