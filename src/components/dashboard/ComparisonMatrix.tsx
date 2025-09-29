@@ -918,8 +918,8 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                         </div>
                       )}
                       
-                      {/* Program code with line breaking and black badge */}
-                      <Badge variant="outline" className="text-xs max-w-full bg-black text-white border-black whitespace-normal leading-tight py-1 min-h-[1.5rem] flex items-center justify-center">
+                      {/* Program code with line breaking and #004287 badge */}
+                      <Badge variant="outline" className="text-xs max-w-full bg-[#004287] text-white border-[#004287] whitespace-normal leading-tight py-1 min-h-[1.5rem] flex items-center justify-center">
                         <span className="break-words text-center">{column.program_code}</span>
                       </Badge>
 
