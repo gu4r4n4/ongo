@@ -19,6 +19,11 @@ interface ShareData {
     employees_count: number;
   };
   offers: OfferResult[];
+  editable?: boolean;
+  view_prefs?: {
+    column_order: string[];
+    hidden_features: string[];
+  };
 }
 
 const Share = () => {
@@ -182,8 +187,12 @@ const Share = () => {
           currentLanguage={currentLanguage}
           companyName={shareData.payload?.company_name}
           employeesCount={shareData.payload?.employees_count}
-          canEdit={false}
+          canEdit={shareData?.editable ?? true}
+          showBuyButtons
+          isShareView
           backendUrl={BACKEND_URL}
+          shareToken={token}
+          sharePrefs={shareData.view_prefs}
         />
       </div>
     </div>
