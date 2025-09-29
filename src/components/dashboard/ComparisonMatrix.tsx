@@ -73,6 +73,8 @@ const ADDON_ORDER: string[] = [
   "Sports",
   "Kritiskās saslimšanas",
   "Maksas stacionārie pakalpojumi, limits EUR (pp)",
+  "Maksas Operācijas, limits EUR",
+  "Optika 50%, limits EUR",
 ];
 
 /** ======================
