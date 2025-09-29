@@ -527,14 +527,27 @@ export const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
       : v ?? '—';
 
   const renderValue = (value: any) => {
-    if (value === true || value === "v" || value === "Yes") {
-      return <Check className="h-4 w-4 text-green-600" />;
+    // Normalize the value
+    let normalizedValue = value;
+    if (value && typeof value === 'object' && 'value' in value) {
+      normalizedValue = value.value;
     }
-    if (value === false || value === "-" || value === "No" || value === null || value === "") {
-      return <Minus className="h-4 w-4 text-red-600" />;
+    
+    // Convert to string for comparison
+    const strValue = String(normalizedValue).trim().toLowerCase();
+    
+    // Check for positive/yes values
+    if (normalizedValue === true || strValue === "v" || strValue === "yes" || strValue === "✓") {
+      return <Check className="h-4 w-4 text-green-600 mx-auto" />;
     }
+    
+    // Check for negative/no values
+    if (normalizedValue === false || strValue === "-" || strValue === "no" || normalizedValue === null || strValue === "") {
+      return <Minus className="h-4 w-4 text-red-600 mx-auto" />;
+    }
+    
     const displayValue = cellVal(value);
-    return <span className="text-sm text-center">{displayValue}</span>;
+    return <span className="text-sm text-center block">{displayValue}</span>;
   };
 
   const startEdit = (columnId: string) => {
