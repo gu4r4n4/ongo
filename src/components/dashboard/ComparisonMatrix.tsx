@@ -1309,5 +1309,5 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
   );
 };
 
-export { appendHiddenFeaturesToUrl };
+export { appendHiddenFeaturesToUrl, ComparisonMatrix };
 export default ComparisonMatrix;
