@@ -1293,6 +1293,7 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                       size="sm"
                       className={`w-full ${rounded} text-white bg-[var(--brand-primary)] hover:bg-[var(--brand-primary-hover)] focus:ring-2 focus:ring-[var(--brand-ring)]`}
                       onClick={async () => {
+                        let popup: Window | null = null;
                         try {
                           if (!backendUrl) {
                             toast.error(t("missingBackendUrl") || "Missing backend URL");
@@ -1300,7 +1301,7 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                           }
 
                           // Open a tab immediately (keeps user-gesture; avoids popup blockers)
-                          const popup = window.open("about:blank", "_blank", "noopener,noreferrer");
+                          popup = window.open("about:blank", "_blank", "noopener,noreferrer");
 
                           const baseUrl = await createInsurerShareLink({
                             backendUrl,
@@ -1325,6 +1326,10 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
 
                           toast.success(t("insurerLinkOpened") || "Insurer-only link opened in a new tab");
                         } catch (e: any) {
+                          // Close the popup if share creation failed
+                          if (popup && !popup.closed) {
+                            popup.close();
+                          }
                           toast.error(`${t("failedToCreateShare") || "Failed to create share"}: ${e.message}`);
                         }
                       }}
