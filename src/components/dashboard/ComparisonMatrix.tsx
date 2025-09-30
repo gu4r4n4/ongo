@@ -1236,7 +1236,7 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                         </div>
                       ) : (
                         <div className="space-y-1">
-                          <div className="text-lg font-bold text-primary truncate">€{column.premium_eur?.toLocaleString() || "—"}</div>
+                          <div className="text-lg font-bold text-primary truncate">€{column.premium_eur?.toFixed(2) || "—"}</div>
                           {canEdit && (
                             <Button
                               size="sm"
