@@ -383,8 +383,8 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
       }
       const data = await res.json();  // { ok, token, url, ... }
 
-      // Always open FE route
-      const feUrl = `${window.location.origin.replace(/\/$/, '')}/share/${data.token}`;
+      // Use the server's URL (respects SHARE_BASE_URL) or fallback to local
+      const feUrl = data.url || `${window.location.origin.replace(/\/$/, '')}/share/${data.token}`;
       window.open(feUrl, '_blank', 'noopener,noreferrer');
       toast.success(t('shareLinkCreated'));
     } catch (err: any) {
@@ -540,6 +540,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
           companyName={companyName}
           employeesCount={employeesCount}
           backendUrl={BACKEND_URL}
+          showBuyButtons                    // Show Approve CTA row
           onRefreshOffers={async () => {
             if (currentJobId) {
               const offers = await fetch(`${BACKEND_URL}/offers/by-job/${currentJobId}`).then(r => r.json());
