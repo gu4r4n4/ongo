@@ -1317,14 +1317,12 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
 
                           const shareUrl = appendHiddenFeaturesToUrl(baseUrl, hiddenFeatures);
 
-                          if (popup) {
+                          if (popup && !popup.closed) {
                             popup.location.href = shareUrl;
+                            toast.success(t("insurerLinkOpened") || "Insurer-only link opened in a new tab");
                           } else {
-                            // Fallback if popup was blocked
-                            window.open(shareUrl, "_blank", "noopener,noreferrer");
+                            throw new Error("Popup was blocked by browser");
                           }
-
-                          toast.success(t("insurerLinkOpened") || "Insurer-only link opened in a new tab");
                         } catch (e: any) {
                           // Close the popup if share creation failed
                           if (popup && !popup.closed) {
