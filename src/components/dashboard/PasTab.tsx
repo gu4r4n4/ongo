@@ -354,7 +354,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
   };
 
   // Share functionality
-  const shareResults = async () => {
+  const shareResults = async (prefs?: ViewPrefs) => {
     if (!docIds.length) {
       toast.error(t('noResultsToShare'));
       return;
@@ -368,8 +368,9 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
           company_name: companyName,
           employees_count: employeesCount,
           document_ids: docIds,
-          editable: true,              // ✅ make Step 1 share editable
-          role: 'broker'               // (optional) if your API uses roles
+          editable: true,
+          role: 'broker',
+          view_prefs: prefs ?? { column_order: [], hidden_features: [] }, // ✅
         }),
       });
       if (!res.ok) {
