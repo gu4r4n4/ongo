@@ -17,6 +17,10 @@ type ApiShare = {
     editable?: boolean;
     role?: string;
     allow_edit_fields?: string[];
+    view_prefs?: {
+      column_order?: string[];
+      hidden_features?: string[];
+    };
   };
   offers: Array<{
     source_file: string;
@@ -137,6 +141,7 @@ const Share = () => {
           currentLanguage={currentLanguage}
           companyName={companyName}
           employeesCount={employeesCount}
+          sharePrefs={data.payload?.view_prefs}   // ✅ apply saved order/hidden rows
           canEdit={true}            // 🔓 enable editing in Step 1
           showBuyButtons={true}     // show CTA row (approve/insurer links)
           isShareView={true}        // refetches by token after saves
