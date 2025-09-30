@@ -564,13 +564,57 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
   // Save/Load preferences
   const storageKey = `comparison-matrix-prefs-${companyName || 'default'}`;
   
-  const saveViewPreferences = () => {
+  const saveViewPreferences = async () => {
     const prefs = {
       column_order: orderKeys,
       hidden_features: Array.from(hiddenFeatures),
     };
     localStorage.setItem(storageKey, JSON.stringify(prefs));
     toast.success(t("settingsSaved") || "Settings saved");
+    
+    // If in share view, generate new token with updated preferences
+    if (isShareView && shareToken) {
+      await regenerateShareToken(prefs);
+    }
+  };
+  
+  const regenerateShareToken = async (viewPrefs?: { column_order: string[]; hidden_features: string[] }) => {
+    if (!backendUrl) return;
+    
+    try {
+      const document_ids = Array.from(new Set(localColumns.map((c) => c.source_file)));
+      const prefs = viewPrefs || {
+        column_order: orderKeys,
+        hidden_features: Array.from(hiddenFeatures),
+      };
+      
+      const payload = {
+        document_ids,
+        editable: true,
+        role: 'broker',
+        view_prefs: prefs,
+      };
+      
+      const res = await fetch(`${backendUrl}/shares`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      
+      if (!res.ok) {
+        throw new Error(`Failed to create new share (${res.status})`);
+      }
+      
+      const data = await res.json();
+      
+      if (data.token) {
+        // Redirect to new share URL
+        window.location.href = `/share/${data.token}`;
+      }
+    } catch (error: any) {
+      console.error('Failed to regenerate share token:', error);
+      toast.error("Failed to update share link");
+    }
   };
 
   // Load saved preferences on mount
@@ -861,6 +905,11 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
       setEditingColumn(null);
       setEditFormData({});
       toast.success(t("programUpdatedSuccessfully") || "Program updated successfully");
+      
+      // If in share view, generate new token and redirect
+      if (isShareView && shareToken) {
+        await regenerateShareToken();
+      }
     } catch (error: any) {
       if (isShareView && backendUrl) {
         try {
