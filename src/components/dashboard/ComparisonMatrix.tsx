@@ -561,6 +561,42 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
     });
   const clearHidden = () => setHiddenFeatures(new Set());
 
+  // Save/Load preferences
+  const storageKey = `comparison-matrix-prefs-${companyName || 'default'}`;
+  
+  const saveViewPreferences = () => {
+    const prefs = {
+      column_order: orderKeys,
+      hidden_features: Array.from(hiddenFeatures),
+    };
+    localStorage.setItem(storageKey, JSON.stringify(prefs));
+    toast.success(t("settingsSaved") || "Settings saved");
+  };
+
+  // Load saved preferences on mount
+  useEffect(() => {
+    if (isShareView) return; // Don't load saved prefs in share view
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        const prefs = JSON.parse(saved);
+        if (prefs.hidden_features?.length) {
+          setHiddenFeatures(new Set(prefs.hidden_features));
+        }
+        if (prefs.column_order?.length) {
+          const validKeys = prefs.column_order.filter((k: string) => 
+            columns.some((c) => columnKey(c) === k)
+          );
+          if (validKeys.length) {
+            setOrderKeys(mergeOrder(validKeys, columns));
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load saved preferences:', err);
+    }
+  }, []); // Only run on mount
+
   // Sync columns but keep order
   useEffect(() => {
     setLocalColumns(columns);
@@ -970,9 +1006,15 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
               <PopoverContent className="w-80 z-50 bg-popover">
                 <div className="flex items-center justify-between mb-2">
                   <div className="text-sm font-medium">Hide rows</div>
-                  <Button size="sm" variant="ghost" onClick={clearHidden}>
-                    Reset
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="ghost" onClick={clearHidden}>
+                      Reset
+                    </Button>
+                    <Button size="sm" variant="default" onClick={saveViewPreferences}>
+                      <Save className="h-3 w-3 mr-1" />
+                      Save
+                    </Button>
+                  </div>
                 </div>
                 <div className="max-h-64 overflow-auto space-y-1">
                   {allFeatureOptions.map((k) => (
