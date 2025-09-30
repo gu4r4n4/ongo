@@ -11,6 +11,8 @@ import { InsurerLogo } from "@/components/InsurerLogo";
 import { ComparisonMatrix, ViewPrefs } from "./ComparisonMatrix";
 import MedicalServicesHeader from "@/components/MedicalServicesHeader";
 import { BACKEND_URL } from "@/config";
+import { truncateFilename } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type Insurer = 'BTA' | 'Balta' | 'BAN' | 'Compensa' | 'ERGO' | 'Gjensidige' | 'If' | 'Seesam';
 
@@ -25,6 +27,7 @@ interface UploadItem {
 
 const PasTab = ({ currentLanguage }: PasTabProps) => {
   const { t } = useTranslation(currentLanguage);
+  const isMobile = useIsMobile();
 
   // Form fields
   const [companyName, setCompanyName] = useState<string>("LDZ");
@@ -468,7 +471,9 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
                   <Label>{t('selectedFiles')} ({items.length})</Label>
                   {items.map((it, idx) => (
                     <div key={idx} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded border p-3">
-                      <div className="text-sm truncate flex-1">{it.file.name}</div>
+                      <div className="text-sm truncate flex-1" title={it.file.name}>
+                        {isMobile ? truncateFilename(it.file.name, 25) : it.file.name}
+                      </div>
                       <div className="flex items-center justify-between sm:justify-end gap-2">
                         <InsurerLogo name={it.hint} />
                         <Select value={it.hint} onValueChange={(v: Insurer) => setItemHint(idx, v)}>
