@@ -1311,17 +1311,6 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                       ) : (
                         <div className="space-y-1">
                           <div className="text-lg font-bold text-primary truncate">€{column.premium_eur?.toFixed(2) || "—"}</div>
-                          {canEdit && (
-                            <Button
-                              size="sm"
-                              variant="default"
-                              onClick={() => startEdit(column.id)}
-                              className={`h-8 w-full px-3 py-1 text-sm text-white font-medium ${rounded} bg-green-600 hover:bg-green-700`}
-                            >
-                              <Edit className="h-4 w-4 mr-2" />
-                              {t("edit")}
-                            </Button>
-                          )}
                         </div>
                       )}
                     </div>
