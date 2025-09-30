@@ -422,9 +422,18 @@ async function refetchColumnsAfterSave(
 /** Feature name translation mapping */
 const getFeatureTranslationKey = (featureName: string): string | null => {
   const featureMap: Record<string, string> = {
+    // Main features
+    'Pamatsumma': 'baseSum',
     'Pakalpojuma apmaksas veids': 'servicePaymentMethod',
+    'Pacientu iemaksa': 'patientContribution',
+    'Maksas ģimenes ārsta mājas vizītes, limits EUR': 'paidFamilyDoctorHomeVisits',
+    'Maksas ģimenes ārsta mājas vizītes, limits €': 'paidFamilyDoctorHomeVisits',
+    'Maksas ģimenes ārsta, internista, terapeita un pediatra konsultācija, limits EUR': 'paidFamilyDoctorConsultation',
+    'Maksas ģimenes ārsta, internista, terapeita un pediatra konsultācija, limits €': 'paidFamilyDoctorConsultation',
     'Maksas ārsta-specialista konsultācija, limits €': 'paidSpecialistConsultation',
+    'Maksas ārsta-specialista konsultācija, limits EUR': 'paidSpecialistConsultation',
     'Profesora, docenta, internista konsultācija, limits €': 'professorDocentConsultation',
+    'Profesora, docenta, internista konsultācija, limits EUR': 'professorDocentConsultation',
     'Homeopāts': 'homeopathService',
     'Psihoterapeits': 'psychotherapist',
     'Sporta ārsts': 'sportsDoctorService',
@@ -432,12 +441,26 @@ const getFeatureTranslationKey = (featureName: string): string | null => {
     'Laboratoriskie izmeklējumi': 'laboratoryTests',
     'Maksas diagnostika, piem., rentgens, elektrokradiogramma, USG, utml.': 'paidDiagnostics',
     'Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai €)': 'highTechExaminations',
+    'Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai EUR)': 'highTechExaminations',
     'Obligātās veselības pārbaudes, limits €': 'mandatoryHealthChecks',
+    'Obligātās veselības pārbaudes, limits EUR': 'mandatoryHealthChecks',
     'Ārstnieciskās manipulācijas': 'therapeuticManipulations',
     'Medicīniskās izziņas': 'medicalCertificates',
     'Fizikālā terapija': 'physicalTherapy',
     'Procedūras': 'procedures',
     'Vakcinācija, limits €': 'vaccination',
+    'Vakcinācija, limits EUR': 'vaccination',
+    'Maksas grūtnieču aprūpe': 'paidPregnancyCare',
+    'Maksas onkoloģiskā, hematoloģiskā ārstēšana': 'paidOncologyHematologyTreatment',
+    'Neatliekamā palīdzība valsts un privātā (limits privātai, EUR)': 'emergencyAssistance',
+    'Neatliekamā palīdzība valsts un privātā (limits privātai, €)': 'emergencyAssistance',
+    'Maksas stacionārie pakalpojumi, limits EUR': 'paidInpatientServices',
+    'Maksas stacionārie pakalpojumi, limits €': 'paidInpatientServices',
+    'Maksas stacionārā rehabilitācija, limits EUR': 'paidInpatientRehabilitation',
+    'Maksas stacionārā rehabilitācija, limits €': 'paidInpatientRehabilitation',
+    'Ambulatorā rehabilitācija': 'outpatientRehabilitation',
+    'Piemaksa par plastikāta kartēm, EUR': 'plasticCardSurcharge',
+    'Piemaksa par plastikāta kartēm, €': 'plasticCardSurcharge',
   };
   return featureMap[featureName] || null;
 };
