@@ -243,8 +243,27 @@ function paymentMethodLabel(v?: string | null): string {
 /** ======================
  *  Backend helpers
  *  ====================== */
-async function resolveRowIdForColumn(column: Column, backendUrl: string): Promise<number | undefined> {
+async function resolveRowIdForColumn(
+  column: Column,
+  backendUrl: string,
+  shareToken?: string
+): Promise<number | undefined> {
   try {
+    if (shareToken) {
+      const res = await fetch(`${backendUrl}/shares/${encodeURIComponent(shareToken)}`, { cache: 'no-store' });
+      if (!res.ok) return undefined;
+      const data = await res.json();
+      const groups = (data?.offers ?? []) as OfferGroup[];
+      const g = groups.find(x => x.source_file === column.source_file);
+      const m = g?.programs?.find(p =>
+        (p.insurer ?? '') === (column.insurer ?? '') &&
+        (p.program_code ?? '') === (column.program_code ?? '')
+      );
+      const rid = (m as any)?.row_id ?? (m as any)?.id;
+      return typeof rid === 'number' ? rid : undefined;
+    }
+
+    // fallback (non-share views)
     const res = await fetch(`${backendUrl}/offers/by-documents`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -330,18 +349,22 @@ async function createInsurerShareLink(opts: {
   return data.url as string;
 }
 
-async function updateOffer(row_id: number, changes: Record<string, any>, API: string) {
+async function updateOffer(row_id: number, changes: Record<string, any>, API: string, shareToken?: string) {
   const patch = normalizeChanges(changes);
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (shareToken) headers['X-Share-Token'] = shareToken;   // ✅ authorize via share token
   const res = await fetch(`${API}/offers/${row_id}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify(patch),
   });
   if (!res.ok) throw new Error(await res.text());
 }
 
-async function deleteOffer(row_id: number, API: string) {
-  const res = await fetch(`${API}/offers/${row_id}`, { method: "DELETE" });
+async function deleteOffer(row_id: number, API: string, shareToken?: string) {
+  const headers: Record<string, string> = {};
+  if (shareToken) headers['X-Share-Token'] = shareToken;   // ✅ authorize via share token
+  const res = await fetch(`${API}/offers/${row_id}`, { method: "DELETE", headers });
   if (!res.ok) throw new Error(await res.text());
 }
 
@@ -719,7 +742,7 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
       // resolve row id if needed
       let rowId = column.row_id;
       if (!rowId) {
-        rowId = await resolveRowIdForColumn(column, backendUrl);
+        rowId = await resolveRowIdForColumn(column, backendUrl, shareToken);
         if (!rowId) {
           toast.error(t("couldNotResolveRecordId") || "Could not resolve record id yet. Try again in a moment.");
           return;
@@ -767,7 +790,7 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
       setLocalColumns((prev) => optimisticMergeColumns(prev, activeId, changes));
 
       // 2) Persist
-      await updateOffer(rowId!, changes, backendUrl);
+      await updateOffer(rowId!, changes, backendUrl, isShareView ? shareToken : undefined);
 
       // 3) Reconcile
       if (onRefreshOffers) {
@@ -804,7 +827,7 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
     try {
       let rowId = column.row_id;
       if (!rowId) {
-        rowId = await resolveRowIdForColumn(column, backendUrl);
+        rowId = await resolveRowIdForColumn(column, backendUrl, shareToken);
         if (!rowId) {
           toast.error(t("couldNotResolveRecordId") || "Could not resolve record id yet. Try again in a moment.");
           return;
@@ -816,7 +839,7 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
       setLocalColumns((prev) => prev.filter((c) => columnKey(c) !== k));
       setOrderKeys((prev) => prev.filter((x) => x !== k));
 
-      await deleteOffer(rowId!, backendUrl);
+      await deleteOffer(rowId!, backendUrl, isShareView ? shareToken : undefined);
 
       if (onRefreshOffers) {
         await onRefreshOffers();
@@ -998,7 +1021,7 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                   >
                     <div className="flex flex-col items-center text-center space-y-2">
                       {/* Delete button */}
-                      {canEdit && onDeleteColumn && (
+                      {canEdit && (
                         <div className="w-full flex justify-end">
                           <Button
                             size="sm"

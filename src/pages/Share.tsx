@@ -50,7 +50,7 @@ const Share = () => {
       try {
         const res = await fetch(`${BACKEND_URL}/shares/${encodeURIComponent(token)}`, { cache: 'no-store' });
         if (!res.ok) throw new Error(await res.text());
-        const json: ApiShare = await res.json();
+        const json = await res.json(); // { ok, payload, offers: [...] }
         setData(json);
       } catch (e: any) {
         console.error('Share fetch error:', e);
