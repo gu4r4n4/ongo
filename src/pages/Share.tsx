@@ -5,32 +5,40 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Language, useTranslation } from '@/utils/translations';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { ComparisonMatrix } from '@/components/dashboard/ComparisonMatrix';
-import { OfferResult, Column } from '@/hooks/useAsyncOffers';
-import { supabase } from '@/integrations/supabase/client';
+import type { Column } from '@/hooks/useAsyncOffers';
+import { BACKEND_URL } from '@/config';
 
-import { BACKEND_URL } from "@/config";
-
-interface ShareData {
+type ApiShare = {
   ok: boolean;
   token: string;
-  inquiry_id: number;
-  payload: {
-    company_name: string;
-    employees_count: number;
+  payload?: {
+    company_name?: string;
+    employees_count?: number;
+    editable?: boolean;
+    role?: string;
+    allow_edit_fields?: string[];
   };
-  offers: OfferResult[];
-  editable?: boolean;
-  view_prefs?: {
-    column_order: string[];
-    hidden_features: string[];
-  };
-}
+  offers: Array<{
+    source_file: string;
+    inquiry_id?: number | null;
+    programs: Array<{
+      row_id?: number;
+      id?: number;
+      insurer?: string | null;
+      program_code?: string | null;
+      base_sum_eur?: number | null;
+      premium_eur?: number | null;
+      payment_method?: string | null;
+      features?: Record<string, any>;
+    }>;
+  }>;
+};
 
 const Share = () => {
   const { token } = useParams<{ token: string }>();
   const [currentLanguage, setCurrentLanguage] = useState<Language>('lv');
   const { t } = useTranslation(currentLanguage);
-  const [shareData, setShareData] = useState<ShareData | null>(null);
+  const [data, setData] = useState<ApiShare | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -42,8 +50,8 @@ const Share = () => {
       try {
         const res = await fetch(`${BACKEND_URL}/shares/${encodeURIComponent(token)}`, { cache: 'no-store' });
         if (!res.ok) throw new Error(await res.text());
-        const data = await res.json(); // shape: { ok, token, payload, offers, ... }
-        setShareData(data);
+        const json: ApiShare = await res.json();
+        setData(json);
       } catch (e: any) {
         console.error('Share fetch error:', e);
         setError(e?.message || 'Failed to load share');
@@ -67,7 +75,7 @@ const Share = () => {
     );
   }
 
-  if (error || !shareData?.ok) {
+  if (error || !data?.ok) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Card className="w-full max-w-md">
@@ -82,27 +90,32 @@ const Share = () => {
     );
   }
 
-  // Normalize offers into columns
-  const columns: Column[] = shareData.offers.flatMap(offer =>
-    offer.programs.map(program => ({
-      id: `${offer.source_file}::${program.insurer}::${program.program_code}`,
-      label: program.insurer || offer.source_file,
-      source_file: offer.source_file,
-      row_id: (program as any).row_id,
-      insurer: program.insurer,
-      program_code: program.program_code,
-      premium_eur: program.premium_eur,
-      base_sum_eur: program.base_sum_eur,
-      payment_method: program.payment_method,
-      features: program.features || {},
-      group: offer,
-    }))
+  // Build columns from groups returned by the API
+  const columns: Column[] = (data.offers || []).flatMap(g =>
+    (g.programs || []).map(p => {
+      const rid = (p as any).row_id ?? (p as any).id;
+      return {
+        id: rid ? String(rid) : `${g.source_file}::${p.insurer ?? ''}::${p.program_code ?? ''}`,
+        label: p.insurer || g.source_file,
+        source_file: g.source_file,
+        row_id: rid,
+        insurer: p.insurer || undefined,
+        program_code: p.program_code || undefined,
+        premium_eur: p.premium_eur ?? null,
+        base_sum_eur: p.base_sum_eur ?? null,
+        payment_method: p.payment_method ?? null,
+        features: p.features || {},
+        group: g as any,
+      };
+    })
   );
 
-  // Get all unique feature keys
   const allFeatureKeys = Array.from(
-    new Set(columns.flatMap(col => Object.keys(col.features)))
+    new Set(columns.flatMap(col => Object.keys(col.features || {})))
   ).sort();
+
+  const companyName = data.payload?.company_name;
+  const employeesCount = data.payload?.employees_count;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -112,7 +125,7 @@ const Share = () => {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Shared Insurance Offers</h1>
             <p className="text-gray-600">Comparison of insurance programs</p>
           </div>
-          <LanguageSwitcher 
+          <LanguageSwitcher
             currentLanguage={currentLanguage}
             onLanguageChange={setCurrentLanguage}
           />
@@ -122,13 +135,13 @@ const Share = () => {
           columns={columns}
           allFeatureKeys={allFeatureKeys}
           currentLanguage={currentLanguage}
-          companyName={shareData.payload?.company_name}
-          employeesCount={shareData.payload?.employees_count}
-          canEdit={true}
-          showBuyButtons={true}
-          isShareView={true}
-          backendUrl={BACKEND_URL}
-          shareToken={token}
+          companyName={companyName}
+          employeesCount={employeesCount}
+          canEdit={true}            // 🔓 enable editing in Step 1
+          showBuyButtons={true}     // show CTA row (approve/insurer links)
+          isShareView={true}        // refetches by token after saves
+          backendUrl={BACKEND_URL}  // used for PATCH/DELETE and refetch
+          shareToken={token}        // lets matrix re-pull /shares/:token
         />
       </div>
     </div>
