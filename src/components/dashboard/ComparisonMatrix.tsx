@@ -980,7 +980,6 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
 
   const metaRows = [
     { key: "base_sum_eur", label: t("baseSum") },
-    { key: "payment_method", label: t("payment") },
   ];
 
   // Build ordered rows (main + addons) from actual columns
@@ -1272,23 +1271,7 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
 
                   return (
                     <div key={columnKey(column)} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 flex items-center justify-center">
-                      {isEditing && row.key === "payment_method" ? (
-                        <Select
-                          value={editFormData.payment_method || ""}
-                          onValueChange={(value) => setEditFormData((prev) => ({ ...prev, payment_method: value }))}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {PAYMENT_METHOD_OPTIONS.map((o) => (
-                              <SelectItem key={o.value} value={o.value}>
-                                {o.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      ) : isEditing && row.key === "base_sum_eur" ? (
+                      {isEditing && row.key === "base_sum_eur" ? (
                         <Input
                           inputMode="decimal"
                           type="text"
@@ -1298,8 +1281,6 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                         />
                       ) : row.key === "base_sum_eur" ? (
                         <span className="text-sm font-medium">€{value?.toLocaleString() || "—"}</span>
-                      ) : row.key === "payment_method" ? (
-                        <span className="text-sm">{paymentMethodLabel(value)}</span>
                       ) : (
                         <span className="text-sm">{value || "—"}</span>
                       )}
