@@ -105,23 +105,23 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
               {t('serviceAvailability')}
             </h4>
             <div className="flex flex-wrap gap-2">
-              <Badge className="text-white hover:bg-[#004287]" variant="secondary" style={{ backgroundColor: '#004287' }}>
+              <Badge className="text-white hover:text-white hover:bg-[#004287]" variant="secondary" style={{ backgroundColor: '#004287' }}>
                 {t('contractedFacilityService')}
               </Badge>
-              <Badge className="text-white hover:bg-[#004287] inline-flex items-center gap-1.5" variant="secondary" style={{ backgroundColor: '#004287' }}>
+              <Badge className="text-white hover:text-white hover:bg-[#004287] inline-flex items-center gap-1.5" variant="secondary" style={{ backgroundColor: '#004287' }}>
                 <span>{t('receiptPayment')}</span>
                 <Check className="h-3.5 w-3.5 text-white" />
               </Badge>
-              <Badge className="text-white hover:bg-[#004287]" variant="secondary" style={{ backgroundColor: '#004287' }}>
+              <Badge className="text-white hover:text-white hover:bg-[#004287]" variant="secondary" style={{ backgroundColor: '#004287' }}>
                 {t('familyDoctorVisit')}
               </Badge>
-              <Badge className="text-white hover:bg-[#004287]" variant="secondary" style={{ backgroundColor: '#004287' }}>
+              <Badge className="text-white hover:text-white hover:bg-[#004287]" variant="secondary" style={{ backgroundColor: '#004287' }}>
                 {t('specialistVisit')}
               </Badge>
-              <Badge className="text-white hover:bg-[#004287]" variant="secondary" style={{ backgroundColor: '#004287' }}>
+              <Badge className="text-white hover:text-white hover:bg-[#004287]" variant="secondary" style={{ backgroundColor: '#004287' }}>
                 {t('hospitalTreatment')}
               </Badge>
-              <Badge className="text-white hover:bg-[#004287]" variant="secondary" style={{ backgroundColor: '#004287' }}>
+              <Badge className="text-white hover:text-white hover:bg-[#004287]" variant="secondary" style={{ backgroundColor: '#004287' }}>
                 {t('dayCareHospital')}
               </Badge>
             </div>
