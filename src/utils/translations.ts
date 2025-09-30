@@ -278,6 +278,24 @@ export const translations = {
     paidInpatientServicesAdditional: 'Maksas stacionārie pakalpojumi, limits EUR (pp)',
     paidSurgeries: 'Maksas Operācijas, limits EUR',
     opticsDiscount: 'Optika 50%, limits EUR',
+    
+    // Footer legend translations
+    patientPaymentTitle: 'PACIENTA IEMAKSA - maksājums, kuru pacients veic, saņemot valsts apmaksātus veselības aprūpes pakalpojumus.',
+    waitingTimeLink: 'Valsts apmaksātu veselības aprūpes pakalpojumus gaidīšanas ilgums →',
+    serviceAvailability: 'Pakalpojuma pieejamība:',
+    contractedFacilityService: 'Līgumiestādēs nopirkts pakalpojums = %',
+    receiptPayment: 'Čeku apmaksa, skat., piem. =',
+    familyDoctorVisit: 'Ģimenes ārsta apmeklējums = 100%',
+    specialistVisit: 'Ārsta-speciālista apmeklējums = 100%',
+    hospitalTreatment: 'Ārstēšanās slimnīcā (sākot ar otro dienu) = 100%',
+    dayCareHospital: 'Ārstēšanās dienas stacionārā (par katru dienu) = 100%',
+    mandatoryHealthChecksTitle: 'OBLIGĀTĀS VESELĪBAS PĀRBAUDES, IZZIŅAS - MK noteikumi Nr.219',
+    driverLicenseInfoLink: 'Informācija par autovadītāja medicīniskās izziņas derīguma termiņu →',
+    treatmentFacilitiesLink: 'Ārstniecības iestāžu saraksts un valsts apmaksātie ambulatorie pakalpojumi →',
+    paidServiceProviderLink: 'Maksas pakalpojuma saņemšanai iespējams izvēlēties pakalpojuma sniedzēju →',
+    diagnosticsReferralNote: 'Maksas diagnostiskajiem pakalpojumiem nepieciešams ārsta nosūtījums',
+    insurerPricelistNote: 'Tiek piemērots apdrošinātāja pakalpojuma apmaksas cenrādis',
+    taxRefundNote: 'Par neapmaksāto daļu iespējams saņemt pārmaksāto IIN',
   },
   en: {
     // Header
@@ -542,6 +560,24 @@ export const translations = {
     paidInpatientServicesAdditional: 'Paid inpatient services, limit EUR (additional programs)',
     paidSurgeries: 'Paid surgeries, limit EUR',
     opticsDiscount: 'Optics 50%, limit EUR',
+    
+    // Footer legend translations
+    patientPaymentTitle: 'PATIENT CONTRIBUTION - payment made by the patient when receiving state-funded healthcare services.',
+    waitingTimeLink: 'Waiting time for state-funded healthcare services →',
+    serviceAvailability: 'Service availability:',
+    contractedFacilityService: 'Service purchased at contracted facilities = %',
+    receiptPayment: 'Receipt payment, see e.g. =',
+    familyDoctorVisit: 'Family doctor visit = 100%',
+    specialistVisit: 'Specialist doctor visit = 100%',
+    hospitalTreatment: 'Hospital treatment (starting from the second day) = 100%',
+    dayCareHospital: 'Day hospital treatment (per day) = 100%',
+    mandatoryHealthChecksTitle: 'MANDATORY HEALTH CHECKS, CERTIFICATES - Government Regulation No.219',
+    driverLicenseInfoLink: 'Information about driver\'s medical certificate validity period →',
+    treatmentFacilitiesLink: 'List of treatment facilities and state-funded outpatient services →',
+    paidServiceProviderLink: 'For paid services, you can choose a service provider →',
+    diagnosticsReferralNote: 'A doctor\'s referral is required for paid diagnostic services',
+    insurerPricelistNote: 'The insurer\'s service payment pricelist is applied',
+    taxRefundNote: 'A refund of overpaid PIT is possible for the unpaid portion',
   },
   ru: {
     // Header
@@ -806,6 +842,24 @@ export const translations = {
     paidInpatientServicesAdditional: 'Платные стационарные услуги, лимит EUR (доп. программы)',
     paidSurgeries: 'Платные операции, лимит EUR',
     opticsDiscount: 'Оптика 50%, лимит EUR',
+    
+    // Footer legend translations
+    patientPaymentTitle: 'ВЗНОС ПАЦИЕНТА - платеж, который пациент вносит при получении медицинских услуг, финансируемых государством.',
+    waitingTimeLink: 'Время ожидания медицинских услуг, финансируемых государством →',
+    serviceAvailability: 'Доступность услуги:',
+    contractedFacilityService: 'Услуга, приобретенная в договорных учреждениях = %',
+    receiptPayment: 'Оплата по чекам, см., напр. =',
+    familyDoctorVisit: 'Посещение семейного врача = 100%',
+    specialistVisit: 'Посещение врача-специалиста = 100%',
+    hospitalTreatment: 'Лечение в больнице (со второго дня) = 100%',
+    dayCareHospital: 'Лечение в дневном стационаре (за каждый день) = 100%',
+    mandatoryHealthChecksTitle: 'ОБЯЗАТЕЛЬНЫЕ МЕДОСМОТРЫ, СПРАВКИ - Постановление Кабинета министров №219',
+    driverLicenseInfoLink: 'Информация о сроке действия медицинской справки водителя →',
+    treatmentFacilitiesLink: 'Список лечебных учреждений и амбулаторные услуги, оплачиваемые государством →',
+    paidServiceProviderLink: 'Для получения платной услуги можно выбрать поставщика услуг →',
+    diagnosticsReferralNote: 'Для платных диагностических услуг необходимо направление врача',
+    insurerPricelistNote: 'Применяется прейскурант оплаты услуг страховщика',
+    taxRefundNote: 'За неоплаченную часть возможен возврат переплаченного НДФЛ',
   },
   et: {
     // Header
@@ -1052,6 +1106,24 @@ export const translations = {
     paidInpatientServicesAdditional: 'Tasuline statsionaarne teenus, limiit EUR (lisaprogrammid)',
     paidSurgeries: 'Tasulised operatsioonid, limiit EUR',
     opticsDiscount: 'Optika 50%, limiit EUR',
+    
+    // Footer legend translations
+    patientPaymentTitle: 'PATSIENDI PANUS - makse, mille patsient teeb riigi rahastatud tervishoiuteenuste saamisel.',
+    waitingTimeLink: 'Riigi rahastatud tervishoiuteenuste ooteaeg →',
+    serviceAvailability: 'Teenuse kättesaadavus:',
+    contractedFacilityService: 'Lepinguasutustes ostetud teenus = %',
+    receiptPayment: 'Kviitungiga tasumine, vt nt =',
+    familyDoctorVisit: 'Perearstile minek = 100%',
+    specialistVisit: 'Eriarstile minek = 100%',
+    hospitalTreatment: 'Haiglaravi (alates teisest päevast) = 100%',
+    dayCareHospital: 'Päevahaigla ravi (päevas) = 100%',
+    mandatoryHealthChecksTitle: 'KOHUSTUSLIKUD TERVISEKONTROLLID, TÕENDID - Valitsuse määrus nr 219',
+    driverLicenseInfoLink: 'Teave juhilubade meditsiinilise tõendi kehtivusaja kohta →',
+    treatmentFacilitiesLink: 'Raviasutuste nimekiri ja riiklikud ambulatoorsed teenused →',
+    paidServiceProviderLink: 'Tasulise teenuse puhul saate valida teenusepakkuja →',
+    diagnosticsReferralNote: 'Tasulisteks diagnostikateenusteks on vaja arsti saatekirja',
+    insurerPricelistNote: 'Rakendatakse kindlustusandja teenuse tasuhinnakiri',
+    taxRefundNote: 'Tasumata osa eest on võimalik saada tagasi ülemakstud tulumaks',
   },
   lt: {
     // Header
@@ -1298,6 +1370,24 @@ export const translations = {
     paidInpatientServicesAdditional: 'Mokamos stacionarios paslaugos, limitas EUR (papildomos programos)',
     paidSurgeries: 'Mokamos operacijos, limitas EUR',
     opticsDiscount: 'Optika 50%, limitas EUR',
+    
+    // Footer legend translations
+    patientPaymentTitle: 'PACIENTO ĮMOKA - mokestis, kurį pacientas moka gaudamas valstybės apmokamas sveikatos priežiūros paslaugas.',
+    waitingTimeLink: 'Valstybės apmokamų sveikatos priežiūros paslaugų laukimo laikas →',
+    serviceAvailability: 'Paslaugos prieinamumas:',
+    contractedFacilityService: 'Paslauga įsigyta sutartinėse įstaigose = %',
+    receiptPayment: 'Mokėjimas pagal kvitus, žr. pvz. =',
+    familyDoctorVisit: 'Šeimos gydytojo apsilankymas = 100%',
+    specialistVisit: 'Specialisto gydytojo apsilankymas = 100%',
+    hospitalTreatment: 'Gydymas ligoninėje (nuo antros dienos) = 100%',
+    dayCareHospital: 'Gydymas dienos stacionare (per dieną) = 100%',
+    mandatoryHealthChecksTitle: 'PRIVALOMI SVEIKATOS PATIKRINIMAI, PAŽYMOS - Vyriausybės nutarimas Nr. 219',
+    driverLicenseInfoLink: 'Informacija apie vairuotojo medicininės pažymos galiojimo laiką →',
+    treatmentFacilitiesLink: 'Gydymo įstaigų sąrašas ir valstybės apmokamos ambulatorinės paslaugos →',
+    paidServiceProviderLink: 'Mokamoms paslaugoms galite pasirinkti paslaugų teikėją →',
+    diagnosticsReferralNote: 'Mokamoms diagnostikos paslaugoms reikalingas gydytojo siuntimas',
+    insurerPricelistNote: 'Taikomas draudiko paslaugų apmokėjimo kainoraštis',
+    taxRefundNote: 'Už nesumokėtą dalį galima gauti grąžintą permokėtą GPM',
   },
   no: {
     // Header
@@ -1533,6 +1623,24 @@ export const translations = {
     paidInpatientServicesAdditional: 'Betalte døgnopphold tjenester, grense EUR (tilleggsprogrammer)',
     paidSurgeries: 'Betalte operasjoner, grense EUR',
     opticsDiscount: 'Optikk 50%, grense EUR',
+    
+    // Footer legend translations
+    patientPaymentTitle: 'PASIENTEGENANDEL - betaling som pasienten betaler ved mottak av statlig finansierte helsetjenester.',
+    waitingTimeLink: 'Ventetid for statlig finansierte helsetjenester →',
+    serviceAvailability: 'Tjenestetilgjengelighet:',
+    contractedFacilityService: 'Tjeneste kjøpt ved avtalte institusjoner = %',
+    receiptPayment: 'Kvitteringsbetaling, se f.eks. =',
+    familyDoctorVisit: 'Fastlegebesøk = 100%',
+    specialistVisit: 'Spesialistlegebesøk = 100%',
+    hospitalTreatment: 'Sykehusbehandling (fra andre dag) = 100%',
+    dayCareHospital: 'Dagbehandling (per dag) = 100%',
+    mandatoryHealthChecksTitle: 'OBLIGATORISKE HELSEKONTROLLER, ATTESTER - Regjeringsforordning nr. 219',
+    driverLicenseInfoLink: 'Informasjon om førerkortets medisinske attest gyldighetsperiode →',
+    treatmentFacilitiesLink: 'Liste over behandlingsinstitusjoner og statlig finansierte polikliniske tjenester →',
+    paidServiceProviderLink: 'For betalte tjenester kan du velge en tjenesteleverandør →',
+    diagnosticsReferralNote: 'En legehenvisning kreves for betalte diagnostikktjenester',
+    insurerPricelistNote: 'Forsikringsgiverens tjenestebetalingsprisliste gjelder',
+    taxRefundNote: 'Tilbakebetaling av for mye betalt skatt er mulig for den ubetalte delen',
   },
   sv: {
     // Header
@@ -1779,6 +1887,24 @@ export const translations = {
     paidInpatientServicesAdditional: 'Betald slutenvård, gräns EUR (tilläggsprogram)',
     paidSurgeries: 'Betalda operationer, gräns EUR',
     opticsDiscount: 'Optik 50%, gräns EUR',
+    
+    // Footer legend translations
+    patientPaymentTitle: 'PATIENTAVGIFT - betalning som patienten gör när de får statligt finansierade hälsovårdstjänster.',
+    waitingTimeLink: 'Väntetid för statligt finansierade hälsovårdstjänster →',
+    serviceAvailability: 'Tjänstens tillgänglighet:',
+    contractedFacilityService: 'Tjänst köpt vid avtalsanslutna institutioner = %',
+    receiptPayment: 'Kvittobetalning, se t.ex. =',
+    familyDoctorVisit: 'Husläkarbesök = 100%',
+    specialistVisit: 'Specialistläkarbesök = 100%',
+    hospitalTreatment: 'Sjukhusbehandling (från andra dagen) = 100%',
+    dayCareHospital: 'Dagvårdsbehandling (per dag) = 100%',
+    mandatoryHealthChecksTitle: 'OBLIGATORISKA HÄLSOKONTROLLER, INTYG - Regeringsförordning nr 219',
+    driverLicenseInfoLink: 'Information om körkortsläkarintyggets giltighetstid →',
+    treatmentFacilitiesLink: 'Förteckning över vårdanläggningar och statligt finansierade öppenvårdstjänster →',
+    paidServiceProviderLink: 'För betalda tjänster kan du välja en tjänsteleverantör →',
+    diagnosticsReferralNote: 'En läkarremiss krävs för betalda diagnostiktjänster',
+    insurerPricelistNote: 'Försäkringsgivarens tjänstebetalningsprislista tillämpas',
+    taxRefundNote: 'Återbetalning av för mycket betald inkomstskatt är möjlig för den obetalda delen',
   },
   da: {
     // Header
@@ -2025,6 +2151,24 @@ export const translations = {
     paidInpatientServicesAdditional: 'Betalte indlæggelsestjenester, grænse EUR (supplerende programmer)',
     paidSurgeries: 'Betalte operationer, grænse EUR',
     opticsDiscount: 'Optik 50%, grænse EUR',
+    
+    // Footer legend translations
+    patientPaymentTitle: 'PATIENTBIDRAG - betaling som patienten foretager ved modtagelse af statsstøttede sundhedsydelser.',
+    waitingTimeLink: 'Ventetid på statsstøttede sundhedsydelser →',
+    serviceAvailability: 'Servicetilgængelighed:',
+    contractedFacilityService: 'Ydelse købt ved kontraktinstitutioner = %',
+    receiptPayment: 'Kvitteringsbetaling, se f.eks. =',
+    familyDoctorVisit: 'Familielægebesøg = 100%',
+    specialistVisit: 'Specialistlægebesøg = 100%',
+    hospitalTreatment: 'Sygehusbehandling (fra anden dag) = 100%',
+    dayCareHospital: 'Dagshospitalsbehandling (pr. dag) = 100%',
+    mandatoryHealthChecksTitle: 'OBLIGATORISKE SUNDHEDSKONTROLLER, ATTESTER - Regeringsforordning nr. 219',
+    driverLicenseInfoLink: 'Information om kørekorts lægeattest gyldighed →',
+    treatmentFacilitiesLink: 'Liste over behandlingsinstitutioner og statsstøttede ambulante tjenester →',
+    paidServiceProviderLink: 'For betalte tjenester kan du vælge en tjenesteudbyder →',
+    diagnosticsReferralNote: 'En lægehenvisning er påkrævet til betalte diagnostiktjenester',
+    insurerPricelistNote: 'Forsikringsselskabets servicebetalingsprisliste anvendes',
+    taxRefundNote: 'Tilbagebetaling af for meget betalt indkomstskat er mulig for den ubetalte del',
   },
   fr: {
     // Header
@@ -2260,6 +2404,24 @@ export const translations = {
     paidInpatientServicesAdditional: 'Services hospitaliers payants, limite EUR (programmes supplémentaires)',
     paidSurgeries: 'Chirurgies payantes, limite EUR',
     opticsDiscount: 'Optique 50%, limite EUR',
+    
+    // Footer legend translations
+    patientPaymentTitle: 'CONTRIBUTION DU PATIENT - paiement effectué par le patient lors de la réception de services de santé financés par l\'État.',
+    waitingTimeLink: 'Délai d\'attente pour les services de santé financés par l\'État →',
+    serviceAvailability: 'Disponibilité du service :',
+    contractedFacilityService: 'Service acheté dans les établissements sous contrat = %',
+    receiptPayment: 'Paiement par reçu, voir par ex. =',
+    familyDoctorVisit: 'Visite chez le médecin de famille = 100%',
+    specialistVisit: 'Visite chez le médecin spécialiste = 100%',
+    hospitalTreatment: 'Traitement hospitalier (à partir du deuxième jour) = 100%',
+    dayCareHospital: 'Traitement en hôpital de jour (par jour) = 100%',
+    mandatoryHealthChecksTitle: 'CONTRÔLES DE SANTÉ OBLIGATOIRES, CERTIFICATS - Règlement gouvernemental n° 219',
+    driverLicenseInfoLink: 'Informations sur la période de validité du certificat médical du permis de conduire →',
+    treatmentFacilitiesLink: 'Liste des établissements de soins et services ambulatoires financés par l\'État →',
+    paidServiceProviderLink: 'Pour les services payants, vous pouvez choisir un prestataire de services →',
+    diagnosticsReferralNote: 'Une référence médicale est requise pour les services de diagnostic payants',
+    insurerPricelistNote: 'La liste de prix des services de l\'assureur est appliquée',
+    taxRefundNote: 'Un remboursement de l\'impôt sur le revenu trop-perçu est possible pour la partie non payée',
   },
   de: {
     // Header
@@ -2506,6 +2668,24 @@ export const translations = {
     paidInpatientServicesAdditional: 'Bezahlte stationäre Leistungen, Limit EUR (Zusatzprogramme)',
     paidSurgeries: 'Bezahlte Operationen, Limit EUR',
     opticsDiscount: 'Optik 50%, Limit EUR',
+    
+    // Footer legend translations
+    patientPaymentTitle: 'PATIENTENZUZAHLUNG - Zahlung, die der Patient bei Erhalt staatlich finanzierter Gesundheitsdienste leistet.',
+    waitingTimeLink: 'Wartezeit für staatlich finanzierte Gesundheitsdienste →',
+    serviceAvailability: 'Dienstverfügbarkeit:',
+    contractedFacilityService: 'In Vertragseinrichtungen gekaufter Dienst = %',
+    receiptPayment: 'Quittungszahlung, siehe z.B. =',
+    familyDoctorVisit: 'Hausarztbesuch = 100%',
+    specialistVisit: 'Facharztbesuch = 100%',
+    hospitalTreatment: 'Krankenhausbehandlung (ab dem zweiten Tag) = 100%',
+    dayCareHospital: 'Tagesklinikbehandlung (pro Tag) = 100%',
+    mandatoryHealthChecksTitle: 'OBLIGATORISCHE GESUNDHEITSUNTERSUCHUNGEN, BESCHEINIGUNGEN - Regierungsverordnung Nr. 219',
+    driverLicenseInfoLink: 'Informationen über die Gültigkeitsdauer des Führerschein-Gesundheitszeugnisses →',
+    treatmentFacilitiesLink: 'Liste der Behandlungseinrichtungen und staatlich finanzierte ambulante Dienste →',
+    paidServiceProviderLink: 'Für bezahlte Dienste können Sie einen Dienstleister wählen →',
+    diagnosticsReferralNote: 'Für bezahlte Diagnostikdienste ist eine ärztliche Überweisung erforderlich',
+    insurerPricelistNote: 'Die Dienstleistungspreisliste des Versicherers wird angewendet',
+    taxRefundNote: 'Eine Rückerstattung zu viel gezahlter Einkommensteuer ist für den unbezahlten Teil möglich',
   },
   es: {
     // Header
@@ -2752,6 +2932,24 @@ export const translations = {
     paidInpatientServicesAdditional: 'Servicios hospitalarios pagados, límite EUR (programas adicionales)',
     paidSurgeries: 'Cirugías pagadas, límite EUR',
     opticsDiscount: 'Óptica 50%, límite EUR',
+    
+    // Footer legend translations
+    patientPaymentTitle: 'CONTRIBUCIÓN DEL PACIENTE - pago que realiza el paciente al recibir servicios de salud financiados por el estado.',
+    waitingTimeLink: 'Tiempo de espera para servicios de salud financiados por el estado →',
+    serviceAvailability: 'Disponibilidad del servicio:',
+    contractedFacilityService: 'Servicio comprado en establecimientos contratados = %',
+    receiptPayment: 'Pago con recibo, ver p. ej. =',
+    familyDoctorVisit: 'Visita al médico de familia = 100%',
+    specialistVisit: 'Visita al médico especialista = 100%',
+    hospitalTreatment: 'Tratamiento hospitalario (a partir del segundo día) = 100%',
+    dayCareHospital: 'Tratamiento en hospital de día (por día) = 100%',
+    mandatoryHealthChecksTitle: 'CONTROLES DE SALUD OBLIGATORIOS, CERTIFICADOS - Reglamento gubernamental n.º 219',
+    driverLicenseInfoLink: 'Información sobre el período de validez del certificado médico del permiso de conducir →',
+    treatmentFacilitiesLink: 'Lista de establecimientos de tratamiento y servicios ambulatorios financiados por el estado →',
+    paidServiceProviderLink: 'Para servicios de pago, puede elegir un proveedor de servicios →',
+    diagnosticsReferralNote: 'Se requiere una derivación médica para servicios de diagnóstico de pago',
+    insurerPricelistNote: 'Se aplica la lista de precios de servicios del asegurador',
+    taxRefundNote: 'Es posible un reembolso del impuesto sobre la renta pagado en exceso para la parte no pagada',
   },
 };
 

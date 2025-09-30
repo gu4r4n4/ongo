@@ -1,5 +1,6 @@
 import { Language, useTranslation } from "@/utils/translations";
 import { Badge } from "@/components/ui/badge";
+import { Check } from "lucide-react";
 
 interface MedicalServicesHeaderProps {
   currentLanguage: Language;
@@ -86,7 +87,7 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
           {/* Title Section */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-foreground">
-              PACIENTA IEMAKSA - maksājums, kuru pacients veic, saņemot valsts apmaksātus veselības aprūpes pakalpojumus.
+              {t('patientPaymentTitle')}
             </h3>
             <a 
               href="https://www.rindapiearsta.lv/lv/mekle_isako"
@@ -94,22 +95,25 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
               rel="noopener noreferrer"
               className="text-sm text-blue-600 hover:text-blue-800 underline block"
             >
-              Valsts apmaksātu veselības aprūpes pakalpojumus gaidīšanas ilgums →
+              {t('waitingTimeLink')}
             </a>
           </div>
 
           {/* Service Availability Section */}
           <div className="space-y-3">
             <h4 className="text-base font-medium text-foreground">
-              Pakalpojuma pieejamība:
+              {t('serviceAvailability')}
             </h4>
             <ul className="text-sm text-muted-foreground space-y-1.5 ml-4">
-              <li>• Līgumiestādēs nopirkts pakalpojums = %</li>
-              <li>• Čeku apmaksa, skat., piem. = v</li>
-              <li>• Ģimenes ārsta apmeklējums = 100%</li>
-              <li>• Ārsta-speciālista apmeklējums = 100%</li>
-              <li>• Ārstēšanās slimnīcā (sākot ar otro dienu) = 100%</li>
-              <li>• Ārstēšanās dienas stacionārā (par katru dienu) = 100%</li>
+              <li>• {t('contractedFacilityService')}</li>
+              <li className="flex items-center gap-1">
+                <span>• {t('receiptPayment')}</span>
+                <Check className="h-4 w-4 text-green-600" />
+              </li>
+              <li>• {t('familyDoctorVisit')}</li>
+              <li>• {t('specialistVisit')}</li>
+              <li>• {t('hospitalTreatment')}</li>
+              <li>• {t('dayCareHospital')}</li>
             </ul>
           </div>
 
@@ -121,7 +125,7 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
               rel="noopener noreferrer"
               className="text-base font-medium text-foreground hover:text-blue-600 underline block"
             >
-              OBLIGĀTĀS VESELĪBAS PĀRBAUDES, IZZIŅAS - MK noteikumi Nr.219
+              {t('mandatoryHealthChecksTitle')}
             </a>
             <a 
               href="https://www.csdd.lv/veselibas-parbaude/karteja-parbaude"
@@ -129,7 +133,7 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
               rel="noopener noreferrer"
               className="text-sm text-blue-600 hover:text-blue-800 underline block"
             >
-              Informācija par autovadītāja medicīniskās izziņas derīguma termiņu →
+              {t('driverLicenseInfoLink')}
             </a>
           </div>
         </div>
@@ -150,7 +154,7 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
               rel="noopener noreferrer"
               className="text-sm text-blue-600 hover:text-blue-800 underline block"
             >
-              Ārstniecības iestāžu saraksts un valsts apmaksātie ambulatorie pakalpojumi →
+              {t('treatmentFacilitiesLink')}
             </a>
           </div>
 
@@ -168,12 +172,12 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
               rel="noopener noreferrer"
               className="text-sm text-blue-600 hover:text-blue-800 underline block mb-4"
             >
-              Maksas pakalpojuma saņemšanai iespējams izvēlēties pakalpojuma sniedzēju →
+              {t('paidServiceProviderLink')}
             </a>
             <ul className="text-sm text-muted-foreground space-y-1">
-              <li>• Maksas diagnostiskajiem pakalpojumiem nepieciešams ārsta nosūtījums</li>
-              <li>• Tiek piemērots apdrošinātāja pakalpojuma apmaksas cenrādis</li>
-              <li>• Par neapmaksāto daļu iespējams saņemt pārmaksāto IIN</li>
+              <li>• {t('diagnosticsReferralNote')}</li>
+              <li>• {t('insurerPricelistNote')}</li>
+              <li>• {t('taxRefundNote')}</li>
             </ul>
           </div>
         </div>
