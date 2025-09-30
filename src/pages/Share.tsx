@@ -51,25 +51,27 @@ const Share = () => {
       if (!token) return;
       setLoading(true);
       setError(null);
+
       const attempt = async () => {
         const res = await fetch(`${BACKEND_URL}/shares/${encodeURIComponent(token)}`, { cache: 'no-store' });
         if (!res.ok) throw new Error(await res.text());
         return res.json();
       };
+
       try {
-        try {
-          const json = await attempt();
-          console.log('🟢 Received share data:', json);
-          console.log('🟢 View prefs from payload:', json.payload?.view_prefs);
-          setData(json);
-        } catch {
-          // brief retry to bridge insert->read window
-          await new Promise(r => setTimeout(r, 200));
-          const json = await attempt();
-          console.log('🟢 Received share data (retry):', json);
-          console.log('🟢 View prefs from payload (retry):', json.payload?.view_prefs);
-          setData(json);
+        let lastErr: any = null;
+        for (let i = 0; i < 8; i++) { // ~3.5s max
+          try {
+            const json = await attempt();
+            setData(json);
+            lastErr = null;
+            break;
+          } catch (e) {
+            lastErr = e;
+            await new Promise(r => setTimeout(r, 2 ** i * 50)); // 50,100,200,...ms
+          }
         }
+        if (lastErr) throw lastErr;
       } catch (e: any) {
         console.error('Share fetch error:', e);
         setError(e?.message || 'Failed to load share');
