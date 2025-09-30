@@ -1395,7 +1395,7 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
               <>
                 <div className="flex border-b bg-card">
                   <div className={`w-[280px] border-r p-3 font-semibold text-sm ${isMobile ? "" : "sticky left-0 bg-card z-10"}`}>
-                    Papildus programmas
+                    {t('additionalPrograms')}
                   </div>
                   <div className="flex-1 p-3 text-xs text-muted-foreground" />
                 </div>
@@ -1404,7 +1404,7 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                   <div key={featureKey} className={`flex border-b hover:bg-[#f1f5f9] transition-colors ${index % 2 === 0 ? "bg-muted/10" : ""}`}>
                     <div className={`w-[280px] bg-muted border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
                       <Badge variant="secondary" className="text-sm font-medium">
-                        {featureKey}
+                        {translateFeatureName(featureKey, t)}
                       </Badge>
                     </div>
 
