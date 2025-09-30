@@ -136,17 +136,18 @@ const Share = () => {
         </div>
 
         <ComparisonMatrix
+          key={data.token}                                // force fresh local state per share
           columns={columns}
           allFeatureKeys={allFeatureKeys}
           currentLanguage={currentLanguage}
           companyName={companyName}
           employeesCount={employeesCount}
-          sharePrefs={data.payload?.view_prefs}   // ✅ apply saved order/hidden rows
-          canEdit={true}            // 🔓 enable editing in Step 1
-          showBuyButtons={true}     // show CTA row (approve/insurer links)
-          isShareView={true}        // refetches by token after saves
-          backendUrl={BACKEND_URL}  // used for PATCH/DELETE and refetch
-          shareToken={token}        // lets matrix re-pull /shares/:token
+          sharePrefs={data.payload?.view_prefs}
+          canEdit={!!data.payload?.editable}              // ✅ respect server "editable"
+          showBuyButtons={false}                          // ✅ hide CTA row on public share
+          isShareView={true}
+          backendUrl={BACKEND_URL}
+          shareToken={token}
         />
       </div>
     </div>
