@@ -1211,9 +1211,17 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                     onDrop={onDrop(k)}
                   >
                     <div className="flex flex-col items-center text-center space-y-2">
-                      {/* Delete button */}
+                      {/* Edit and Delete buttons */}
                       {canEdit && (
-                        <div className="w-full flex justify-end">
+                        <div className="w-full flex justify-between">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => startEdit(column.id)}
+                            className="h-6 w-6 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                          >
+                            <Edit className="h-3 w-3" />
+                          </Button>
                           <Button
                             size="sm"
                             variant="ghost"
