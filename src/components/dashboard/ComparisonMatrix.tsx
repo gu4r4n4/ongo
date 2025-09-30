@@ -1299,6 +1299,9 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                             return;
                           }
 
+                          // Open a tab immediately (keeps user-gesture; avoids popup blockers)
+                          const popup = window.open("about:blank", "_blank", "noopener,noreferrer");
+
                           const baseUrl = await createInsurerShareLink({
                             backendUrl,
                             insurer: column.insurer || "",
@@ -1311,9 +1314,16 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                             viewPrefs, // persist current order + hidden rows
                           });
 
-                          const shareUrl = appendHiddenFeaturesToUrl(baseUrl, hiddenFeatures); // optional URL fallback
-                          await navigator.clipboard.writeText(shareUrl);
-                          toast.success(t("insurerLinkCopied") || "Insurer-only link copied!");
+                          const shareUrl = appendHiddenFeaturesToUrl(baseUrl, hiddenFeatures);
+
+                          if (popup) {
+                            popup.location.href = shareUrl;
+                          } else {
+                            // Fallback if popup was blocked
+                            window.open(shareUrl, "_blank", "noopener,noreferrer");
+                          }
+
+                          toast.success(t("insurerLinkOpened") || "Insurer-only link opened in a new tab");
                         } catch (e: any) {
                           toast.error(`${t("failedToCreateShare") || "Failed to create share"}: ${e.message}`);
                         }
