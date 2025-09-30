@@ -1094,7 +1094,7 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                   {allFeatureOptions.map((k) => (
                     <label key={k} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-muted/50 p-1 rounded">
                       <Checkbox checked={hiddenFeatures.has(k)} onCheckedChange={() => toggleFeatureVisibility(k)} />
-                      <span>{k}</span>
+                      <span>{translateFeatureName(k, t)}</span>
                     </label>
                   ))}
                 </div>
