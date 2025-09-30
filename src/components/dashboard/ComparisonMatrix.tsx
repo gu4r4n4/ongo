@@ -1077,21 +1077,18 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
               <PopoverTrigger asChild>
                 <Button variant="outline" size="sm" className="flex items-center gap-2">
                   <Filter className="h-4 w-4" />
-                  {t("rows")}
+                  {t("hideRows")}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-80 z-50 bg-popover">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="text-sm font-medium">{t("hideRows")}</div>
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="ghost" onClick={clearHidden}>
-                      Reset
-                    </Button>
-                    <Button size="sm" variant="default" onClick={saveViewPreferences}>
-                      <Save className="h-3 w-3 mr-1" />
-                      {t("save")}
-                    </Button>
-                  </div>
+                <div className="flex items-center justify-end gap-2 mb-2">
+                  <Button size="sm" variant="ghost" onClick={clearHidden}>
+                    Reset
+                  </Button>
+                  <Button size="sm" variant="default" onClick={saveViewPreferences}>
+                    <Save className="h-3 w-3 mr-1" />
+                    {t("save")}
+                  </Button>
                 </div>
                 <div className="max-h-64 overflow-auto space-y-1">
                   {allFeatureOptions.map((k) => (
