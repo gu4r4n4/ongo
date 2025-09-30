@@ -353,16 +353,13 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     }
   };
 
-  // Share functionality – open new tab first to avoid popup blockers
+  // Share functionality
   const shareResults = async (prefs?: ViewPrefs) => {
     if (!docIds.length) {
       toast.error(t('noResultsToShare'));
       return;
     }
-
-    // 👇 pre-open tab synchronously on user click (gesture)
-    const popup = window.open('about:blank', '_blank', 'noopener,noreferrer');
-
+    console.log('🔵 Sharing with view_prefs:', prefs);
     try {
       const payload = {
         title: 'Piedāvājums',
@@ -373,33 +370,24 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
         role: 'broker',
         view_prefs: prefs ?? { column_order: [], hidden_features: [] },
       };
-
+      console.log('🔵 Full share payload:', payload);
+      
       const res = await fetch(`${BACKEND_URL}/shares`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data?.detail || `Failed (${res.status})`);
       }
-
       const data = await res.json();  // { ok, token, url, ... }
 
-      // Use the server URL if present (respects SHARE_BASE_URL), else FE route
+      // Use the server's URL (respects SHARE_BASE_URL) or fallback to local
       const feUrl = data.url || `${window.location.origin.replace(/\/$/, '')}/share/${data.token}`;
-
-      if (popup) {
-        popup.location.href = feUrl;
-      } else {
-        // Fallback in case user's browser blocks opening a new tab
-        window.open(feUrl, '_blank', 'noopener,noreferrer');
-      }
-
+      window.open(feUrl, '_blank', 'noopener,noreferrer');
       toast.success(t('shareLinkCreated'));
     } catch (err: any) {
-      if (popup) popup.close(); // clean up the pre-opened tab on error
       toast.error(`${t('failed') || 'Failed'}: ${err?.message || 'Share error'}`);
     }
   };
