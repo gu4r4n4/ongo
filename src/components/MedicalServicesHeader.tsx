@@ -104,17 +104,27 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
             <h4 className="text-base font-medium text-foreground">
               {t('serviceAvailability')}
             </h4>
-            <ul className="text-sm text-muted-foreground space-y-1.5 ml-4">
-              <li>• {t('contractedFacilityService')}</li>
-              <li className="flex items-center gap-1">
-                <span>• {t('receiptPayment')}</span>
-                <Check className="h-4 w-4 text-green-600" />
-              </li>
-              <li>• {t('familyDoctorVisit')}</li>
-              <li>• {t('specialistVisit')}</li>
-              <li>• {t('hospitalTreatment')}</li>
-              <li>• {t('dayCareHospital')}</li>
-            </ul>
+            <div className="flex flex-wrap gap-2">
+              <Badge className="text-white hover:bg-[#004287]" variant="secondary" style={{ backgroundColor: '#004287' }}>
+                {t('contractedFacilityService')}
+              </Badge>
+              <Badge className="text-white hover:bg-[#004287] inline-flex items-center gap-1.5" variant="secondary" style={{ backgroundColor: '#004287' }}>
+                <span>{t('receiptPayment')}</span>
+                <Check className="h-3.5 w-3.5 text-white" />
+              </Badge>
+              <Badge className="text-white hover:bg-[#004287]" variant="secondary" style={{ backgroundColor: '#004287' }}>
+                {t('familyDoctorVisit')}
+              </Badge>
+              <Badge className="text-white hover:bg-[#004287]" variant="secondary" style={{ backgroundColor: '#004287' }}>
+                {t('specialistVisit')}
+              </Badge>
+              <Badge className="text-white hover:bg-[#004287]" variant="secondary" style={{ backgroundColor: '#004287' }}>
+                {t('hospitalTreatment')}
+              </Badge>
+              <Badge className="text-white hover:bg-[#004287]" variant="secondary" style={{ backgroundColor: '#004287' }}>
+                {t('dayCareHospital')}
+              </Badge>
+            </div>
           </div>
 
           {/* Health Checks Section */}
