@@ -213,7 +213,7 @@ export const translations = {
     // Badge categories
     general: 'Vispārīgs',
     specialist: 'Speciālists',
-    skin: 'Ādas',
+    skin: 'Āda',
     alternative: 'Alternatīvs',
     sports: 'Sports',
     therapy: 'Terapija',
