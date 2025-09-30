@@ -81,6 +81,59 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
   return (
     <div className="bg-gradient-to-br from-primary/5 via-background to-secondary/5 border border-border rounded-xl p-6 mb-8 shadow-sm">
       <div className="max-w-7xl mx-auto">
+        {/* New Informational Block */}
+        <div className="space-y-6 mb-8 pb-8 border-b border-border">
+          {/* Title Section */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-foreground">
+              PACIENTA IEMAKSA - maksājums, kuru pacients veic, saņemot valsts apmaksātus veselības aprūpes pakalpojumus.
+            </h3>
+            <a 
+              href="https://www.rindapiearsta.lv/lv/mekle_isako"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-blue-600 hover:text-blue-800 underline block"
+            >
+              Valsts apmaksātu veselības aprūpes pakalpojumus gaidīšanas ilgums →
+            </a>
+          </div>
+
+          {/* Service Availability Section */}
+          <div className="space-y-3">
+            <h4 className="text-base font-medium text-foreground">
+              Pakalpojuma pieejamība:
+            </h4>
+            <ul className="text-sm text-muted-foreground space-y-1.5 ml-4">
+              <li>• Līgumiestādēs nopirkts pakalpojums = %</li>
+              <li>• Čeku apmaksa, skat., piem. = v</li>
+              <li>• Ģimenes ārsta apmeklējums = 100%</li>
+              <li>• Ārsta-speciālista apmeklējums = 100%</li>
+              <li>• Ārstēšanās slimnīcā (sākot ar otro dienu) = 100%</li>
+              <li>• Ārstēšanās dienas stacionārā (par katru dienu) = 100%</li>
+            </ul>
+          </div>
+
+          {/* Health Checks Section */}
+          <div className="space-y-3">
+            <a 
+              href="https://likumi.lv/doc.php?id=189070"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-base font-medium text-foreground hover:text-blue-600 underline block"
+            >
+              OBLIGĀTĀS VESELĪBAS PĀRBAUDES, IZZIŅAS - MK noteikumi Nr.219
+            </a>
+            <a 
+              href="https://www.csdd.lv/veselibas-parbaude/karteja-parbaude"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-blue-600 hover:text-blue-800 underline block"
+            >
+              Informācija par autovadītāja medicīniskās izziņas derīguma termiņu →
+            </a>
+          </div>
+        </div>
+
         {/* Top Row - 2 Columns */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* Patient Payment Section */}
