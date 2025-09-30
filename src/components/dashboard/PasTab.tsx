@@ -359,7 +359,6 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
       toast.error(t('noResultsToShare'));
       return;
     }
-
     try {
       const res = await fetch(`${BACKEND_URL}/shares`, {
         method: 'POST',
@@ -369,20 +368,18 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
           company_name: companyName,
           employees_count: employeesCount,
           document_ids: docIds,
+          editable: true,              // ✅ make Step 1 share editable
+          role: 'broker'               // (optional) if your API uses roles
         }),
       });
-
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data?.detail || `Failed (${res.status})`);
       }
+      const data = await res.json();  // { ok, token, url, ... }
 
-      const data = await res.json(); // { ok, token, url, ... }
-      const feUrl =
-        data?.url && data.url.includes('/share/')
-          ? data.url
-          : `${window.location.origin.replace(/\/$/, '')}/share/${data.token}`;
-
+      // Always open FE route
+      const feUrl = `${window.location.origin.replace(/\/$/, '')}/share/${data.token}`;
       window.open(feUrl, '_blank', 'noopener,noreferrer');
       toast.success(t('shareLinkCreated'));
     } catch (err: any) {
