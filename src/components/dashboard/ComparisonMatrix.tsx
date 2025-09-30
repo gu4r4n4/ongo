@@ -1293,15 +1293,11 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                       size="sm"
                       className={`w-full ${rounded} text-white bg-[var(--brand-primary)] hover:bg-[var(--brand-primary-hover)] focus:ring-2 focus:ring-[var(--brand-ring)]`}
                       onClick={async () => {
-                        let popup: Window | null = null;
                         try {
                           if (!backendUrl) {
                             toast.error(t("missingBackendUrl") || "Missing backend URL");
                             return;
                           }
-
-                          // Open a tab immediately (keeps user-gesture; avoids popup blockers)
-                          popup = window.open("about:blank", "_blank", "noopener,noreferrer");
 
                           const baseUrl = await createInsurerShareLink({
                             backendUrl,
@@ -1317,17 +1313,15 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
 
                           const shareUrl = appendHiddenFeaturesToUrl(baseUrl, hiddenFeatures);
 
-                          if (popup && !popup.closed) {
-                            popup.location.href = shareUrl;
-                            toast.success(t("insurerLinkOpened") || "Insurer-only link opened in a new tab");
-                          } else {
+                          // Open the URL directly
+                          const newWindow = window.open(shareUrl, "_blank", "noopener,noreferrer");
+                          
+                          if (!newWindow || newWindow.closed) {
                             throw new Error("Popup was blocked by browser");
                           }
+                          
+                          toast.success(t("insurerLinkOpened") || "Insurer-only link opened in a new tab");
                         } catch (e: any) {
-                          // Close the popup if share creation failed
-                          if (popup && !popup.closed) {
-                            popup.close();
-                          }
                           toast.error(`${t("failedToCreateShare") || "Failed to create share"}: ${e.message}`);
                         }
                       }}
