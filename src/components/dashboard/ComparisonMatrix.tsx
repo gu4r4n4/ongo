@@ -187,6 +187,9 @@ const KEY_ALIASES: Record<string, string> = {
   "Medikamenti ar 50% atlaidi": "Medikamenti ar 50% atlaidi",
   "Kritiskās saslimšanas": "Kritiskās saslimšanas",
   "Maksas stacionārie pakalpojumi, limits EUR (pp)": "Maksas stacionārie pakalpojumi, limits EUR (pp)",
+  "Papildus programmas": "Papildus programmas",
+  "Maksas Operācijas, limits EUR": "Maksas Operācijas, limits EUR",
+  "Optika 50%, limits EUR": "Optika 50%, limits EUR",
 };
 
 const HIDE_IN_TABLE = new Set<string>([
@@ -461,6 +464,20 @@ const getFeatureTranslationKey = (featureName: string): string | null => {
     'Ambulatorā rehabilitācija': 'outpatientRehabilitation',
     'Piemaksa par plastikāta kartēm, EUR': 'plasticCardSurcharge',
     'Piemaksa par plastikāta kartēm, €': 'plasticCardSurcharge',
+    'Papildus programmas': 'additionalPrograms',
+    'Zobārstniecība ar 50% atlaidi (pamatpolise)': 'dentistryDiscountBase',
+    'Zobārstniecība ar 50% atlaidi (pp)': 'dentistryDiscountAdditional',
+    'Vakcinācija pret ērcēm un gripu': 'tickFluVaccination',
+    'Ambulatorā rehabilitācija (pp)': 'outpatientRehabilitationAdditional',
+    'Medikamenti ar 50% atlaidi': 'medicationsDiscount',
+    'Sports': 'sportsProgram',
+    'Kritiskās saslimšanas': 'criticalIllness',
+    'Maksas stacionārie pakalpojumi, limits EUR (pp)': 'paidInpatientServicesAdditional',
+    'Maksas stacionārie pakalpojumi, limits € (pp)': 'paidInpatientServicesAdditional',
+    'Maksas Operācijas, limits EUR': 'paidSurgeries',
+    'Maksas Operācijas, limits €': 'paidSurgeries',
+    'Optika 50%, limits EUR': 'opticsDiscount',
+    'Optika 50%, limits €': 'opticsDiscount',
   };
   return featureMap[featureName] || null;
 };
