@@ -55,6 +55,8 @@ const Share = () => {
         const res = await fetch(`${BACKEND_URL}/shares/${encodeURIComponent(token)}`, { cache: 'no-store' });
         if (!res.ok) throw new Error(await res.text());
         const json = await res.json(); // { ok, payload, offers: [...] }
+        console.log('🟢 Received share data:', json);
+        console.log('🟢 View prefs from payload:', json.payload?.view_prefs);
         setData(json);
       } catch (e: any) {
         console.error('Share fetch error:', e);

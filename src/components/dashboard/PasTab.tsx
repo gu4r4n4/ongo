@@ -359,19 +359,23 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
       toast.error(t('noResultsToShare'));
       return;
     }
+    console.log('🔵 Sharing with view_prefs:', prefs);
     try {
+      const payload = {
+        title: 'Piedāvājums',
+        company_name: companyName,
+        employees_count: employeesCount,
+        document_ids: docIds,
+        editable: true,
+        role: 'broker',
+        view_prefs: prefs ?? { column_order: [], hidden_features: [] },
+      };
+      console.log('🔵 Full share payload:', payload);
+      
       const res = await fetch(`${BACKEND_URL}/shares`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: 'Piedāvājums',
-          company_name: companyName,
-          employees_count: employeesCount,
-          document_ids: docIds,
-          editable: true,
-          role: 'broker',
-          view_prefs: prefs ?? { column_order: [], hidden_features: [] }, // ✅
-        }),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
