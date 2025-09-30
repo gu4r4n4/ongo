@@ -419,8 +419,37 @@ async function refetchColumnsAfterSave(
   }
 }
 
-/** Back-compat name passthrough */
-const translateFeatureName = (k: string, _t: (key: any) => string): string => k;
+/** Feature name translation mapping */
+const getFeatureTranslationKey = (featureName: string): string | null => {
+  const featureMap: Record<string, string> = {
+    'Pakalpojuma apmaksas veids': 'servicePaymentMethod',
+    'Maksas ārsta-specialista konsultācija, limits €': 'paidSpecialistConsultation',
+    'Profesora, docenta, internista konsultācija, limits €': 'professorDocentConsultation',
+    'Homeopāts': 'homeopathService',
+    'Psihoterapeits': 'psychotherapist',
+    'Sporta ārsts': 'sportsDoctorService',
+    'ONLINE ārstu konsultācijas': 'onlineDoctorConsultations',
+    'Laboratoriskie izmeklējumi': 'laboratoryTests',
+    'Maksas diagnostika, piem., rentgens, elektrokradiogramma, USG, utml.': 'paidDiagnostics',
+    'Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai €)': 'highTechExaminations',
+    'Obligātās veselības pārbaudes, limits €': 'mandatoryHealthChecks',
+    'Ārstnieciskās manipulācijas': 'therapeuticManipulations',
+    'Medicīniskās izziņas': 'medicalCertificates',
+    'Fizikālā terapija': 'physicalTherapy',
+    'Procedūras': 'procedures',
+    'Vakcinācija, limits €': 'vaccination',
+  };
+  return featureMap[featureName] || null;
+};
+
+/** Translate feature name using translation keys */
+const translateFeatureName = (k: string, t: (key: any) => string): string => {
+  const translationKey = getFeatureTranslationKey(k);
+  if (translationKey) {
+    return t(translationKey as any);
+  }
+  return k;
+};
 
 /** ======================
  *  Defensive value lookup
@@ -1029,8 +1058,8 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
       {canEdit && (
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-xl font-bold">PAS</h3>
-            <p className="text-sm text-muted-foreground">Piedāvājumu Apstrādes Serviss</p>
+            <h3 className="text-xl font-bold">{t("pas")}</h3>
+            <p className="text-sm text-muted-foreground">{t("pasSettings")}</p>
           </div>
           <div className="flex items-center gap-2">
             {onShare && (
@@ -1048,19 +1077,19 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
               <PopoverTrigger asChild>
                 <Button variant="outline" size="sm" className="flex items-center gap-2">
                   <Filter className="h-4 w-4" />
-                  Rows
+                  {t("rows")}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-80 z-50 bg-popover">
                 <div className="flex items-center justify-between mb-2">
-                  <div className="text-sm font-medium">Hide rows</div>
+                  <div className="text-sm font-medium">{t("hideRows")}</div>
                   <div className="flex gap-2">
                     <Button size="sm" variant="ghost" onClick={clearHidden}>
                       Reset
                     </Button>
                     <Button size="sm" variant="default" onClick={saveViewPreferences}>
                       <Save className="h-3 w-3 mr-1" />
-                      Save
+                      {t("save")}
                     </Button>
                   </div>
                 </div>
