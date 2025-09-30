@@ -551,8 +551,7 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
   const [draggingKey, setDraggingKey] = useState<string | null>(null);
   const [dragOverKey, setDragOverKey] = useState<string | null>(null);
 
-  // Company edit + row hiding
-  const [editingCompany, setEditingCompany] = useState<string | null>(null);
+  // Row hiding
   const [hiddenFeatures, setHiddenFeatures] = useState<Set<string>>(new Set());
   const toggleFeatureVisibility = (k: string) =>
     setHiddenFeatures((prev) => {
@@ -1038,9 +1037,25 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                         <InsurerLogo name={column.insurer} className="w-10 h-10 object-contain" />
                       </div>
 
-                      {/* Editable company name */}
-                      {editingCompany === column.id ? (
+                      {/* Company name */}
+                      <div
+                        className="font-semibold text-sm truncate w-full cursor-grab active:cursor-grabbing hover:bg-muted/50 p-1 rounded"
+                        title="Drag to reorder"
+                      >
+                        {column.insurer}
+                      </div>
+
+                      {/* Program code badge */}
+                      <Badge
+                        variant="outline"
+                        className="text-xs max-w-full bg-[#004287] text-white border-[#004287] whitespace-normal leading-tight py-1 min-h-[1.5rem] flex items-center justify-center"
+                      >
+                        <span className="break-words text-center">{column.program_code}</span>
+                      </Badge>
+
+                      {isEditing ? (
                         <div className="w-full space-y-2">
+                          {/* Company selector */}
                           <Select
                             value={editFormData.insurer || column.insurer || ""}
                             onValueChange={(value) =>
@@ -1050,8 +1065,8 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                               }))
                             }
                           >
-                            <SelectTrigger className="w-full text-xs">
-                              <SelectValue />
+                            <SelectTrigger className="w-full text-xs h-8">
+                              <SelectValue placeholder="Select insurer" />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="BAN">BAN</SelectItem>
@@ -1064,50 +1079,17 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                               <SelectItem value="SEESAM">SEESAM</SelectItem>
                             </SelectContent>
                           </Select>
-                          <div className="flex gap-1">
-                            <Button
-                              size="sm"
-                              onClick={() => {
-                                setEditingCompany(null);
-                                saveEdit(column.id); // pass explicit id to avoid race
-                              }}
-                              className="flex-1 h-6 text-xs bg-green-600 hover:bg-green-700 text-white"
-                            >
-                              <Save className="h-3 w-3" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => {
-                                setEditingCompany(null);
-                                setEditFormData({});
-                              }}
-                              className="flex-1 h-6 text-xs"
-                            >
-                              <X className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div
-                          className="font-semibold text-sm truncate w-full cursor-grab active:cursor-grabbing hover:bg-muted/50 p-1 rounded"
-                          title="Drag to reorder"
-                          onClick={() => canEdit && setEditingCompany(column.id)}
-                        >
-                          {column.insurer}
-                        </div>
-                      )}
-
-                      {/* Program code badge */}
-                      <Badge
-                        variant="outline"
-                        className="text-xs max-w-full bg-[#004287] text-white border-[#004287] whitespace-normal leading-tight py-1 min-h-[1.5rem] flex items-center justify-center"
-                      >
-                        <span className="break-words text-center">{column.program_code}</span>
-                      </Badge>
-
-                      {isEditing ? (
-                        <div className="w-full space-y-2">
+                          
+                          {/* Program code input */}
+                          <Input
+                            placeholder="Program code"
+                            type="text"
+                            value={editFormData.program_code ?? ""}
+                            onChange={(e) => setEditFormData((prev) => ({ ...prev, program_code: e.target.value }))}
+                            className="text-center text-xs h-8"
+                          />
+                          
+                          {/* Premium input */}
                           <Input
                             placeholder={t("premium")}
                             inputMode="decimal"
@@ -1116,6 +1098,7 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                             onChange={(e) => setEditFormData((prev) => ({ ...prev, premium_eur: e.target.value }))}
                             className="text-center"
                           />
+                          
                           <div className="flex gap-1">
                             <Button size="sm" onClick={() => saveEdit()} className={`flex-1 ${rounded} text-white bg-green-600 hover:bg-green-700`}>
                               <Save className="h-3 w-3" />
