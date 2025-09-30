@@ -807,17 +807,18 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
           const newKey = editedColumn ? columnKey(editedColumn) : oldKey;
           
           // Replace old key with new key at same position in orderKeys
-          setOrderKeys((prev) => {
-            const idx = prev.indexOf(oldKey);
-            if (idx !== -1 && newKey !== oldKey) {
-              const updated = [...prev];
-              updated[idx] = newKey;
-              return mergeOrder(updated, merged);
-            }
-            return mergeOrder(prev, merged);
-          });
+          const idx = orderKeys.indexOf(oldKey);
+          let newOrderKeys = orderKeys;
+          if (idx !== -1 && newKey !== oldKey) {
+            const updated = [...orderKeys];
+            updated[idx] = newKey;
+            newOrderKeys = mergeOrder(updated, merged);
+          } else {
+            newOrderKeys = mergeOrder(orderKeys, merged);
+          }
           
-          setLocalColumns(sortByOrder(merged, orderKeys));
+          setOrderKeys(newOrderKeys);
+          setLocalColumns(sortByOrder(merged, newOrderKeys));
         } catch {}
       }
 
@@ -831,25 +832,22 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
           
           // Find the new key for the edited column
           const column = localColumns.find((col) => col.id === activeId);
-          if (column?.row_id) {
-            const editedColumn = refetched.find((c) => c.row_id === column.row_id);
-            const newKey = editedColumn ? columnKey(editedColumn) : oldKey;
-            
-            // Replace old key with new key at same position
-            setOrderKeys((prev) => {
-              const idx = prev.indexOf(oldKey);
-              if (idx !== -1 && newKey !== oldKey) {
-                const updated = [...prev];
-                updated[idx] = newKey;
-                return mergeOrder(updated, refetched);
-              }
-              return mergeOrder(prev, refetched);
-            });
+          const editedColumn = column?.row_id ? refetched.find((c) => c.row_id === column.row_id) : null;
+          const newKey = editedColumn ? columnKey(editedColumn) : oldKey;
+          
+          // Replace old key with new key at same position
+          const idx = orderKeys.indexOf(oldKey);
+          let newOrderKeys = orderKeys;
+          if (idx !== -1 && newKey !== oldKey) {
+            const updated = [...orderKeys];
+            updated[idx] = newKey;
+            newOrderKeys = mergeOrder(updated, refetched);
           } else {
-            setOrderKeys((prev) => mergeOrder(prev, refetched));
+            newOrderKeys = mergeOrder(orderKeys, refetched);
           }
           
-          setLocalColumns(sortByOrder(refetched, orderKeys));
+          setOrderKeys(newOrderKeys);
+          setLocalColumns(sortByOrder(refetched, newOrderKeys));
         } catch {}
       }
       toast.error(`${t("failedToSave") || "Failed to save"}: ${error.message}`);
