@@ -257,6 +257,9 @@ export const translations = {
     physicalTherapy: 'Fizikālā terapija',
     procedures: 'Procedūras',
     vaccination: 'Vakcinācija, limits €',
+    paidPregnancyCare: 'Maksas grūtnieču aprūpe',
+    paidOncologyHematologyTreatment: 'Maksas onkoloģiskā, hematoloģiskā ārstēšana',
+    emergencyAssistance: 'Neatliekamā palīdzība valsts un privātā (limits privātai, €)',
   },
   en: {
     // Header
@@ -500,6 +503,9 @@ export const translations = {
     physicalTherapy: 'Physical therapy',
     procedures: 'Procedures',
     vaccination: 'Vaccination, limit €',
+    paidPregnancyCare: 'Paid pregnancy care',
+    paidOncologyHematologyTreatment: 'Paid oncology, hematology treatment',
+    emergencyAssistance: 'Emergency assistance state and private (limit for private, €)',
   },
   ru: {
     // Header
@@ -743,6 +749,9 @@ export const translations = {
     physicalTherapy: 'Физическая терапия',
     procedures: 'Процедуры',
     vaccination: 'Вакцинация, лимит €',
+    paidPregnancyCare: 'Платный уход за беременными',
+    paidOncologyHematologyTreatment: 'Платное онкологическое, гематологическое лечение',
+    emergencyAssistance: 'Неотложная помощь государственная и частная (лимит для частной, €)',
   },
   et: {
     // Header
@@ -968,6 +977,9 @@ export const translations = {
     physicalTherapy: 'Füsioteraapia',
     procedures: 'Protseduurid',
     vaccination: 'Vaktsineerimine, limiit €',
+    paidPregnancyCare: 'Tasuline rasedushooldus',
+    paidOncologyHematologyTreatment: 'Tasuline onkoloogiline, hematoloogiline ravi',
+    emergencyAssistance: 'Erakorraline abi riiklik ja eraõiguslik (limiit eraõigusliku jaoks, €)',
   },
   lt: {
     // Header
@@ -1193,6 +1205,9 @@ export const translations = {
     physicalTherapy: 'Fizioterapija',
     procedures: 'Procedūros',
     vaccination: 'Vakcinacija, limitas €',
+    paidPregnancyCare: 'Mokama nėščiųjų priežiūra',
+    paidOncologyHematologyTreatment: 'Mokamas onkologinis, hematologinis gydymas',
+    emergencyAssistance: 'Skubi pagalba valstybinė ir privati (limitas privataus, €)',
   },
   no: {
     // Header
@@ -1407,6 +1422,9 @@ export const translations = {
     physicalTherapy: 'Fysioterapi',
     procedures: 'Prosedyrer',
     vaccination: 'Vaksinasjon, grense €',
+    paidPregnancyCare: 'Betalt svangerskapsomsorg',
+    paidOncologyHematologyTreatment: 'Betalt onkologisk, hematologisk behandling',
+    emergencyAssistance: 'Nødhjelp statlig og privat (grense for privat, €)',
   },
   sv: {
     // Header
@@ -1632,6 +1650,9 @@ export const translations = {
     physicalTherapy: 'Fysioterapi',
     procedures: 'Procedurer',
     vaccination: 'Vaccination, gräns €',
+    paidPregnancyCare: 'Betald graviditetsvård',
+    paidOncologyHematologyTreatment: 'Betald onkologisk, hematologisk behandling',
+    emergencyAssistance: 'Akuthjälp statlig och privat (gräns för privat, €)',
   },
   da: {
     // Header
@@ -1857,6 +1878,9 @@ export const translations = {
     physicalTherapy: 'Fysioterapi',
     procedures: 'Procedurer',
     vaccination: 'Vaccination, grænse €',
+    paidPregnancyCare: 'Betalt graviditetsomsorg',
+    paidOncologyHematologyTreatment: 'Betalt onkologisk, hæmatologisk behandling',
+    emergencyAssistance: 'Akut hjælp statslig og privat (grænse for privat, €)',
   },
   fr: {
     // Header
@@ -2071,6 +2095,9 @@ export const translations = {
     physicalTherapy: 'Physiothérapie',
     procedures: 'Procédures',
     vaccination: 'Vaccination, limite €',
+    paidPregnancyCare: 'Soins de grossesse payants',
+    paidOncologyHematologyTreatment: 'Traitement oncologique, hématologique payant',
+    emergencyAssistance: 'Aide d\'urgence publique et privée (limite pour privé, €)',
   },
   de: {
     // Header
@@ -2296,6 +2323,9 @@ export const translations = {
     physicalTherapy: 'Physiotherapie',
     procedures: 'Verfahren',
     vaccination: 'Impfung, Limit €',
+    paidPregnancyCare: 'Bezahlte Schwangerschaftsbetreuung',
+    paidOncologyHematologyTreatment: 'Bezahlte onkologische, hämatologische Behandlung',
+    emergencyAssistance: 'Notfallhilfe staatlich und privat (Limit für privat, €)',
   },
   es: {
     // Header
@@ -2521,6 +2551,9 @@ export const translations = {
     physicalTherapy: 'Fisioterapia',
     procedures: 'Procedimientos',
     vaccination: 'Vacunación, límite €',
+    paidPregnancyCare: 'Atención al embarazo de pago',
+    paidOncologyHematologyTreatment: 'Tratamiento oncológico, hematológico de pago',
+    emergencyAssistance: 'Asistencia de emergencia estatal y privada (límite para privado, €)',
   },
 };
 
