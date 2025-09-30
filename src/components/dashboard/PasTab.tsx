@@ -359,7 +359,11 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
       toast.error(t('noResultsToShare'));
       return;
     }
+    
     console.log('🔵 Sharing with view_prefs:', prefs);
+    console.log('🔵 Column order:', prefs?.column_order?.length || 0, 'items');
+    console.log('🔵 Hidden features:', prefs?.hidden_features?.length || 0, 'items');
+    
     try {
       const payload = {
         title: 'Piedāvājums',
@@ -368,7 +372,9 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
         document_ids: docIds,
         editable: true,
         role: 'broker',
-        view_prefs: prefs ?? { column_order: [], hidden_features: [] },
+        view_prefs: prefs && (prefs.column_order.length > 0 || prefs.hidden_features.length > 0) 
+          ? prefs 
+          : { column_order: [], hidden_features: [] },
       };
       console.log('🔵 Full share payload:', payload);
       

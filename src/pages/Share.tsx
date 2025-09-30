@@ -136,6 +136,10 @@ const Share = () => {
 
   const companyName = data.payload?.company_name;
   const employeesCount = data.payload?.employees_count;
+  
+  console.log('📗 Share page loaded with view_prefs:', data.payload?.view_prefs);
+  console.log('📗 Column order:', data.payload?.view_prefs?.column_order?.length || 0, 'items');
+  console.log('📗 Hidden features:', data.payload?.view_prefs?.hidden_features?.length || 0, 'items');
 
   return (
     <div className="min-h-screen bg-gray-50">
