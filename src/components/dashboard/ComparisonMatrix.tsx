@@ -96,30 +96,30 @@ const MAIN_FEATURE_ORDER: string[] = [
   "Pamatsumma",
   "Pakalpojuma apmaksas veids",
   "Pacientu iemaksa",
-  "Maksas ģimenes ārsta mājas vizītes, limits €",
-  "Maksas ģimenes ārsta, internista, terapeita un pediatra konsultācija, limits €",
-  "Maksas ārsta-specialista konsultācija, limits €",
-  "Profesora, docenta, internista konsultācija, limits €",
+  "Maksas ģimenes ārsta mājas vizītes, limits EUR",
+  "Maksas ģimenes ārsta, internista, terapeita un pediatra konsultācija, limits EUR",
+  "Maksas ārsta-specialista konsultācija, limits EUR",
+  "Profesora, docenta, internista konsultācija, limits EUR",
   "Homeopāts",
   "Psihoterapeits",
   "Sporta ārsts",
   "ONLINE ārstu konsultācijas",
   "Laboratoriskie izmeklējumi",
   "Maksas diagnostika, piem., rentgens, elektrokradiogramma, USG, utml.",
-  "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai €)",
-  "Obligātās veselības pārbaudes, limits €",
+  "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai EUR)",
+  "Obligātās veselības pārbaudes, limits EUR",
   "Ārstnieciskās manipulācijas",
   "Medicīniskās izziņas",
   "Fizikālā terapija",
   "Procedūras",
-  "Vakcinācija, limits €",
+  "Vakcinācija, limits EUR",
   "Maksas grūtnieču aprūpe",
   "Maksas onkoloģiskā, hematoloģiskā ārstēšana",
-  "Neatliekamā palīdzība valsts un privātā (limits privātai, €)",
-  "Maksas stacionārie pakalpojumi, limits €",
-  "Maksas stacionārā rehabilitācija, limits €",
+  "Neatliekamā palīdzība valsts un privātā (limits privātai, EUR)",
+  "Maksas stacionārie pakalpojumi, limits EUR",
+  "Maksas stacionārā rehabilitācija, limits EUR",
   "Ambulatorā rehabilitācija",
-  "Piemaksa par plastikāta kartēm, €",
+  "Piemaksa par plastikāta kartēm, EUR",
 ];
 
 const ADDON_ORDER: string[] = [
@@ -130,9 +130,9 @@ const ADDON_ORDER: string[] = [
   "Medikamenti ar 50% atlaidi",
   "Sports",
   "Kritiskās saslimšanas",
-  "Maksas stacionārie pakalpojumi, limits € (pp)",
-  "Maksas Operācijas, limits €",
-  "Optika 50%, limits €",
+  "Maksas stacionārie pakalpojumi, limits EUR (pp)",
+  "Maksas Operācijas, limits EUR",
+  "Optika 50%, limits EUR",
 ];
 
 /** ======================
@@ -142,31 +142,23 @@ const ADDON_ORDER: string[] = [
 const KEY_ALIASES: Record<string, string> = {
   // header/meta
   "Programmas nosaukums": "Programmas nosaukums",
-  "Apdrošinājuma summa pamatpolisei, €": "Apdrošinājuma summa pamatpolisei, €",
-  "Apdrošinājuma summa pamatpolisei, EUR": "Apdrošinājuma summa pamatpolisei, €",
-  "Pamatpolises prēmija 1 darbiniekam, €": "Pamatpolises prēmija 1 darbiniekam, €",
-  "Pamatpolises prēmija 1 darbiniekam, EUR": "Pamatpolises prēmija 1 darbiniekam, €",
+  "Apdrošinājuma summa pamatpolisei, EUR": "Apdrošinājuma summa pamatpolisei, EUR",
+  "Pamatpolises prēmija 1 darbiniekam, EUR": "Pamatpolises prēmija 1 darbiniekam, EUR",
 
   // diagnostics
   "Maksas diagnostika": "Maksas diagnostika, piem., rentgens, elektrokradiogramma, USG, utml.",
 
   // high-tech variants → MR canonical
-  "Augsto tehnoloģiju izmeklējumi": "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai €)",
+  "Augsto tehnoloģiju izmeklējumi": "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai EUR)",
   "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits (reižu skaits vai EUR)":
-    "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai €)",
-  "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits (reižu skaits vai €)":
-    "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai €)",
+    "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai EUR)",
   "Augsto tehnoloģiju izmeklējumi, piem., MRG, CT, limits (reižu skaits vai EUR)":
-    "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai €)",
-  "Augsto tehnoloģiju izmeklējumi, piem., MRG, CT, limits (reižu skaits vai €)":
-    "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai €)",
+    "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai EUR)",
   "Augsto tehnoloģiju izmeklējumi, piem., MRG, CT, limits, ja ir (reižu skaits vai EUR)":
-    "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai €)",
-  "Augsto tehnoloģiju izmeklējumi, piem., MRG, CT, limits, ja ir (reižu skaits vai €)":
-    "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai €)",
-  MR: "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai €)",
-  MRG: "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai €)",
-  CT: "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai €)",
+    "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai EUR)",
+  MR: "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai EUR)",
+  MRG: "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai EUR)",
+  CT: "Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai EUR)",
 
   // common variants / EN
   "Remote consultations": "ONLINE ārstu konsultācijas",
@@ -194,16 +186,13 @@ const KEY_ALIASES: Record<string, string> = {
   "Ambulatorā rehabilitācija (pp)": "Ambulatorā rehabilitācija (pp)",
   "Medikamenti ar 50% atlaidi": "Medikamenti ar 50% atlaidi",
   "Kritiskās saslimšanas": "Kritiskās saslimšanas",
-  "Maksas stacionārie pakalpojumi, limits EUR (pp)": "Maksas stacionārie pakalpojumi, limits € (pp)",
-  "Maksas stacionārie pakalpojumi, limits € (pp)": "Maksas stacionārie pakalpojumi, limits € (pp)",
+  "Maksas stacionārie pakalpojumi, limits EUR (pp)": "Maksas stacionārie pakalpojumi, limits EUR (pp)",
 };
 
 const HIDE_IN_TABLE = new Set<string>([
   "Programmas nosaukums",
   "Programmas kods",
-  "Apdrošinājuma summa pamatpolisei, €",
   "Apdrošinājuma summa pamatpolisei, EUR",
-  "Pamatpolises prēmija 1 darbiniekam, €",
   "Pamatpolises prēmija 1 darbiniekam, EUR",
   "Maksājums",
 ]);
@@ -794,13 +783,6 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
     if (normalizedValue === false || strValue === "-" || strValue === "no" || normalizedValue == null || strValue === "") {
       return <Minus className="h-4 w-4 mx-auto text-red-600" />;
     }
-    
-    // Format numbers to 2 decimal places if numeric
-    const numValue = Number(normalizedValue);
-    if (!isNaN(numValue) && normalizedValue !== "" && normalizedValue !== null) {
-      return <span className="text-sm text-center block">{numValue.toFixed(2)}</span>;
-    }
-    
     return <span className="text-sm text-center block">{cellVal(value)}</span>;
   };
 
