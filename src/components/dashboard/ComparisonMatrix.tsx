@@ -734,10 +734,13 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
       return;
     }
 
-    try {
-      const column = localColumns.find((col) => col.id === activeId);
-      if (!column) return;
+    const column = localColumns.find((col) => col.id === activeId);
+    if (!column) return;
 
+    // Store the old key before changes
+    const oldKey = columnKey(column);
+
+    try {
       // resolve row id if needed
       let rowId = column.row_id;
       if (!rowId) {
@@ -798,8 +801,23 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
         try {
           const refetched = await refetchColumnsAfterSave(backendUrl, localColumns, shareToken);
           const merged = reconcileRefetchWithOptimistic(refetched, [{ columnId: activeId, changes }]);
+          
+          // Find the new key for the edited column (it may have changed if insurer/program_code changed)
+          const editedColumn = merged.find((c) => c.row_id === rowId);
+          const newKey = editedColumn ? columnKey(editedColumn) : oldKey;
+          
+          // Replace old key with new key at same position in orderKeys
+          setOrderKeys((prev) => {
+            const idx = prev.indexOf(oldKey);
+            if (idx !== -1 && newKey !== oldKey) {
+              const updated = [...prev];
+              updated[idx] = newKey;
+              return mergeOrder(updated, merged);
+            }
+            return mergeOrder(prev, merged);
+          });
+          
           setLocalColumns(sortByOrder(merged, orderKeys));
-          setOrderKeys((prev) => mergeOrder(prev, merged));
         } catch {}
       }
 
@@ -810,8 +828,28 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
       if (isShareView && backendUrl) {
         try {
           const refetched = await refetchColumnsAfterSave(backendUrl, localColumns, shareToken);
+          
+          // Find the new key for the edited column
+          const column = localColumns.find((col) => col.id === activeId);
+          if (column?.row_id) {
+            const editedColumn = refetched.find((c) => c.row_id === column.row_id);
+            const newKey = editedColumn ? columnKey(editedColumn) : oldKey;
+            
+            // Replace old key with new key at same position
+            setOrderKeys((prev) => {
+              const idx = prev.indexOf(oldKey);
+              if (idx !== -1 && newKey !== oldKey) {
+                const updated = [...prev];
+                updated[idx] = newKey;
+                return mergeOrder(updated, refetched);
+              }
+              return mergeOrder(prev, refetched);
+            });
+          } else {
+            setOrderKeys((prev) => mergeOrder(prev, refetched));
+          }
+          
           setLocalColumns(sortByOrder(refetched, orderKeys));
-          setOrderKeys((prev) => mergeOrder(prev, refetched));
         } catch {}
       }
       toast.error(`${t("failedToSave") || "Failed to save"}: ${error.message}`);
@@ -1034,7 +1072,7 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                       )}
 
                       <div className="w-12 h-12 flex items-center justify-center rounded-md bg-muted/30">
-                        <InsurerLogo name={column.insurer} className="w-10 h-10 object-contain" />
+                        <InsurerLogo name={isEditing ? (editFormData.insurer || column.insurer) : column.insurer} className="w-10 h-10 object-contain" />
                       </div>
 
                       {/* Company name */}
