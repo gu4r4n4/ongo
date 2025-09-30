@@ -1083,7 +1083,7 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
               <PopoverContent className="w-80 z-50 bg-popover">
                 <div className="flex items-center justify-end gap-2 mb-2">
                   <Button size="sm" variant="ghost" onClick={clearHidden}>
-                    Reset
+                    {t("reset")}
                   </Button>
                   <Button size="sm" variant="default" onClick={saveViewPreferences}>
                     <Save className="h-3 w-3 mr-1" />
