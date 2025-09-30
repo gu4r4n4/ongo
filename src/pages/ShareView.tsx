@@ -42,6 +42,10 @@ type SharePayload = {
     name?: string;
     employees_count?: number;
   } | null;
+  view_prefs?: {
+    column_order?: string[];
+    hidden_features?: string[];
+  };
 };
 
 export default function ShareView() {
@@ -118,6 +122,11 @@ export default function ShareView() {
         // This preserves any filtering like insurer_only that was applied server-side
         const serverOffers = data.offers || [];
         setOffers(serverOffers);
+        
+        console.log('📗 ShareView loaded with view_prefs:', pl.view_prefs);
+        console.log('📗 Column order:', pl.view_prefs?.column_order?.length || 0, 'items');
+        console.log('📗 Hidden features:', pl.view_prefs?.hidden_features?.length || 0, 'items');
+        
         setLoading(false);
       } catch (error) {
         console.error('Fetch share error:', error);
@@ -205,6 +214,7 @@ export default function ShareView() {
           onShare={undefined}
           companyName={companyName}
           employeesCount={employeesCount >= 0 ? employeesCount : undefined}
+          sharePrefs={payload.view_prefs}
           canEdit={true}
           showBuyButtons={true}
           isShareView={true}
