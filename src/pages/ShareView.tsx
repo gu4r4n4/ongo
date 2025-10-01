@@ -210,12 +210,68 @@ export default function ShareView() {
       return String(value);
     };
 
+    // Mapping from Latvian database keys to English translation keys
+    const featureKeyMapping: Record<string, string> = {
+      'Programmas kods': 'programCode',
+      'Programmas nosaukums': 'programName',
+      'Apdrošinājuma summa pamatpolisei, EUR': 'baseSumEur',
+      'Pamatpolises prēmija 1 darbiniekam, EUR': 'premiumEur',
+      'Pakalpojuma apmaksas veids': 'servicePaymentMethod',
+      'Pacientu iemaksa': 'patientContribution',
+      'Maksas ģimenes ārsta mājas vizītes, limits EUR': 'paidFamilyDoctorHomeVisits',
+      'Maksas ģimenes ārsta, internista, terapeita un pediatra konsultācija, limits €': 'paidFamilyDoctorConsultation',
+      'Maksas ārsta-specialista konsultācija, limits EUR': 'paidSpecialistConsultation',
+      'Profesora, docenta, internista konsultācija, limits EUR': 'professorDocentConsultation',
+      'Homeopāts': 'homeopathService',
+      'Psihoterapeits': 'psychotherapist',
+      'Sporta ārsts': 'sportsDoctorService',
+      'ONLINE ārstu konsultācijas': 'onlineDoctorConsultations',
+      'Laboratoriskie izmeklējumi': 'laboratoryTests',
+      'Maksas diagnostika, piem., rentgens, elektrokradiogramma, USG, utml.': 'paidDiagnostics',
+      'Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits (reižu skaits vai EUR)': 'highTechExaminations',
+      'Augsto tehnoloģiju izmeklējumi, piem., MR, CT, limits, ja ir (reižu skaits vai EUR)': 'highTechExaminations',
+      'Obligātās veselības pārbaudes, limits €': 'mandatoryHealthChecks',
+      'Obligātās veselības pārbaudes, limits EUR': 'mandatoryHealthChecks',
+      'Ārstnieciskās manipulācijas': 'therapeuticManipulations',
+      'Medicīniskās izziņas': 'medicalCertificates',
+      'Fizikālā terapija': 'physicalTherapy',
+      'Procedūras': 'procedures',
+      'Vakcinācija, limits €': 'vaccination',
+      'Vakcinācija, limits EUR': 'vaccination',
+      'Maksas grūtnieču aprūpe': 'paidPregnancyCare',
+      'Maksas onkoloģiskā, hematoloģiskā ārstēšana': 'paidOncologyHematologyTreatment',
+      'Neatliekamā palīdzība valsts un privātā (limits privātai, €)': 'emergencyAssistance',
+      'Neatliekamā palīdzība valsts un privātā (limits privātai, EUR)': 'emergencyAssistance',
+      'Maksas stacionārie pakalpojumi, limits €': 'paidInpatientServices',
+      'Maksas stacionārie pakalpojumi, limits EUR': 'paidInpatientServices',
+      'Maksas stacionārā rehabilitācija, limits €': 'paidInpatientRehabilitation',
+      'Maksas stacionārā rehabilitācija, limits EUR': 'paidInpatientRehabilitation',
+      'Ambulatorā rehabilitācija': 'outpatientRehabilitation',
+      'Piemaksa par plastikāta kartēm, €': 'plasticCardSurcharge',
+      'Piemaksa par plastikāta kartēm, EUR': 'plasticCardSurcharge',
+      'Papildus programmas': 'additionalPrograms',
+      'Zobārstniecība ar 50% atlaidi (pamatpolise)': 'dentistryDiscountBase',
+      'Zobārstniecība ar 50% atlaidi (pp)': 'dentistryDiscountAdditional',
+      'Vakcinācija pret ērcēm un gripu': 'tickFluVaccination',
+      'Ambulatorā rehabilitācija (pp)': 'outpatientRehabilitationAdditional',
+      'Medikamenti ar 50% atlaidi': 'medicationsDiscount',
+      'Sports': 'sportsProgram',
+      'Kritiskās saslimšanas': 'criticalIllness',
+      'Maksas stacionārie pakalpojumi, limits EUR (pp)': 'paidInpatientServicesAdditional',
+      'Maksas Operācijas, limits EUR': 'paidSurgeries',
+      'Optika 50%, limits EUR': 'opticsDiscount',
+    };
+
     // Helper function to translate feature keys
     const translateFeatureKey = (key: string): string => {
-      // Try to get translation, fallback to the key itself
+      // First, check if this is a Latvian key that needs to be mapped to English
+      const mappedKey = featureKeyMapping[key] || key;
+      
+      // Try to get translation using the mapped key
       try {
-        const translated = t(key as any);
-        return translated || key;
+        const translated = t(mappedKey as any);
+        // Only return the translation if it's different from the key (meaning translation exists)
+        return translated !== mappedKey ? translated : key;
       } catch {
         return key;
       }
