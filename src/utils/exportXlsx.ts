@@ -243,24 +243,11 @@ export async function exportAllInsurerOffersXlsx(
   }
 
   // 3) For each column, populate data in columns B, C, D, etc.
+  console.log("Populating", columns.length, "columns...");
   for (let colIndex = 0; colIndex < columns.length; colIndex++) {
     const column = columns[colIndex];
     const excelCol = colIndex + 2; // Column B = 2, C = 3, etc.
-
-    // If not the first column, copy styles from column B to this column
-    if (colIndex > 0) {
-      // Copy styles from rows 6-60 (where data is) from column B to current column
-      for (let r = 6; r <= 60; r++) {
-        const sourceCell = sheet.cell(r, 2); // Column B
-        const targetCell = sheet.cell(r, excelCol);
-        
-        // Copy style from source to target
-        const style = sourceCell.style();
-        if (style) {
-          targetCell.style(style);
-        }
-      }
-    }
+    console.log(`Processing column ${colIndex + 1}/${columns.length}: ${column.insurer}`);
 
     // Set insurer name in row 6
     sheet.cell(6, excelCol).value((column.insurer || "").toUpperCase());
@@ -300,6 +287,7 @@ export async function exportAllInsurerOffersXlsx(
       sheet.cell(row, excelCol).value(formatValueForCell(val));
     }
   }
+  console.log("All columns populated");
 
   // 4) Produce XLSX and trigger download
   console.log("Generating XLSX output...");
