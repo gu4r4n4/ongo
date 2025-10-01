@@ -210,9 +210,23 @@ export default function ShareView() {
       return String(value);
     };
 
-    // Transpose: columns become CSV columns, features become CSV rows
     const csvRows: string[][] = [];
     
+    // ========== HEADER SECTION ==========
+    csvRows.push([t('healthInsurance')]);
+    csvRows.push(['']);
+    
+    if (companyName) {
+      csvRows.push([t('companyName'), companyName]);
+    }
+    if (employeesCount > 0) {
+      csvRows.push([t('employees'), employeesCount.toString()]);
+    }
+    
+    csvRows.push(['']);
+    csvRows.push(['']);
+    
+    // ========== PROCESSING RESULTS SECTION ==========
     // Row 1: Insurer names
     csvRows.push([
       t('feature'),
@@ -258,6 +272,89 @@ export default function ShareView() {
       ];
       csvRows.push(row);
     });
+    
+    csvRows.push(['']);
+    csvRows.push(['']);
+    
+    // ========== FOOTER SECTION ==========
+    csvRows.push([t('patientPaymentTitle')]);
+    csvRows.push([t('waitingTimeLink'), 'https://www.rindapiearsta.lv/lv/mekle_isako']);
+    csvRows.push(['']);
+    
+    // Service Availability
+    csvRows.push([t('serviceAvailability')]);
+    csvRows.push([t('contractedFacilityService')]);
+    csvRows.push([t('receiptPayment')]);
+    csvRows.push([t('familyDoctorVisit')]);
+    csvRows.push([t('specialistVisit')]);
+    csvRows.push([t('hospitalTreatment')]);
+    csvRows.push([t('dayCareHospital')]);
+    csvRows.push(['']);
+    
+    // Health Checks
+    csvRows.push([t('mandatoryHealthChecksTitle'), 'https://likumi.lv/doc.php?id=189070']);
+    csvRows.push([t('driverLicenseInfoLink'), 'https://www.csdd.lv/veselibas-parbaude/karteja-parbaude']);
+    csvRows.push(['']);
+    
+    // Patient Payment
+    csvRows.push([t('patientPayment')]);
+    csvRows.push([t('patientPaymentDesc')]);
+    csvRows.push([t('treatmentFacilitiesLink'), 'https://www.vmnvd.gov.lv/lv/veselibas-aprupes-pakalpojumi/ambulatoras-iestades-un-arsti-specialisti']);
+    csvRows.push(['']);
+    
+    // Paid Services
+    csvRows.push([t('paidServices')]);
+    csvRows.push([t('paidServicesDesc')]);
+    csvRows.push([t('paidServiceProviderLink'), 'https://registri.vi.gov.lv/air']);
+    csvRows.push([t('diagnosticsReferralNote')]);
+    csvRows.push([t('insurerPricelistNote')]);
+    csvRows.push([t('taxRefundNote')]);
+    csvRows.push(['']);
+    
+    // Doctor Visits
+    csvRows.push([t('doctorVisits')]);
+    csvRows.push([t('doctorVisitsDesc')]);
+    csvRows.push(['']);
+    
+    // Medical Categories
+    csvRows.push([t('general')]);
+    csvRows.push([t('familyDoctorPaid')]);
+    csvRows.push(['']);
+    
+    csvRows.push([t('specialist')]);
+    csvRows.push([t('cardiologistEtc')]);
+    csvRows.push([t('gynecologistEtc')]);
+    csvRows.push(['']);
+    
+    csvRows.push([t('skin')]);
+    csvRows.push([t('dermatologist')]);
+    csvRows.push(['']);
+    
+    csvRows.push([t('alternative')]);
+    csvRows.push([t('homeopath')]);
+    csvRows.push([t('osteopath')]);
+    csvRows.push(['']);
+    
+    csvRows.push([t('sports')]);
+    csvRows.push([t('sportsDoctor')]);
+    csvRows.push(['']);
+    
+    csvRows.push([t('therapy')]);
+    csvRows.push([t('physicalTherapyDoctor')]);
+    csvRows.push([t('rehabilitationPhysio')]);
+    csvRows.push(['']);
+    
+    csvRows.push([t('academic')]);
+    csvRows.push([t('docentConsultation')]);
+    csvRows.push(['']);
+    
+    csvRows.push([t('mental')]);
+    csvRows.push([t('psychologistTherapist')]);
+    csvRows.push([t('psychiatristReceipts')]);
+    csvRows.push(['']);
+    
+    csvRows.push([t('remote')]);
+    csvRows.push([t('remoteDoctorConsultations')]);
 
     // Create CSV content
     const csvContent = csvRows
