@@ -177,37 +177,60 @@ export default function ShareView() {
   const handleExportCSV = () => {
     if (columns.length === 0) return;
 
-    // Prepare CSV headers
-    const headers = [
-      'Insurer',
-      'Program Code',
-      'Premium (EUR)',
-      'Base Sum (EUR)',
-      'Payment Method',
-      ...allFeatureKeys
-    ];
-
-    // Prepare CSV rows
-    const rows = columns.map(col => [
-      col.insurer || '',
-      col.program_code || '',
-      col.premium_eur?.toString() || '',
-      col.base_sum_eur?.toString() || '',
-      col.payment_method || '',
-      ...allFeatureKeys.map(key => {
-        const value = col.features?.[key];
-        if (value === null || value === undefined) return '';
-        if (typeof value === 'boolean') return value ? 'Yes' : 'No';
-        if (typeof value === 'object') return JSON.stringify(value);
-        return String(value);
-      })
+    // Transpose: columns become CSV columns, features become CSV rows
+    // First column is the feature name, then each program is a column
+    
+    const csvRows: string[][] = [];
+    
+    // Row 1: Insurer names
+    csvRows.push([
+      'Feature',
+      ...columns.map(col => col.insurer || '-')
     ]);
+    
+    // Row 2: Program codes
+    csvRows.push([
+      'Program Code',
+      ...columns.map(col => col.program_code || '-')
+    ]);
+    
+    // Row 3: Premium
+    csvRows.push([
+      'Premium (EUR)',
+      ...columns.map(col => col.premium_eur?.toString() || '-')
+    ]);
+    
+    // Row 4: Base Sum
+    csvRows.push([
+      'Base Sum (EUR)',
+      ...columns.map(col => col.base_sum_eur?.toString() || '-')
+    ]);
+    
+    // Row 5: Payment Method
+    csvRows.push([
+      'Payment Method',
+      ...columns.map(col => col.payment_method || '-')
+    ]);
+    
+    // Rows 6+: All features
+    allFeatureKeys.forEach(featureKey => {
+      const row = [
+        featureKey,
+        ...columns.map(col => {
+          const value = col.features?.[featureKey];
+          if (value === null || value === undefined) return '-';
+          if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+          if (typeof value === 'object') return JSON.stringify(value);
+          return String(value);
+        })
+      ];
+      csvRows.push(row);
+    });
 
-    // Combine headers and rows
-    const csvContent = [
-      headers.join(','),
-      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
-    ].join('\n');
+    // Create CSV content
+    const csvContent = csvRows
+      .map(row => row.map(cell => `"${cell}"`).join(','))
+      .join('\n');
 
     // Create and download file
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
