@@ -454,7 +454,7 @@ export default function ShareView() {
 
   return (
     <BrandThemeProvider theme={selectedTheme}>
-      <div className="p-4 md:p-6 space-y-6 max-w-[1400px] mx-auto">
+      <div className="p-4 md:p-6 space-y-6 max-w-full mx-auto">
         {/* Header with Logo and Language Switcher */}
         <div className="flex justify-between items-start">
           {/* Logo - Top Left */}
