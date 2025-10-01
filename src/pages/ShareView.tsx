@@ -177,51 +177,83 @@ export default function ShareView() {
   const handleExportCSV = () => {
     if (columns.length === 0) return;
 
+    // Apply the same column ordering as displayed in ComparisonMatrix
+    let orderedColumns = [...columns];
+    if (payload?.view_prefs?.column_order) {
+      const order = payload.view_prefs.column_order;
+      orderedColumns = order
+        .map(id => columns.find(c => c.id === id))
+        .filter(Boolean) as any[];
+      // Add any columns not in the order list
+      const orderedIds = new Set(order);
+      columns.forEach(col => {
+        if (!orderedIds.has(col.id)) {
+          orderedColumns.push(col);
+        }
+      });
+    }
+
+    // Helper function to extract clean value from feature data
+    const getCleanValue = (value: any): string => {
+      if (value === null || value === undefined) return '-';
+      if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+      if (typeof value === 'object') {
+        // If it's an object with a "value" property, extract it
+        if ('value' in value) {
+          const innerValue = value.value;
+          if (typeof innerValue === 'boolean') return innerValue ? 'Yes' : 'No';
+          if (innerValue === null || innerValue === undefined) return '-';
+          return String(innerValue);
+        }
+        return JSON.stringify(value);
+      }
+      return String(value);
+    };
+
     // Transpose: columns become CSV columns, features become CSV rows
-    // First column is the feature name, then each program is a column
-    
     const csvRows: string[][] = [];
     
     // Row 1: Insurer names
     csvRows.push([
       'Feature',
-      ...columns.map(col => col.insurer || '-')
+      ...orderedColumns.map(col => col.insurer || '-')
     ]);
     
     // Row 2: Program codes
     csvRows.push([
       'Program Code',
-      ...columns.map(col => col.program_code || '-')
+      ...orderedColumns.map(col => col.program_code || '-')
     ]);
     
     // Row 3: Premium
     csvRows.push([
       'Premium (EUR)',
-      ...columns.map(col => col.premium_eur?.toString() || '-')
+      ...orderedColumns.map(col => col.premium_eur?.toString() || '-')
     ]);
     
     // Row 4: Base Sum
     csvRows.push([
       'Base Sum (EUR)',
-      ...columns.map(col => col.base_sum_eur?.toString() || '-')
+      ...orderedColumns.map(col => col.base_sum_eur?.toString() || '-')
     ]);
     
     // Row 5: Payment Method
     csvRows.push([
       'Payment Method',
-      ...columns.map(col => col.payment_method || '-')
+      ...orderedColumns.map(col => col.payment_method || '-')
     ]);
     
-    // Rows 6+: All features
-    allFeatureKeys.forEach(featureKey => {
+    // Rows 6+: All features (apply same filter as displayed)
+    const visibleFeatures = allFeatureKeys.filter(
+      key => !payload?.view_prefs?.hidden_features?.includes(key)
+    );
+    
+    visibleFeatures.forEach(featureKey => {
       const row = [
         featureKey,
-        ...columns.map(col => {
+        ...orderedColumns.map(col => {
           const value = col.features?.[featureKey];
-          if (value === null || value === undefined) return '-';
-          if (typeof value === 'boolean') return value ? 'Yes' : 'No';
-          if (typeof value === 'object') return JSON.stringify(value);
-          return String(value);
+          return getCleanValue(value);
         })
       ];
       csvRows.push(row);
