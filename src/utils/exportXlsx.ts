@@ -206,7 +206,7 @@ function populateSheetWithInsurerOffer(
   }
 }
 
-// Export ALL columns into one Excel file with multiple sheets
+// Export ALL columns into ONE sheet with multiple columns (one per insurer)
 export async function exportAllInsurerOffersXlsx(
   columns: Column[],
   opts: ExportOptions = {}
@@ -224,33 +224,58 @@ export async function exportAllInsurerOffersXlsx(
     return r.arrayBuffer();
   });
   const workbook = await XlsxPopulate.fromDataAsync(ab);
+  const sheet = workbook.sheet(TEMPLATE_SHEET_NAME);
 
-  // 2) Process first column using existing template sheet
-  const firstSheet = workbook.sheet(TEMPLATE_SHEET_NAME);
-  const firstColumn = columns[0];
-  populateSheetWithInsurerOffer(firstSheet, firstColumn, opts);
-  
-  // Rename first sheet
-  const firstName = `${firstColumn.insurer || "Ins"}-${firstColumn.program_code || "Prog"}`
-    .replace(/[^\w.-]+/g, "_")
-    .substring(0, 31); // Excel sheet name limit
-  firstSheet.name(firstName);
+  // 2) Set header info (company + employees) - spans across all columns
+  if (opts.companyName) sheet.cell(HEADER_COMPANY_CELL).value(`Uzņēmums: ${opts.companyName}`);
+  if (typeof opts.employeesCount === "number") {
+    sheet
+      .cell(HEADER_EMPLOYEES_CELL)
+      .value(`Nodarbināto skaits: ${opts.employeesCount}`);
+  }
 
-  // 3) For remaining columns, copy template and populate
-  for (let i = 1; i < columns.length; i++) {
-    const column = columns[i];
+  // 3) For each column, populate data in columns B, C, D, etc.
+  for (let colIndex = 0; colIndex < columns.length; colIndex++) {
+    const column = columns[colIndex];
+    const excelCol = colIndex + 2; // Column B = 2, C = 3, etc.
+
+    // Set insurer name in row 6
+    sheet.cell(6, excelCol).value((column.insurer || "").toUpperCase());
     
-    // Copy the first sheet as template
-    const newSheet = firstSheet.copyTo(workbook);
-    
-    // Generate unique sheet name
-    const sheetName = `${column.insurer || "Ins"}-${column.program_code || "Prog"}`
-      .replace(/[^\w.-]+/g, "_")
-      .substring(0, 31);
-    newSheet.name(sheetName);
-    
-    // Populate with column data
-    populateSheetWithInsurerOffer(newSheet, column, opts);
+    // Set program code in row 7
+    sheet.cell(7, excelCol).value(column.program_code || "");
+
+    // Payment method
+    const payRow = findRowByLabel(sheet, PAYMENT_METHOD_LABEL);
+    if (payRow) sheet.cell(payRow, excelCol).value(paymentMethodLabel(column.payment_method));
+
+    // Base sum
+    const baseRow = findRowByLabel(sheet, "Apdrošinājuma summa pamatpolisei, EUR");
+    if (baseRow) sheet.cell(baseRow, excelCol).value(formatValueForCell(column.base_sum_eur));
+
+    // Premium
+    const premiumRow = findRowByLabel(sheet, PREMIUM_ROW_LABEL);
+    if (premiumRow) sheet.cell(premiumRow, excelCol).value(formatValueForCell(column.premium_eur));
+
+    // Feature rows
+    const features = column.features || {};
+    const getFeature = (key: string) => {
+      if (key in features) return features[key];
+      const canon = canonicalKey(key);
+      if (canon in features) return features[canon];
+      for (const [raw, v] of Object.entries(features)) {
+        if (canonicalKey(raw) === key) return v;
+      }
+      return undefined;
+    };
+
+    for (const [canonical, labelInTemplate] of Object.entries(TEMPLATE_LABELS)) {
+      const row = findRowByLabel(sheet, labelInTemplate);
+      if (!row) continue;
+      const val = getFeature(canonical);
+      if (val === undefined) continue;
+      sheet.cell(row, excelCol).value(formatValueForCell(val));
+    }
   }
 
   // 4) Produce XLSX and trigger download
