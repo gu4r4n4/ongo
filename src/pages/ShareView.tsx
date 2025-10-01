@@ -176,7 +176,13 @@ export default function ShareView() {
     : brokerTheme;
 
   const handleExportExcel = async () => {
-    if (columns.length === 0) return;
+    if (columns.length === 0) {
+      console.log("No columns to export");
+      return;
+    }
+    
+    console.log("Starting export with columns:", columns.length);
+    console.log("Company:", companyName, "Employees:", employeesCount);
     
     try {
       await exportAllInsurerOffersXlsx(columns, {
@@ -185,8 +191,10 @@ export default function ShareView() {
         templateUrl: "/xlsx/health-offer-template.xlsx",
         fileName: `${companyName || "Insurance"}_Comparison_${new Date().toISOString().split('T')[0]}.xlsx`,
       });
+      console.log("Export completed successfully");
     } catch (error) {
       console.error("Export failed:", error);
+      alert(`Export failed: ${error.message}`);
     }
   };
 

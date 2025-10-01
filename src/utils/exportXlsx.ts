@@ -211,20 +211,28 @@ export async function exportAllInsurerOffersXlsx(
   columns: Column[],
   opts: ExportOptions = {}
 ) {
+  console.log("exportAllInsurerOffersXlsx called with", columns.length, "columns");
+  
   if (!columns || columns.length === 0) {
     throw new Error("No columns to export");
   }
 
   const templateUrl = opts.templateUrl || "/xlsx/health-offer-template.xlsx";
+  console.log("Loading template from:", templateUrl);
+  
   const XlsxPopulate = (await import("xlsx-populate/browser/xlsx-populate")).default;
 
   // 1) Load template
   const ab = await fetch(templateUrl, { cache: "no-store" }).then((r) => {
+    console.log("Template fetch response:", r.status);
     if (!r.ok) throw new Error(`Failed to load template: ${r.status}`);
     return r.arrayBuffer();
   });
+  console.log("Template loaded, size:", ab.byteLength, "bytes");
+  
   const workbook = await XlsxPopulate.fromDataAsync(ab);
   const sheet = workbook.sheet(TEMPLATE_SHEET_NAME);
+  console.log("Workbook created, sheet:", TEMPLATE_SHEET_NAME);
 
   // 2) Set header info (company + employees) - spans across all columns
   if (opts.companyName) sheet.cell(HEADER_COMPANY_CELL).value(`Uzņēmums: ${opts.companyName}`);
@@ -294,26 +302,35 @@ export async function exportAllInsurerOffersXlsx(
   }
 
   // 4) Produce XLSX and trigger download
+  console.log("Generating XLSX output...");
   const out = await workbook.outputAsync();
+  console.log("XLSX generated, size:", out.byteLength, "bytes");
+  
   const blob = new Blob([out], {
     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   });
+  console.log("Blob created, size:", blob.size);
 
   const fileName =
     opts.fileName ||
     `${opts.companyName || "Insurance"}_Comparison_${new Date().toISOString().split('T')[0]}.xlsx`;
+  console.log("Downloading as:", fileName);
 
   // Direct download (avoid double download from popup + fallback)
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
   a.download = fileName;
+  a.style.display = "none";
   document.body.appendChild(a);
+  console.log("Triggering download...");
   a.click();
-  a.remove();
-
-  // Clean up
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  console.log("Download triggered");
+  setTimeout(() => {
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    console.log("Cleanup complete");
+  }, 100);
 }
 
 // NOTE: This exports ONE insurer/program (one Column from your matrix)
