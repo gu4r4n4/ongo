@@ -210,10 +210,26 @@ export default function ShareView() {
       return String(value);
     };
 
+    // Helper function to translate feature keys
+    const translateFeatureKey = (key: string): string => {
+      // Try to get translation, fallback to the key itself
+      try {
+        const translated = t(key as any);
+        return translated || key;
+      } catch {
+        return key;
+      }
+    };
+
     const csvRows: string[][] = [];
     
     // ========== HEADER SECTION ==========
     csvRows.push([t('healthInsurance')]);
+    csvRows.push(['']);
+    
+    // Legend
+    csvRows.push(['✓', t('includedInPolicyCoverage')]);
+    csvRows.push(['─', t('notIncludedInPolicyCoverage')]);
     csvRows.push(['']);
     
     if (companyName) {
@@ -264,7 +280,7 @@ export default function ShareView() {
     
     visibleFeatures.forEach(featureKey => {
       const row = [
-        featureKey,
+        translateFeatureKey(featureKey),
         ...orderedColumns.map(col => {
           const value = col.features?.[featureKey];
           return getCleanValue(value);
@@ -366,7 +382,14 @@ export default function ShareView() {
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', `processing_results_${new Date().toISOString().split('T')[0]}.csv`);
+    
+    // Create filename with company name and date
+    const sanitizedCompanyName = companyName
+      ? companyName.replace(/[^a-z0-9]/gi, '_').toLowerCase()
+      : 'export';
+    const dateStr = new Date().toISOString().split('T')[0];
+    link.setAttribute('download', `${sanitizedCompanyName}_${dateStr}.csv`);
+    
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
