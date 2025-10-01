@@ -215,31 +215,31 @@ export default function ShareView() {
     
     // Row 1: Insurer names
     csvRows.push([
-      'Feature',
+      t('feature'),
       ...orderedColumns.map(col => col.insurer || '-')
     ]);
     
     // Row 2: Program codes
     csvRows.push([
-      'Program Code',
+      t('programCode'),
       ...orderedColumns.map(col => col.program_code || '-')
     ]);
     
     // Row 3: Premium
     csvRows.push([
-      'Premium (EUR)',
+      t('premiumEur'),
       ...orderedColumns.map(col => col.premium_eur?.toString() || '-')
     ]);
     
     // Row 4: Base Sum
     csvRows.push([
-      'Base Sum (EUR)',
+      t('baseSumEur'),
       ...orderedColumns.map(col => col.base_sum_eur?.toString() || '-')
     ]);
     
     // Row 5: Payment Method
     csvRows.push([
-      'Payment Method',
+      t('paymentMethod'),
       ...orderedColumns.map(col => col.payment_method || '-')
     ]);
     

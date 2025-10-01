@@ -43,6 +43,11 @@ export const translations = {
     payment: 'Maksājums',
     features: 'Īpašības',
     premium: 'Prēmija',
+    feature: 'Īpašība',
+    programCode: 'Programmas kods',
+    premiumEur: 'Prēmija (EUR)',
+    baseSumEur: 'Pamatsumma (EUR)',
+    paymentMethod: 'Maksājuma veids',
     onlyPdfAllowed: 'Atļauti tikai PDF faili',
     selectFiles: 'Lūdzu izvēlieties vismaz vienu PDF',
     selectInsurerForEachFile: 'Lūdzu izvēlieties apdrošinātāju katram failam',
@@ -325,6 +330,11 @@ export const translations = {
     payment: 'Payment',
     features: 'Features',
     premium: 'Premium',
+    feature: 'Feature',
+    programCode: 'Program Code',
+    premiumEur: 'Premium (EUR)',
+    baseSumEur: 'Base Sum (EUR)',
+    paymentMethod: 'Payment Method',
     onlyPdfAllowed: 'Only PDF files are allowed',
     selectFiles: 'Please select at least one PDF',
     selectInsurerForEachFile: 'Please select insurer for each file',
@@ -607,6 +617,11 @@ export const translations = {
     payment: 'Платеж',
     features: 'Характеристики',
     premium: 'Премия',
+    feature: 'Характеристика',
+    programCode: 'Код программы',
+    premiumEur: 'Премия (EUR)',
+    baseSumEur: 'Базовая Сумма (EUR)',
+    paymentMethod: 'Способ оплаты',
     onlyPdfAllowed: 'Разрешены только PDF файлы',
     selectFiles: 'Пожалуйста, выберите хотя бы один PDF',
     selectInsurerForEachFile: 'Пожалуйста, выберите страховщика для каждого файла',
@@ -889,6 +904,11 @@ export const translations = {
     payment: 'Makse',
     features: 'Omadused',
     premium: 'Preemia',
+    feature: 'Omadus',
+    programCode: 'Programmi kood',
+    premiumEur: 'Preemia (EUR)',
+    baseSumEur: 'Baassumma (EUR)',
+    paymentMethod: 'Makseviis',
     manageInvoices: 'Hallake arveid ja konfigureerige API ühendusi',
     
     // Dashboard
@@ -1153,6 +1173,11 @@ export const translations = {
     payment: 'Mokėjimas',
     features: 'Funkcijos',
     premium: 'Premija',
+    feature: 'Funkcija',
+    programCode: 'Programos kodas',
+    premiumEur: 'Premija (EUR)',
+    baseSumEur: 'Bazinė Suma (EUR)',
+    paymentMethod: 'Mokėjimo būdas',
     manageInvoices: 'Valdykite sąskaitas ir konfigūruokite API ryšius',
     
     // Dashboard
@@ -1417,6 +1442,11 @@ export const translations = {
     payment: 'Betaling',
     features: 'Funksjoner',
     premium: 'Premie',
+    feature: 'Funksjon',
+    programCode: 'Programkode',
+    premiumEur: 'Premie (EUR)',
+    baseSumEur: 'Grunnsum (EUR)',
+    paymentMethod: 'Betalingsmetode',
     manageInvoices: 'Administrer fakturaer og konfigurer API-tilkoblinger',
     
     // Dashboard
@@ -1670,6 +1700,11 @@ export const translations = {
     payment: 'Betalning',
     features: 'Funktioner',
     premium: 'Premie',
+    feature: 'Funktion',
+    programCode: 'Programkod',
+    premiumEur: 'Premie (EUR)',
+    baseSumEur: 'Grundsumma (EUR)',
+    paymentMethod: 'Betalningsmetod',
     manageInvoices: 'Hantera fakturor och konfigurera API-anslutningar',
     
     // Dashboard
@@ -1934,6 +1969,11 @@ export const translations = {
     payment: 'Betaling',
     features: 'Funktioner',
     premium: 'Præmie',
+    feature: 'Funktion',
+    programCode: 'Programkode',
+    premiumEur: 'Præmie (EUR)',
+    baseSumEur: 'Grundsum (EUR)',
+    paymentMethod: 'Betalingsmetode',
     manageInvoices: 'Administrer fakturaer og konfigurer API-forbindelser',
     
     // Dashboard
@@ -2198,6 +2238,11 @@ export const translations = {
     payment: 'Paiement',
     features: 'Caractéristiques',
     premium: 'Prime',
+    feature: 'Caractéristique',
+    programCode: 'Code du programme',
+    premiumEur: 'Prime (EUR)',
+    baseSumEur: 'Somme de Base (EUR)',
+    paymentMethod: 'Méthode de paiement',
     manageInvoices: 'Gérez les factures et configurez les connexions API',
     
     // Dashboard
@@ -2451,6 +2496,11 @@ export const translations = {
     payment: 'Zahlung',
     features: 'Funktionen',
     premium: 'Prämie',
+    feature: 'Funktion',
+    programCode: 'Programmcode',
+    premiumEur: 'Prämie (EUR)',
+    baseSumEur: 'Grundsumme (EUR)',
+    paymentMethod: 'Zahlungsmethode',
     manageInvoices: 'Verwalten Sie Rechnungen und konfigurieren Sie API-Verbindungen',
     
     // Dashboard
@@ -2715,6 +2765,11 @@ export const translations = {
     payment: 'Pago',
     features: 'Características',
     premium: 'Prima',
+    feature: 'Característica',
+    programCode: 'Código de programa',
+    premiumEur: 'Prima (EUR)',
+    baseSumEur: 'Suma Base (EUR)',
+    paymentMethod: 'Método de pago',
     manageInvoices: 'Gestione facturas y configure conexiones API',
     
     // Dashboard
