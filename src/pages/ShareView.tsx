@@ -9,7 +9,8 @@ import { BACKEND_URL } from "@/config";
 import { BrandThemeProvider } from "@/theme/BrandThemeProvider";
 import { brokerTheme, insurerThemes, appTheme } from "@/theme/brandTheme";
 import { InsurerLogo } from "@/components/InsurerLogo";
-import { Check, Minus } from "lucide-react";
+import { Check, Minus, Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 type Program = {
   row_id?: number;
@@ -173,6 +174,53 @@ export default function ShareView() {
     ? (insurerThemes[insurerName] || appTheme)
     : brokerTheme;
 
+  const handleExportCSV = () => {
+    if (columns.length === 0) return;
+
+    // Prepare CSV headers
+    const headers = [
+      'Insurer',
+      'Program Code',
+      'Premium (EUR)',
+      'Base Sum (EUR)',
+      'Payment Method',
+      ...allFeatureKeys
+    ];
+
+    // Prepare CSV rows
+    const rows = columns.map(col => [
+      col.insurer || '',
+      col.program_code || '',
+      col.premium_eur?.toString() || '',
+      col.base_sum_eur?.toString() || '',
+      col.payment_method || '',
+      ...allFeatureKeys.map(key => {
+        const value = col.features?.[key];
+        if (value === null || value === undefined) return '';
+        if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+        if (typeof value === 'object') return JSON.stringify(value);
+        return String(value);
+      })
+    ]);
+
+    // Combine headers and rows
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+
+    // Create and download file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `processing_results_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <BrandThemeProvider theme={selectedTheme}>
       <div className="p-4 md:p-6 space-y-6 max-w-[1400px] mx-auto">
@@ -200,9 +248,20 @@ export default function ShareView() {
           </div>
         </div>
 
-        {/* Title */}
+        {/* Title and Export Button */}
         {columns.length > 0 && (
-          <h3 className="text-lg font-semibold">{t('healthInsurance')}</h3>
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-semibold">{t('healthInsurance')}</h3>
+            <Button
+              onClick={handleExportCSV}
+              variant="outline"
+              size="sm"
+              className="gap-2"
+            >
+              <Download className="h-4 w-4" />
+              Export CSV
+            </Button>
+          </div>
         )}
 
         {/* Results Matrix */}
