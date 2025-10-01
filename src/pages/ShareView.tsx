@@ -11,6 +11,7 @@ import { brokerTheme, insurerThemes, appTheme } from "@/theme/brandTheme";
 import { InsurerLogo } from "@/components/InsurerLogo";
 import { Check, Minus, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { exportAllInsurerOffersXlsx } from "@/utils/exportXlsx";
 
 type Program = {
   row_id?: number;
@@ -173,6 +174,21 @@ export default function ShareView() {
   const selectedTheme = isInsurerView 
     ? (insurerThemes[insurerName] || appTheme)
     : brokerTheme;
+
+  const handleExportExcel = async () => {
+    if (columns.length === 0) return;
+    
+    try {
+      await exportAllInsurerOffersXlsx(columns, {
+        companyName,
+        employeesCount,
+        templateUrl: "/xlsx/health-offer-template.xlsx",
+        fileName: `${companyName || "Insurance"}_Comparison_${new Date().toISOString().split('T')[0]}.xlsx`,
+      });
+    } catch (error) {
+      console.error("Export failed:", error);
+    }
+  };
 
   const handleExportCSV = () => {
     if (columns.length === 0) return;
@@ -484,7 +500,7 @@ export default function ShareView() {
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold">{t('healthInsurance')}</h3>
             <Button
-              onClick={handleExportCSV}
+              onClick={handleExportExcel}
               variant="outline"
               size="sm"
               className="gap-2"

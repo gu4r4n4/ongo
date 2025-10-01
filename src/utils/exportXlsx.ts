@@ -154,23 +154,13 @@ type ExportOptions = {
   fileName?: string; // override default file name
 };
 
-// NOTE: This exports ONE insurer/program (one Column from your matrix)
-export async function exportInsurerOfferXlsx(
+// Helper function to populate a single sheet with column data
+function populateSheetWithInsurerOffer(
+  sheet: any,
   column: Column,
   opts: ExportOptions = {}
 ) {
-  const templateUrl = opts.templateUrl || "/xlsx/health-offer-template.xlsx";
-  const XlsxPopulate = (await import("xlsx-populate/browser/xlsx-populate")).default;
-
-  // 1) Load template
-  const ab = await fetch(templateUrl, { cache: "no-store" }).then((r) => {
-    if (!r.ok) throw new Error(`Failed to load template: ${r.status}`);
-    return r.arrayBuffer();
-  });
-  const workbook = await XlsxPopulate.fromDataAsync(ab);
-  const sheet = workbook.sheet(TEMPLATE_SHEET_NAME);
-
-  // 2) Header: company + employees
+  // 1) Header: company + employees
   if (opts.companyName) sheet.cell(HEADER_COMPANY_CELL).value(`Uzņēmums: ${opts.companyName}`);
   if (typeof opts.employeesCount === "number") {
     sheet
@@ -178,11 +168,11 @@ export async function exportInsurerOfferXlsx(
       .value(`Nodarbināto skaits: ${opts.employeesCount}`);
   }
 
-  // 3) Column header + program code
+  // 2) Column header + program code
   sheet.cell(HEADER_INSURER_CELL).value((column.insurer || "").toUpperCase());
   sheet.cell(PROGRAM_CODE_CELL).value(column.program_code || "");
 
-  // 4) Payment method / base sum / premium
+  // 3) Payment method / base sum / premium
   const payRow = findRowByLabel(sheet, PAYMENT_METHOD_LABEL);
   if (payRow) sheet.cell(payRow, 2).value(paymentMethodLabel(column.payment_method));
 
@@ -193,7 +183,7 @@ export async function exportInsurerOfferXlsx(
   const premiumRow = findRowByLabel(sheet, PREMIUM_ROW_LABEL);
   if (premiumRow) sheet.cell(premiumRow, 2).value(formatValueForCell(column.premium_eur));
 
-  // 5) Feature rows
+  // 4) Feature rows
   const features = column.features || {};
   const getFeature = (key: string) => {
     // normalize incoming feature names
@@ -214,8 +204,104 @@ export async function exportInsurerOfferXlsx(
     if (val === undefined) continue;
     sheet.cell(row, 2).value(formatValueForCell(val));
   }
+}
 
-  // 6) Produce XLSX and open in new tab (and also download fallback)
+// Export ALL columns into one Excel file with multiple sheets
+export async function exportAllInsurerOffersXlsx(
+  columns: Column[],
+  opts: ExportOptions = {}
+) {
+  if (!columns || columns.length === 0) {
+    throw new Error("No columns to export");
+  }
+
+  const templateUrl = opts.templateUrl || "/xlsx/health-offer-template.xlsx";
+  const XlsxPopulate = (await import("xlsx-populate/browser/xlsx-populate")).default;
+
+  // 1) Load template
+  const ab = await fetch(templateUrl, { cache: "no-store" }).then((r) => {
+    if (!r.ok) throw new Error(`Failed to load template: ${r.status}`);
+    return r.arrayBuffer();
+  });
+  const workbook = await XlsxPopulate.fromDataAsync(ab);
+
+  // 2) Process first column using existing template sheet
+  const firstSheet = workbook.sheet(TEMPLATE_SHEET_NAME);
+  const firstColumn = columns[0];
+  populateSheetWithInsurerOffer(firstSheet, firstColumn, opts);
+  
+  // Rename first sheet
+  const firstName = `${firstColumn.insurer || "Ins"}-${firstColumn.program_code || "Prog"}`
+    .replace(/[^\w.-]+/g, "_")
+    .substring(0, 31); // Excel sheet name limit
+  firstSheet.name(firstName);
+
+  // 3) For remaining columns, copy template and populate
+  for (let i = 1; i < columns.length; i++) {
+    const column = columns[i];
+    
+    // Copy the first sheet as template
+    const newSheet = firstSheet.copyTo(workbook);
+    
+    // Generate unique sheet name
+    const sheetName = `${column.insurer || "Ins"}-${column.program_code || "Prog"}`
+      .replace(/[^\w.-]+/g, "_")
+      .substring(0, 31);
+    newSheet.name(sheetName);
+    
+    // Populate with column data
+    populateSheetWithInsurerOffer(newSheet, column, opts);
+  }
+
+  // 4) Produce XLSX and trigger download
+  const out = await workbook.outputAsync();
+  const blob = new Blob([out], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+
+  const fileName =
+    opts.fileName ||
+    `${opts.companyName || "Insurance"}_Comparison_${new Date().toISOString().split('T')[0]}.xlsx`;
+
+  // Try open in new tab
+  const url = URL.createObjectURL(blob);
+  const win = window.open(url, "_blank", "noopener,noreferrer");
+
+  // Fallback: trigger download if popup blocked
+  if (!win) {
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    a.rel = "noopener";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  // Clean up later
+  setTimeout(() => URL.revokeObjectURL(url), 10_000);
+}
+
+// NOTE: This exports ONE insurer/program (one Column from your matrix)
+export async function exportInsurerOfferXlsx(
+  column: Column,
+  opts: ExportOptions = {}
+) {
+  const templateUrl = opts.templateUrl || "/xlsx/health-offer-template.xlsx";
+  const XlsxPopulate = (await import("xlsx-populate/browser/xlsx-populate")).default;
+
+  // 1) Load template
+  const ab = await fetch(templateUrl, { cache: "no-store" }).then((r) => {
+    if (!r.ok) throw new Error(`Failed to load template: ${r.status}`);
+    return r.arrayBuffer();
+  });
+  const workbook = await XlsxPopulate.fromDataAsync(ab);
+  const sheet = workbook.sheet(TEMPLATE_SHEET_NAME);
+
+  // 2) Populate sheet with column data
+  populateSheetWithInsurerOffer(sheet, column, opts);
+
+  // 3) Produce XLSX and open in new tab (and also download fallback)
   const out = await workbook.outputAsync();
   const blob = new Blob([out], {
     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
