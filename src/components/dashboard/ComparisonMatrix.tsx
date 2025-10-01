@@ -6,14 +6,13 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Check, Minus, Edit, Save, X, Share2, Trash2, Filter, FileSpreadsheet } from "lucide-react";
+import { Check, Minus, Edit, Save, X, Share2, Trash2, Filter } from "lucide-react";
 import { InsurerLogo } from "@/components/InsurerLogo";
 import { Column, OfferGroup } from "@/hooks/useAsyncOffers";
 import { Language, useTranslation } from "@/utils/translations";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useBrandTheme } from "@/theme/BrandThemeProvider";
-import { exportInsurerOfferXlsx } from "@/utils/exportXlsx";
 
 /* ============================================
    Encode/decode hidden features in URL (utf-8 safe)
@@ -1212,9 +1211,9 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                     onDrop={onDrop(k)}
                   >
                     <div className="flex flex-col items-center text-center space-y-2">
-                      {/* Edit, Export Excel, and Delete buttons */}
+                      {/* Edit and Delete buttons */}
                       {canEdit && (
-                        <div className="w-full flex justify-between items-center">
+                        <div className="w-full flex justify-between">
                           <Button
                             size="sm"
                             variant="ghost"
@@ -1222,20 +1221,6 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                             className="h-6 w-6 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
                           >
                             <Edit className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => exportInsurerOfferXlsx(column, {
-                              companyName,
-                              employeesCount,
-                              templateUrl: "/xlsx/health-offer-template.xlsx",
-                              fileName: `${companyName || "Company"}_${column.insurer || "Ins"}_${column.program_code || "Program"}.xlsx`,
-                            })}
-                            className="h-6 w-6 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                            title={t('export')}
-                          >
-                            <FileSpreadsheet className="h-3 w-3" />
                           </Button>
                           <Button
                             size="sm"
