@@ -249,6 +249,50 @@ export async function exportAllInsurerOffersXlsx(
     const excelCol = colIndex + 2; // Column B = 2, C = 3, etc.
     console.log(`Processing column ${colIndex + 1}/${columns.length}: ${column.insurer}`);
 
+    // If not the first column, copy styles from column B to this column
+    if (colIndex > 0) {
+      // Copy column width
+      try {
+        const colBWidth = sheet.column(2).width();
+        if (colBWidth) sheet.column(excelCol).width(colBWidth);
+      } catch (e) {
+        console.warn("Could not copy column width:", e);
+      }
+      
+      // Copy cell styles row by row
+      for (let r = 1; r <= 60; r++) {
+        try {
+          const sourceCell = sheet.cell(r, 2);
+          const targetCell = sheet.cell(r, excelCol);
+          
+          // Copy individual style properties
+          const bgColor = sourceCell.style("fill");
+          if (bgColor) targetCell.style("fill", bgColor);
+          
+          const fontColor = sourceCell.style("fontColor");
+          if (fontColor) targetCell.style("fontColor", fontColor);
+          
+          const fontSize = sourceCell.style("fontSize");
+          if (fontSize) targetCell.style("fontSize", fontSize);
+          
+          const bold = sourceCell.style("bold");
+          if (bold !== undefined) targetCell.style("bold", bold);
+          
+          const hAlign = sourceCell.style("horizontalAlignment");
+          if (hAlign) targetCell.style("horizontalAlignment", hAlign);
+          
+          const vAlign = sourceCell.style("verticalAlignment");
+          if (vAlign) targetCell.style("verticalAlignment", vAlign);
+          
+          const border = sourceCell.style("border");
+          if (border) targetCell.style("border", border);
+        } catch (e) {
+          // Skip cells that can't be styled
+          console.warn(`Could not copy style for row ${r}:`, e.message);
+        }
+      }
+    }
+
     // Set insurer name in row 6
     sheet.cell(6, excelCol).value((column.insurer || "").toUpperCase());
     
