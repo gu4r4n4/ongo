@@ -490,7 +490,7 @@ export default function ShareView() {
               className="gap-2"
             >
               <Download className="h-4 w-4" />
-              {t('exportCsv')}
+              {t('export')}
             </Button>
           </div>
         )}
