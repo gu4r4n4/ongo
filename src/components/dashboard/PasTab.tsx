@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Language, useTranslation } from "@/utils/translations";
 import { toast } from "sonner";
-import { Trash2, Download } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { InsurerLogo } from "@/components/InsurerLogo";
 import { ComparisonMatrix, ViewPrefs } from "./ComparisonMatrix";
 import MedicalServicesHeader from "@/components/MedicalServicesHeader";
@@ -401,55 +401,6 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     }
   };
 
-  // Export to CSV functionality
-  const handleExportCSV = () => {
-    if (columns.length === 0) {
-      toast.error('No results to export');
-      return;
-    }
-
-    // Create CSV headers
-    const headers = ['Insurer', 'Program Code', 'Premium (EUR)', 'Base Sum (EUR)', 'Payment Method', ...allFeatureKeys];
-    
-    // Create CSV rows
-    const rows = columns
-      .filter(col => col.type !== 'error')
-      .map(col => {
-        const featureValues = allFeatureKeys.map(key => {
-          const feature = col.features?.[key];
-          return feature?.value || '';
-        });
-        
-        return [
-          col.insurer || '',
-          col.program_code || '',
-          col.premium_eur || '',
-          col.base_sum_eur || '',
-          col.payment_method || '',
-          ...featureValues
-        ];
-      });
-
-    // Combine headers and rows
-    const csvContent = [
-      headers.join(','),
-      ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
-    ].join('\n');
-
-    // Create and download file
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `processing_results_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    toast.success('Exported successfully');
-  };
-
   return (
     <div className="space-y-6">
       <Card>
@@ -591,19 +542,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
 
       {/* Results Matrix */}
       {currentJobId && columns.length > 0 && (
-        <>
-          <div className="flex justify-end">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleExportCSV}
-              className="gap-2"
-            >
-              <Download className="h-4 w-4" />
-              Export to CSV
-            </Button>
-          </div>
-          <ComparisonMatrix
+        <ComparisonMatrix
           key={currentJobId}               // forces a fresh matrix per run
           columns={columns}
           allFeatureKeys={allFeatureKeys}
@@ -626,7 +565,6 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
             setColumns(prev => prev.filter(c => c.id !== columnId));
           }}
         />
-        </>
       )}
 
       {/* Medical Services Footer - Legend */}
