@@ -239,6 +239,21 @@ export async function exportAllInsurerOffersXlsx(
     const column = columns[colIndex];
     const excelCol = colIndex + 2; // Column B = 2, C = 3, etc.
 
+    // If not the first column, copy styles from column B to this column
+    if (colIndex > 0) {
+      // Copy styles from rows 6-60 (where data is) from column B to current column
+      for (let r = 6; r <= 60; r++) {
+        const sourceCell = sheet.cell(r, 2); // Column B
+        const targetCell = sheet.cell(r, excelCol);
+        
+        // Copy style from source to target
+        const style = sourceCell.style();
+        if (style) {
+          targetCell.style(style);
+        }
+      }
+    }
+
     // Set insurer name in row 6
     sheet.cell(6, excelCol).value((column.insurer || "").toUpperCase());
     
@@ -288,23 +303,17 @@ export async function exportAllInsurerOffersXlsx(
     opts.fileName ||
     `${opts.companyName || "Insurance"}_Comparison_${new Date().toISOString().split('T')[0]}.xlsx`;
 
-  // Try open in new tab
+  // Direct download (avoid double download from popup + fallback)
   const url = URL.createObjectURL(blob);
-  const win = window.open(url, "_blank", "noopener,noreferrer");
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
 
-  // Fallback: trigger download if popup blocked
-  if (!win) {
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = fileName;
-    a.rel = "noopener";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-  }
-
-  // Clean up later
-  setTimeout(() => URL.revokeObjectURL(url), 10_000);
+  // Clean up
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 // NOTE: This exports ONE insurer/program (one Column from your matrix)
@@ -326,7 +335,7 @@ export async function exportInsurerOfferXlsx(
   // 2) Populate sheet with column data
   populateSheetWithInsurerOffer(sheet, column, opts);
 
-  // 3) Produce XLSX and open in new tab (and also download fallback)
+  // 3) Produce XLSX and download
   const out = await workbook.outputAsync();
   const blob = new Blob([out], {
     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -338,21 +347,15 @@ export async function exportInsurerOfferXlsx(
       .toString()
       .replace(/[^\w.-]+/g, "_")}.xlsx`;
 
-  // Try open in new tab
+  // Direct download
   const url = URL.createObjectURL(blob);
-  const win = window.open(url, "_blank", "noopener,noreferrer");
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
 
-  // Fallback: trigger download if popup blocked
-  if (!win) {
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = fileName;
-    a.rel = "noopener";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-  }
-
-  // Clean up later
-  setTimeout(() => URL.revokeObjectURL(url), 10_000);
+  // Clean up
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
