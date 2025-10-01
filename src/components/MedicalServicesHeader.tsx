@@ -210,7 +210,10 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
                   {t('general')}
                 </Badge>
                 <ul className="space-y-1 ml-2">
-                  <li className="text-sm text-muted-foreground">• {t('familyDoctorPaid')}</li>
+                  <li className="text-sm text-muted-foreground flex items-center gap-1.5">
+                    <Check className="h-3.5 w-3.5 text-green-600 flex-shrink-0" />
+                    <span>{t('familyDoctorPaid')}</span>
+                  </li>
                 </ul>
               </div>
 
@@ -219,8 +222,14 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
                   {t('alternative')}
                 </Badge>
                 <ul className="space-y-1 ml-2">
-                  <li className="text-sm text-muted-foreground">• {t('homeopath')}</li>
-                  <li className="text-sm text-muted-foreground">• {t('osteopath')}</li>
+                  <li className="text-sm text-muted-foreground flex items-center gap-1.5">
+                    <Check className="h-3.5 w-3.5 text-green-600 flex-shrink-0" />
+                    <span>{t('homeopath')}</span>
+                  </li>
+                  <li className="text-sm text-muted-foreground flex items-center gap-1.5">
+                    <Check className="h-3.5 w-3.5 text-green-600 flex-shrink-0" />
+                    <span>{t('osteopath')}</span>
+                  </li>
                 </ul>
               </div>
 
@@ -229,7 +238,10 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
                   {t('academic')}
                 </Badge>
                 <ul className="space-y-1 ml-2">
-                  <li className="text-sm text-muted-foreground">• {t('docentConsultation')}</li>
+                  <li className="text-sm text-muted-foreground flex items-center gap-1.5">
+                    <Check className="h-3.5 w-3.5 text-green-600 flex-shrink-0" />
+                    <span>{t('docentConsultation')}</span>
+                  </li>
                 </ul>
               </div>
             </div>
@@ -241,8 +253,14 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
                   {t('specialist')}
                 </Badge>
                 <ul className="space-y-1 ml-2">
-                  <li className="text-sm text-muted-foreground">• {t('cardiologistEtc')}</li>
-                  <li className="text-sm text-muted-foreground">• {t('gynecologistEtc')}</li>
+                  <li className="text-sm text-muted-foreground flex items-center gap-1.5">
+                    <Check className="h-3.5 w-3.5 text-green-600 flex-shrink-0" />
+                    <span>{t('cardiologistEtc')}</span>
+                  </li>
+                  <li className="text-sm text-muted-foreground flex items-center gap-1.5">
+                    <Check className="h-3.5 w-3.5 text-green-600 flex-shrink-0" />
+                    <span>{t('gynecologistEtc')}</span>
+                  </li>
                 </ul>
               </div>
 
@@ -251,7 +269,10 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
                   {t('sports')}
                 </Badge>
                 <ul className="space-y-1 ml-2">
-                  <li className="text-sm text-muted-foreground">• {t('sportsDoctor')}</li>
+                  <li className="text-sm text-muted-foreground flex items-center gap-1.5">
+                    <Check className="h-3.5 w-3.5 text-green-600 flex-shrink-0" />
+                    <span>{t('sportsDoctor')}</span>
+                  </li>
                 </ul>
               </div>
 
@@ -260,8 +281,14 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
                   {t('mental')}
                 </Badge>
                 <ul className="space-y-1 ml-2">
-                  <li className="text-sm text-muted-foreground">• {t('psychologistTherapist')}</li>
-                  <li className="text-sm text-muted-foreground">• {t('psychiatristReceipts')}</li>
+                  <li className="text-sm text-muted-foreground flex items-center gap-1.5">
+                    <Check className="h-3.5 w-3.5 text-green-600 flex-shrink-0" />
+                    <span>{t('psychologistTherapist')}</span>
+                  </li>
+                  <li className="text-sm text-muted-foreground flex items-center gap-1.5">
+                    <Check className="h-3.5 w-3.5 text-green-600 flex-shrink-0" />
+                    <span>{t('psychiatristReceipts')}</span>
+                  </li>
                 </ul>
               </div>
             </div>
@@ -273,7 +300,10 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
                   {t('skin')}
                 </Badge>
                 <ul className="space-y-1 ml-2">
-                  <li className="text-sm text-muted-foreground">• {t('dermatologist')}</li>
+                  <li className="text-sm text-muted-foreground flex items-center gap-1.5">
+                    <Check className="h-3.5 w-3.5 text-green-600 flex-shrink-0" />
+                    <span>{t('dermatologist')}</span>
+                  </li>
                 </ul>
               </div>
 
@@ -282,8 +312,14 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
                   {t('therapy')}
                 </Badge>
                 <ul className="space-y-1 ml-2">
-                  <li className="text-sm text-muted-foreground">• {t('physicalTherapyDoctor')}</li>
-                  <li className="text-sm text-muted-foreground">• {t('rehabilitationPhysio')}</li>
+                  <li className="text-sm text-muted-foreground flex items-center gap-1.5">
+                    <Check className="h-3.5 w-3.5 text-green-600 flex-shrink-0" />
+                    <span>{t('physicalTherapyDoctor')}</span>
+                  </li>
+                  <li className="text-sm text-muted-foreground flex items-center gap-1.5">
+                    <Check className="h-3.5 w-3.5 text-green-600 flex-shrink-0" />
+                    <span>{t('rehabilitationPhysio')}</span>
+                  </li>
                 </ul>
               </div>
 
@@ -292,7 +328,10 @@ const MedicalServicesHeader = ({ currentLanguage }: MedicalServicesHeaderProps) 
                   {t('remote')}
                 </Badge>
                 <ul className="space-y-1 ml-2">
-                  <li className="text-sm text-muted-foreground">• {t('remoteDoctorConsultations')}</li>
+                  <li className="text-sm text-muted-foreground flex items-center gap-1.5">
+                    <Check className="h-3.5 w-3.5 text-green-600 flex-shrink-0" />
+                    <span>{t('remoteDoctorConsultations')}</span>
+                  </li>
                 </ul>
               </div>
             </div>
