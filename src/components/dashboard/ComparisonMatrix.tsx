@@ -1169,7 +1169,7 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
               style={{ background: "var(--brand-surface)" }}
             >
               {/* Sticky feature header */}
-              <div className={`w-[280px] bg-card border-r p-4 ${isMobile ? "" : "sticky left-0 z-30"}`}>
+              <div className={`w-[250px] bg-card border-r p-4 ${isMobile ? "" : "sticky left-0 z-30"}`}>
                 <div className="font-semibold text-sm invisible">{t("features")}</div>
               </div>
 
@@ -1322,7 +1322,7 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
             {/* Meta rows */}
             {metaRows.map((row) => (
               <div key={row.key} className="flex border-b hover:bg-[#f1f5f9] transition-colors">
-                <div className={`w-[280px] bg-muted border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
+                <div className={`w-[250px] bg-muted border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
                   <Badge variant="secondary" className="font-medium text-sm">
                     {row.label}
                   </Badge>
@@ -1356,7 +1356,7 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
             {/* MAIN BLOCK (ordered) */}
             {mainToRender.map((featureKey, index) => (
               <div key={featureKey} className={`flex border-b hover:bg-[#f1f5f9] transition-colors ${index % 2 === 0 ? "bg-muted/10" : ""}`}>
-                <div className={`w-[280px] bg-muted border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
+                <div className={`w-[250px] bg-muted border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
                   <Badge variant="secondary" className="text-sm font-medium">
                     {translateFeatureName(featureKey, t)}
                   </Badge>
@@ -1391,7 +1391,7 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
             {addonsToRender.length > 0 && (
               <>
                 <div className="flex border-b bg-card">
-                  <div className={`w-[280px] border-r p-3 font-semibold text-sm ${isMobile ? "" : "sticky left-0 bg-card z-10"}`}>
+                  <div className={`w-[250px] border-r p-3 font-semibold text-sm ${isMobile ? "" : "sticky left-0 bg-card z-10"}`}>
                     {t('additionalPrograms')}
                   </div>
                   <div className="flex-1 p-3 text-xs text-muted-foreground" />
@@ -1399,7 +1399,7 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
 
                 {addonsToRender.map((featureKey, index) => (
                   <div key={featureKey} className={`flex border-b hover:bg-[#f1f5f9] transition-colors ${index % 2 === 0 ? "bg-muted/10" : ""}`}>
-                    <div className={`w-[280px] bg-muted border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
+                    <div className={`w-[250px] bg-muted border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
                       <Badge variant="secondary" className="text-sm font-medium">
                         {translateFeatureName(featureKey, t)}
                       </Badge>
@@ -1435,7 +1435,7 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
             {/* CTA row (optional) */}
             {showBuyButtons && (
               <div className="flex border-b">
-                <div className={`w-[280px] bg-muted border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
+                <div className={`w-[250px] bg-muted border-r p-4 z-10 shadow-lg ${isMobile ? "" : "sticky left-0"}`}>
                   <Badge variant="secondary" className="text-sm font-medium invisible">
                     {t("confirm")}
                   </Badge>
