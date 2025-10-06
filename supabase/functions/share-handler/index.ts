@@ -32,6 +32,78 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
+    // Handle PATCH requests for updating share metadata
+    if (req.method === 'PATCH') {
+      const body = await req.json()
+      const { company_name, employees_count } = body
+      const propagateOffers = url.searchParams.get('propagate_offers') === '1'
+
+      // Get current share data
+      const { data: shareData, error: shareError } = await supabase.rpc(
+        'get_share_by_token', 
+        { share_token: token }
+      )
+
+      if (shareError || !shareData || shareData.length === 0) {
+        return new Response(
+          JSON.stringify({ error: 'Share not found or expired' }),
+          { 
+            status: 404, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          }
+        )
+      }
+
+      const share = shareData[0]
+      
+      // Update payload with new values
+      const updatedPayload = {
+        ...share.payload,
+        company_name: company_name ?? share.payload.company_name,
+        employees_count: employees_count ?? share.payload.employees_count
+      }
+
+      // Update share_links
+      const { error: updateError } = await supabase
+        .from('share_links')
+        .update({ payload: updatedPayload })
+        .eq('token', token)
+
+      if (updateError) {
+        console.error('Error updating share:', updateError)
+        return new Response(
+          JSON.stringify({ error: 'Failed to update share' }),
+          { 
+            status: 500, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          }
+        )
+      }
+
+      // Optionally propagate to offers
+      if (propagateOffers) {
+        const { error: offersError } = await supabase
+          .from('offers')
+          .update({
+            company_name: company_name,
+            employee_count: employees_count
+          })
+          .eq('inquiry_id', share.inquiry_id)
+
+        if (offersError) {
+          console.error('Error updating offers:', offersError)
+        }
+      }
+
+      return new Response(
+        JSON.stringify({ ok: true }),
+        {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      )
+    }
+
     // Get share data using secure function
     const { data: shareData, error: shareError } = await supabase.rpc(
       'get_share_by_token', 
