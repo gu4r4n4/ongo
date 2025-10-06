@@ -86,8 +86,7 @@ const TEMPLATE_LABELS: Record<string, string> = {
   "Maksas stacionārā rehabilitācija, limits EUR":
     "Maksas stacionārā rehabilitācija, limits EUR",
   "Ambulatorā rehabilitācija": "Ambulatorā rehabilitācija",
-  // Premium row (row 41 in template)
-  "Pamatpolises prēmija 1 darbiniekam, EUR": "Pamatpolises prēmija 1 darbiniekam, EUR",
+  // Note: Premium row is handled separately in the populate functions
   // Plastic card surcharge (row 42)
   "Piemaksa par plastikāta kartēm, EUR": "Piemaksa par plastikāta kartēm, EUR",
   // Additional programs section (rows 45-57)
