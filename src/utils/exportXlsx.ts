@@ -196,7 +196,10 @@ function populateSheetWithInsurerOffer(
 
   // Premium row in template is "Pamatpolises prēmija 1 darbiniekam, EUR"
   const premiumRow = findRowByLabel(sheet, "Pamatpolises prēmija 1 darbiniekam, EUR");
-  if (premiumRow) sheet.cell(premiumRow, 2).value(formatValueForCell(column.premium_eur));
+  if (premiumRow) {
+    sheet.cell(premiumRow, 2).value(formatValueForCell(column.premium_eur));
+    sheet.cell(premiumRow, 2).style("fontColor", "000000"); // Black text
+  }
 
   // 4) Feature rows
   const features = column.features || {};
@@ -217,7 +220,9 @@ function populateSheetWithInsurerOffer(
     if (!row) continue;
     const val = getFeature(canonical);
     if (val === undefined) continue;
-    sheet.cell(row, 2).value(formatValueForCell(val));
+    const cell = sheet.cell(row, 2);
+    cell.value(formatValueForCell(val));
+    cell.style("fontColor", "000000"); // Black text
   }
 }
 
@@ -324,7 +329,10 @@ export async function exportAllInsurerOffersXlsx(
 
     // Premium - use correct template label
     const premiumRow = findRowByLabel(sheet, "Pamatpolises prēmija 1 darbiniekam, EUR");
-    if (premiumRow) sheet.cell(premiumRow, excelCol).value(formatValueForCell(column.premium_eur));
+    if (premiumRow) {
+      sheet.cell(premiumRow, excelCol).value(formatValueForCell(column.premium_eur));
+      sheet.cell(premiumRow, excelCol).style("fontColor", "000000"); // Black text
+    }
 
     // Feature rows
     const features = column.features || {};
@@ -343,7 +351,9 @@ export async function exportAllInsurerOffersXlsx(
       if (!row) continue;
       const val = getFeature(canonical);
       if (val === undefined) continue;
-      sheet.cell(row, excelCol).value(formatValueForCell(val));
+      const cell = sheet.cell(row, excelCol);
+      cell.value(formatValueForCell(val));
+      cell.style("fontColor", "000000"); // Black text
     }
   }
   console.log("All columns populated");
