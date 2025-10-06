@@ -52,6 +52,7 @@ type SharePayload = {
   };
   editable?: boolean;
   allow_edit_fields?: string[];
+  role?: string;
 };
 
 export default function ShareView() {
@@ -67,6 +68,10 @@ export default function ShareView() {
   const [editingMeta, setEditingMeta] = useState(false);
   const [editCompany, setEditCompany] = useState<string>("");
   const [editEmployees, setEditEmployees] = useState<string>("");
+
+  // Helper to match ComparisonMatrix's column key format
+  const columnKey = (c: any) =>
+    `${c.source_file}::${c.insurer ?? ""}::${c.program_code ?? ""}`;
 
   // turn API offers -> ComparisonMatrix props - match expected structure
   const { columns, allFeatureKeys, insurerName, isInsurerView } = useMemo(() => {
@@ -98,7 +103,7 @@ export default function ShareView() {
     
     return { 
       columns: cols, 
-      allFeatureKeys: Array.from(keys),
+      allFeatureKeys: Array.from(keys).sort(),
       insurerName: singleInsurer || "",
       isInsurerView
     };
@@ -218,18 +223,22 @@ export default function ShareView() {
     }
   };
 
-  const handleSaveMeta = async (propagateOffers = false) => {
+  const handleSaveMeta = async (
+    propagateOffers = false,
+    viewPrefs?: { column_order?: string[]; hidden_features?: string[] }
+  ) => {
     try {
       const url = `${BACKEND_URL}/shares/${encodeURIComponent(token)}${propagateOffers ? '?propagate_offers=1' : ''}`;
-      const body = JSON.stringify({
+      const body: any = {
         company_name: editCompany,
         employees_count: editEmployees === "" ? null : Number(editEmployees),
-      });
+      };
+      if (viewPrefs) body.view_prefs = viewPrefs;
       
       let res = await fetch(url, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body,
+        body: JSON.stringify(body),
       });
       
       // Fallback to POST if PATCH is not allowed
@@ -237,7 +246,7 @@ export default function ShareView() {
         res = await fetch(url, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body,
+          body: JSON.stringify(body),
         });
       }
       
@@ -254,18 +263,15 @@ export default function ShareView() {
 
     // Apply the same column ordering as displayed in ComparisonMatrix
     let orderedColumns = [...columns];
-    if (payload?.view_prefs?.column_order) {
-      const order = payload.view_prefs.column_order;
-      orderedColumns = order
-        .map(id => columns.find(c => c.id === id))
-        .filter(Boolean) as any[];
-      // Add any columns not in the order list
-      const orderedIds = new Set(order);
-      columns.forEach(col => {
-        if (!orderedIds.has(col.id)) {
-          orderedColumns.push(col);
-        }
-      });
+    const order = payload?.view_prefs?.column_order;
+    if (order?.length) {
+      const byKey = new Map(columns.map(c => [columnKey(c), c]));
+      orderedColumns = order.map(k => byKey.get(k)).filter(Boolean) as any[];
+      // append any new columns not in saved order
+      const inOrder = new Set(order);
+      for (const c of columns) {
+        if (!inOrder.has(columnKey(c))) orderedColumns.push(c);
+      }
     }
 
     // Helper function to extract clean value from feature data
@@ -646,12 +652,12 @@ export default function ShareView() {
           columns={columns}
           allFeatureKeys={allFeatureKeys}
           currentLanguage={currentLanguage}
-          onShare={undefined}
+          onShare={(prefs) => handleSaveMeta(false, prefs)}
           companyName={companyName}
           employeesCount={employeesCount >= 0 ? employeesCount : undefined}
           sharePrefs={payload.view_prefs}
-          canEdit={true}
-          showBuyButtons={true}
+          canEdit={!!payload?.editable}
+          showBuyButtons={payload?.role === "broker"}
           isShareView={true}
           backendUrl={BACKEND_URL}
           shareToken={token}
