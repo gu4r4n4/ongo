@@ -221,14 +221,26 @@ export default function ShareView() {
   const handleSaveMeta = async (propagateOffers = false) => {
     try {
       const url = `${BACKEND_URL}/shares/${encodeURIComponent(token)}${propagateOffers ? '?propagate_offers=1' : ''}`;
-      const res = await fetch(url, {
+      const body = JSON.stringify({
+        company_name: editCompany,
+        employees_count: editEmployees === "" ? null : Number(editEmployees),
+      });
+      
+      let res = await fetch(url, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          company_name: editCompany,
-          employees_count: editEmployees === "" ? null : Number(editEmployees),
-        }),
+        body,
       });
+      
+      // Fallback to POST if PATCH is not allowed
+      if (res.status === 405) {
+        res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body,
+        });
+      }
+      
       if (!res.ok) throw new Error(await res.text());
       await fetchShare();
       setEditingMeta(false);
