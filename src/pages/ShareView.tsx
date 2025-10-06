@@ -11,6 +11,8 @@ import { brokerTheme, insurerThemes, appTheme } from "@/theme/brandTheme";
 import { InsurerLogo } from "@/components/InsurerLogo";
 import { Check, Minus, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { exportAllInsurerOffersXlsx } from "@/utils/exportXlsx";
 
 type Program = {
@@ -58,6 +60,10 @@ export default function ShareView() {
   const [offers, setOffers] = useState<OfferGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const pollRef = useRef<number | null>(null);
+  
+  // Editable company info state
+  const [editableCompanyName, setEditableCompanyName] = useState("");
+  const [editableEmployeesCount, setEditableEmployeesCount] = useState<number>(0);
 
   // turn API offers -> ComparisonMatrix props - match expected structure
   const { columns, allFeatureKeys, insurerName, isInsurerView } = useMemo(() => {
@@ -170,6 +176,16 @@ export default function ShareView() {
     (payload.customer?.employees_count ?? null) ??
     0;
 
+  // Initialize editable values when data loads
+  useEffect(() => {
+    if (companyName && !editableCompanyName) {
+      setEditableCompanyName(companyName);
+    }
+    if (employeesCount && !editableEmployeesCount) {
+      setEditableEmployeesCount(employeesCount);
+    }
+  }, [companyName, employeesCount]);
+
   // Choose theme based on view type
   const selectedTheme = isInsurerView 
     ? (insurerThemes[insurerName] || appTheme)
@@ -181,15 +197,18 @@ export default function ShareView() {
       return;
     }
     
+    const exportCompanyName = editableCompanyName || companyName;
+    const exportEmployeesCount = editableEmployeesCount || employeesCount;
+    
     console.log("Starting export with columns:", columns.length);
-    console.log("Company:", companyName, "Employees:", employeesCount);
+    console.log("Company:", exportCompanyName, "Employees:", exportEmployeesCount);
     
     try {
       await exportAllInsurerOffersXlsx(columns, {
-        companyName,
-        employeesCount,
+        companyName: exportCompanyName,
+        employeesCount: exportEmployeesCount,
         templateUrl: "/xlsx/health-offer-template.xlsx",
-        fileName: `${companyName || "Insurance"}_Comparison_${new Date().toISOString().split('T')[0]}.xlsx`,
+        fileName: `${exportCompanyName || "Insurance"}_Comparison_${new Date().toISOString().split('T')[0]}.xlsx`,
       });
       console.log("Export completed successfully");
     } catch (error) {
@@ -519,6 +538,35 @@ export default function ShareView() {
           </div>
         )}
 
+        {/* Editable Company Info */}
+        {columns.length > 0 && (
+          <Card>
+            <CardContent className="pt-6">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="company-name">{t('companyName')}</Label>
+                  <Input
+                    id="company-name"
+                    value={editableCompanyName}
+                    onChange={(e) => setEditableCompanyName(e.target.value)}
+                    placeholder={t('companyName')}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="employees-count">{t('employees')}</Label>
+                  <Input
+                    id="employees-count"
+                    type="number"
+                    value={editableEmployeesCount}
+                    onChange={(e) => setEditableEmployeesCount(parseInt(e.target.value) || 0)}
+                    placeholder={t('employees')}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Results Matrix */}
         {columns.length > 0 && (
         <ComparisonMatrix
@@ -526,8 +574,8 @@ export default function ShareView() {
           allFeatureKeys={allFeatureKeys}
           currentLanguage={currentLanguage}
           onShare={undefined}
-          companyName={companyName}
-          employeesCount={employeesCount >= 0 ? employeesCount : undefined}
+          companyName={editableCompanyName || companyName}
+          employeesCount={editableEmployeesCount >= 0 ? editableEmployeesCount : undefined}
           sharePrefs={payload.view_prefs}
           canEdit={true}
           showBuyButtons={true}
