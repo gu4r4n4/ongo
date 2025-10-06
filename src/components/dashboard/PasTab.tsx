@@ -6,13 +6,16 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Language, useTranslation } from "@/utils/translations";
 import { toast } from "sonner";
-import { Trash2 } from "lucide-react";
+import { Trash2, ExternalLink } from "lucide-react";
 import { InsurerLogo } from "@/components/InsurerLogo";
 import { ComparisonMatrix, ViewPrefs } from "./ComparisonMatrix";
 import MedicalServicesHeader from "@/components/MedicalServicesHeader";
 import { BACKEND_URL } from "@/config";
 import { truncateFilename } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { supabase } from "@/integrations/supabase/client";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { format } from "date-fns";
 
 type Insurer = 'BTA' | 'Balta' | 'BAN' | 'Compensa' | 'ERGO' | 'Gjensidige' | 'If' | 'Seesam';
 
@@ -44,6 +47,29 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
   const [allFeatureKeys, setAllFeatureKeys] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [job, setJob] = useState<{ total: number; done: number; errors: any[] } | null>(null);
+  
+  // Recent scans state
+  const [recentScans, setRecentScans] = useState<any[]>([]);
+
+  // Fetch recent scans
+  useEffect(() => {
+    const fetchRecentScans = async () => {
+      const { data, error } = await supabase
+        .from('share_links')
+        .select('id, token, created_at, payload')
+        .order('created_at', { ascending: false })
+        .limit(5);
+      
+      if (error) {
+        console.error('Error fetching recent scans:', error);
+        return;
+      }
+      
+      setRecentScans(data || []);
+    };
+    
+    fetchRecentScans();
+  }, [currentJobId]); // Refresh when a new scan completes
 
   // Build matrix from offers data
   function buildMatrix(grouped: any[]) {
@@ -409,6 +435,50 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
           <CardDescription>{t('pasDesc')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
+          {/* Recent Scans Table */}
+          {recentScans.length > 0 && (
+            <div className="space-y-2">
+              <Label className="text-base font-semibold">Recent Scans</Label>
+              <div className="rounded-md border overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Company</TableHead>
+                      <TableHead>Employees</TableHead>
+                      <TableHead className="text-right">Share Link</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {recentScans.map((scan) => {
+                      const payload = scan.payload as any;
+                      const shareUrl = `${window.location.origin}/share/${scan.token}`;
+                      return (
+                        <TableRow key={scan.id}>
+                          <TableCell className="whitespace-nowrap">
+                            {format(new Date(scan.created_at), 'MMM d, yyyy HH:mm')}
+                          </TableCell>
+                          <TableCell>{payload?.company_name || '-'}</TableCell>
+                          <TableCell>{payload?.employees_count || '-'}</TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => window.open(shareUrl, '_blank', 'noopener,noreferrer')}
+                              className="gap-1"
+                            >
+                              Open <ExternalLink className="h-3 w-3" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          )}
+
           <div className="grid gap-4">
             {/* Company */}
             <div>
