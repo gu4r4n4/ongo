@@ -228,21 +228,17 @@ export default function ShareView() {
     viewPrefs?: { column_order?: string[]; hidden_features?: string[] }
   ) => {
     try {
-      // Use Supabase edge function for proper payload updates
-      const supabaseUrl = 'https://qgzfakbddogmjxxcdflf.supabase.co';
-      const url = `${supabaseUrl}/functions/v1/share-handler/${encodeURIComponent(token)}${propagateOffers ? '?propagate_offers=1' : ''}`;
       const body: any = {
         company_name: editCompany,
         employees_count: editEmployees === "" ? null : Number(editEmployees),
       };
       if (viewPrefs) body.view_prefs = viewPrefs;
       
+      const url = `https://qgzfakbddogmjxxcdflf.supabase.co/functions/v1/share-handler/${encodeURIComponent(token)}${propagateOffers ? '?propagate_offers=1' : ''}`;
+      
       const res = await fetch(url, {
         method: "PATCH",
-        headers: { 
-          "Content-Type": "application/json",
-          "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFnemZha2JkZG9nbWp4eGNkZmxmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEyMjgxNjYsImV4cCI6MjA2NjgwNDE2Nn0.mtvLy6JOvl-xJxkegXbnHEC4R2ABNPt_QvWFALWodHM"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
       
