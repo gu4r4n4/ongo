@@ -104,50 +104,54 @@ export default function ShareView() {
     };
   }, [offers]);
 
-  useEffect(() => {
-    let stopped = false;
-
-    async function fetchShare() {
-      setLoading(true);
-      try {
-        const r = await fetch(`${BACKEND_URL}/shares/${encodeURIComponent(token)}`);
-        if (!r.ok) {
-          setLoading(false);
-          setOffers([]);
-          setPayload(null);
-          return;
-        }
-        const data = await r.json();
-        if (stopped) return;
-
-        const pl: SharePayload = data.payload || { mode: "snapshot" };
-        
-        // Handle customer data from backend - can be in payload directly or in customer object
-        if (data.customer && !pl.customer) {
-          pl.customer = data.customer;
-        }
-        
-        setPayload(pl);
-
-        // Use the server-filtered offers directly from the share response
-        // This preserves any filtering like insurer_only that was applied server-side
-        const serverOffers = data.offers || [];
-        setOffers(serverOffers);
-        
-        console.log('📗 ShareView loaded with view_prefs:', pl.view_prefs);
-        console.log('📗 Column order:', pl.view_prefs?.column_order?.length || 0, 'items');
-        console.log('📗 Hidden features:', pl.view_prefs?.hidden_features?.length || 0, 'items');
-        
-        setLoading(false);
-      } catch (error) {
-        console.error('Fetch share error:', error);
+  const fetchShare = async () => {
+    setLoading(true);
+    try {
+      const r = await fetch(`${BACKEND_URL}/shares/${encodeURIComponent(token)}`);
+      if (!r.ok) {
         setLoading(false);
         setOffers([]);
         setPayload(null);
+        return;
       }
+      const data = await r.json();
+
+      const pl: SharePayload = data.payload || { mode: "snapshot" };
+      
+      // Handle customer data from backend - can be in payload directly or in customer object
+      if (data.customer && !pl.customer) {
+        pl.customer = data.customer;
+      }
+      
+      setPayload(pl);
+
+      // Use the server-filtered offers directly from the share response
+      // This preserves any filtering like insurer_only that was applied server-side
+      const serverOffers = data.offers || [];
+      setOffers(serverOffers);
+      
+      console.log('📗 ShareView loaded with view_prefs:', pl.view_prefs);
+      console.log('📗 Column order:', pl.view_prefs?.column_order?.length || 0, 'items');
+      console.log('📗 Hidden features:', pl.view_prefs?.hidden_features?.length || 0, 'items');
+      
+      setLoading(false);
+    } catch (error) {
+      console.error('Fetch share error:', error);
+      setLoading(false);
+      setOffers([]);
+      setPayload(null);
+    }
+  };
+
+  useEffect(() => {
+    let stopped = false;
+
+    async function loadData() {
+      if (stopped) return;
+      await fetchShare();
     }
 
-    fetchShare();
+    loadData();
 
     return () => {
       stopped = true;
@@ -211,6 +215,25 @@ export default function ShareView() {
     } catch (error) {
       console.error("Export failed:", error);
       alert(`Export failed: ${error.message}`);
+    }
+  };
+
+  const handleSaveMeta = async (propagateOffers = false) => {
+    try {
+      const url = `${BACKEND_URL}/shares/${encodeURIComponent(token)}${propagateOffers ? '?propagate_offers=1' : ''}`;
+      const res = await fetch(url, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          company_name: editCompany,
+          employees_count: editEmployees === "" ? null : Number(editEmployees),
+        }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      await fetchShare();
+      setEditingMeta(false);
+    } catch (e: any) {
+      alert(`Failed to save: ${e.message}`);
     }
   };
 
@@ -579,35 +602,18 @@ export default function ShareView() {
                 </div>
                 <div className="flex items-end gap-2">
                   <Button
-                    onClick={async () => {
-                      try {
-                        const res = await fetch(`${BACKEND_URL}/shares/${encodeURIComponent(token!)}`, {
-                          method: "PATCH",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({
-                            company_name: editCompany,
-                            employees_count: editEmployees === "" ? null : Number(editEmployees),
-                          }),
-                        });
-                        if (!res.ok) throw new Error(await res.text());
-                        const fresh = await fetch(`${BACKEND_URL}/shares/${encodeURIComponent(token!)}`, { cache: "no-store" }).then(r => r.json());
-                        
-                        // Update payload and offers
-                        const pl: SharePayload = fresh.payload || { mode: "snapshot" };
-                        if (fresh.customer && !pl.customer) {
-                          pl.customer = fresh.customer;
-                        }
-                        setPayload(pl);
-                        setOffers(fresh.offers || []);
-                        setEditingMeta(false);
-                      } catch (e: any) {
-                        alert(`Failed to save: ${e.message}`);
-                      }
-                    }}
+                    onClick={() => handleSaveMeta(false)}
                     size="sm"
                     className="bg-green-600 hover:bg-green-700"
                   >
                     Save
+                  </Button>
+                  <Button
+                    onClick={() => handleSaveMeta(true)}
+                    size="sm"
+                    variant="outline"
+                  >
+                    Save & Update Offers
                   </Button>
                   <Button 
                     onClick={() => setEditingMeta(false)}
