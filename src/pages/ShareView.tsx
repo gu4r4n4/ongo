@@ -11,8 +11,6 @@ import { brokerTheme, insurerThemes, appTheme } from "@/theme/brandTheme";
 import { InsurerLogo } from "@/components/InsurerLogo";
 import { Check, Minus, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { exportAllInsurerOffersXlsx } from "@/utils/exportXlsx";
 
 type Program = {
@@ -60,11 +58,6 @@ export default function ShareView() {
   const [offers, setOffers] = useState<OfferGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const pollRef = useRef<number | null>(null);
-  
-  // Editable company info state
-  const [editableCompanyName, setEditableCompanyName] = useState("");
-  const [editableEmployeesCount, setEditableEmployeesCount] = useState<number>(0);
-  const [error, setError] = useState<string | null>(null);
 
   // turn API offers -> ComparisonMatrix props - match expected structure
   const { columns, allFeatureKeys, insurerName, isInsurerView } = useMemo(() => {
@@ -107,20 +100,9 @@ export default function ShareView() {
 
     async function fetchShare() {
       setLoading(true);
-      setError(null);
-      
-      console.log('🔍 Fetching share with token:', token);
-      console.log('🔍 Backend URL:', BACKEND_URL);
-      
       try {
         const r = await fetch(`${BACKEND_URL}/shares/${encodeURIComponent(token)}`);
-        
-        console.log('🔍 Response status:', r.status);
-        
         if (!r.ok) {
-          const errorText = await r.text().catch(() => 'Unknown error');
-          console.error('🔍 Fetch failed:', errorText);
-          setError(`Failed to load share: ${errorText}`);
           setLoading(false);
           setOffers([]);
           setPayload(null);
@@ -150,7 +132,6 @@ export default function ShareView() {
         setLoading(false);
       } catch (error) {
         console.error('Fetch share error:', error);
-        setError(`Error loading share: ${error instanceof Error ? error.message : 'Unknown error'}`);
         setLoading(false);
         setOffers([]);
         setPayload(null);
@@ -169,37 +150,11 @@ export default function ShareView() {
   }, [token]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="text-sm text-muted-foreground">{t("loadingData") || "Loading…"}</div>
-          <div className="text-xs text-muted-foreground">Token: {token}</div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-4 p-6 max-w-md">
-          <div className="text-sm text-destructive">{error}</div>
-          <div className="text-xs text-muted-foreground">Token: {token}</div>
-          <div className="text-xs text-muted-foreground">Backend: {BACKEND_URL}</div>
-        </div>
-      </div>
-    );
+    return <div className="p-6 text-sm text-muted-foreground">{t("loadingData") || "Loading…"}</div>;
   }
 
   if (!payload) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-4 p-6">
-          <div className="text-sm text-destructive">Share not found or expired.</div>
-          <div className="text-xs text-muted-foreground">Token: {token}</div>
-        </div>
-      </div>
-    );
+    return <div className="p-6 text-sm text-destructive">Share not found or expired.</div>;
   }
 
   // Get company info from group level (correct), fallback to payload
@@ -215,19 +170,6 @@ export default function ShareView() {
     (payload.customer?.employees_count ?? null) ??
     0;
 
-  // Initialize editable values when data first loads (only once)
-  useEffect(() => {
-    if (companyName && editableCompanyName === "") {
-      setEditableCompanyName(companyName);
-    }
-  }, [companyName]);
-
-  useEffect(() => {
-    if (employeesCount > 0 && editableEmployeesCount === 0) {
-      setEditableEmployeesCount(employeesCount);
-    }
-  }, [employeesCount]);
-
   // Choose theme based on view type
   const selectedTheme = isInsurerView 
     ? (insurerThemes[insurerName] || appTheme)
@@ -239,18 +181,15 @@ export default function ShareView() {
       return;
     }
     
-    const exportCompanyName = editableCompanyName || companyName;
-    const exportEmployeesCount = editableEmployeesCount || employeesCount;
-    
     console.log("Starting export with columns:", columns.length);
-    console.log("Company:", exportCompanyName, "Employees:", exportEmployeesCount);
+    console.log("Company:", companyName, "Employees:", employeesCount);
     
     try {
       await exportAllInsurerOffersXlsx(columns, {
-        companyName: exportCompanyName,
-        employeesCount: exportEmployeesCount,
+        companyName,
+        employeesCount,
         templateUrl: "/xlsx/health-offer-template.xlsx",
-        fileName: `${exportCompanyName || "Insurance"}_Comparison_${new Date().toISOString().split('T')[0]}.xlsx`,
+        fileName: `${companyName || "Insurance"}_Comparison_${new Date().toISOString().split('T')[0]}.xlsx`,
       });
       console.log("Export completed successfully");
     } catch (error) {
@@ -580,35 +519,6 @@ export default function ShareView() {
           </div>
         )}
 
-        {/* Editable Company Info */}
-        {columns.length > 0 && (
-          <Card>
-            <CardContent className="pt-6">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="company-name">{t('companyName')}</Label>
-                  <Input
-                    id="company-name"
-                    value={editableCompanyName}
-                    onChange={(e) => setEditableCompanyName(e.target.value)}
-                    placeholder={t('companyName')}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="employees-count">{t('employees')}</Label>
-                  <Input
-                    id="employees-count"
-                    type="number"
-                    value={editableEmployeesCount}
-                    onChange={(e) => setEditableEmployeesCount(parseInt(e.target.value) || 0)}
-                    placeholder={t('employees')}
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
         {/* Results Matrix */}
         {columns.length > 0 && (
         <ComparisonMatrix
@@ -616,8 +526,8 @@ export default function ShareView() {
           allFeatureKeys={allFeatureKeys}
           currentLanguage={currentLanguage}
           onShare={undefined}
-          companyName={editableCompanyName || companyName}
-          employeesCount={editableEmployeesCount >= 0 ? editableEmployeesCount : undefined}
+          companyName={companyName}
+          employeesCount={employeesCount >= 0 ? employeesCount : undefined}
           sharePrefs={payload.view_prefs}
           canEdit={true}
           showBuyButtons={true}
