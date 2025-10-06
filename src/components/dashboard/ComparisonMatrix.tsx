@@ -231,16 +231,16 @@ function normalizeChanges(changes: Record<string, any>): OfferPatch {
  *  Payment methods (LV)
  *  ====================== */
 const PAYMENT_METHOD_OPTIONS = [
-  { value: "monthly", label: "Cenrāža programma" },
-  { value: "quarterly", label: "100% apmaksa līgumiestādēs" },
-  { value: "yearly", label: "100% apmaksa līgumiestādēs un ja pakalpojums ir nopirkts" },
-  { value: "one-time", label: "Procentuāla programma" },
+  "Saskaņā ar cenrādi",
+  "Cenrāža programma",
+  "100% apmaksa līgumiestādēs un ja pakalpojums ir nopirkts",
+  "100% apmaksa līgumiestādēs",
+  "Procentuāla programma",
 ];
 
 function paymentMethodLabel(v?: string | null): string {
   if (!v) return "—";
-  const m = PAYMENT_METHOD_OPTIONS.find((o) => o.value === v);
-  return m?.label ?? v;
+  return v;
 }
 
 /** ======================
@@ -1368,16 +1368,39 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                   return (
                     <div key={columnKey(column)} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 flex items-center justify-center">
                       {isEditing ? (
-                        <Input
-                          value={cellVal(editFormData.features?.[featureKey] ?? value)}
-                          onChange={(e) =>
-                            setEditFormData((prev) => ({
-                              ...prev,
-                              features: { ...(prev.features || {}), [featureKey]: e.target.value },
-                            }))
-                          }
-                          className="text-center"
-                        />
+                        featureKey === "Pakalpojuma apmaksas veids" ? (
+                          <Select
+                            value={editFormData.features?.[featureKey] ?? value ?? "Saskaņā ar cenrādi"}
+                            onValueChange={(val) =>
+                              setEditFormData((prev) => ({
+                                ...prev,
+                                features: { ...(prev.features || {}), [featureKey]: val },
+                              }))
+                            }
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="bg-background z-50">
+                              {PAYMENT_METHOD_OPTIONS.map((option) => (
+                                <SelectItem key={option} value={option}>
+                                  {option}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        ) : (
+                          <Input
+                            value={cellVal(editFormData.features?.[featureKey] ?? value)}
+                            onChange={(e) =>
+                              setEditFormData((prev) => ({
+                                ...prev,
+                                features: { ...(prev.features || {}), [featureKey]: e.target.value },
+                              }))
+                            }
+                            className="text-center"
+                          />
+                        )
                       ) : (
                         renderValue(value)
                       )}
