@@ -563,9 +563,9 @@ export default function ShareView() {
         {/* Title and Action Buttons */}
         {columns.length > 0 && (
           <>
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
               <h3 className="text-lg font-semibold">{t('healthInsurance')}</h3>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
                 {canEditMeta && !editingMeta && (
                   <Button
                     onClick={() => {
@@ -575,6 +575,7 @@ export default function ShareView() {
                     }}
                     variant="outline"
                     size="sm"
+                    className="w-full sm:w-auto"
                   >
                     {t('company')}
                   </Button>
@@ -583,7 +584,7 @@ export default function ShareView() {
                   onClick={handleExportExcel}
                   variant="outline"
                   size="sm"
-                  className="gap-2"
+                  className="gap-2 w-full sm:w-auto"
                 >
                   <Download className="h-4 w-4" />
                   {t('export')}
