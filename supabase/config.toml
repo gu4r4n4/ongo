@@ -1,1 +1,4 @@
 project_id = "qgzfakbddogmjxxcdflf"
+
+[functions.share-handler]
+verify_jwt = false

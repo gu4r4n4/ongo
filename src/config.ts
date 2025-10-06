@@ -1,1 +1,1 @@
-export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? "https://gpt-vis.onrender.com";
+export const BACKEND_URL = "https://qgzfakbddogmjxxcdflf.supabase.co/functions/v1/share-handler";
