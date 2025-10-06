@@ -86,15 +86,32 @@ const TEMPLATE_LABELS: Record<string, string> = {
   "Maksas stacionārā rehabilitācija, limits EUR":
     "Maksas stacionārā rehabilitācija, limits EUR",
   "Ambulatorā rehabilitācija": "Ambulatorā rehabilitācija",
-  // addons block
-  "Zobārstniecība ar 50% atlaidi (pamatpolise)": "Zobārstniecība ar 50% atlaidi",
-  "Zobārstniecība ar 50% atlaidi (pp)": "Zobārstniecība ar 50% atlaidi",
-  "Vakcinācija pret ērcēm un gripu": "Vakcinācija pret ērcēm un gripu",
-  "Ambulatorā rehabilitācija (pp)": "Ambulatorā rehabilitācija",
-  "Medikamenti ar 50% atlaidi": "Medikamenti ar 50% atlaidi",
-  "Sports": "Sports",
-  "Kritiskās saslimšanas": "Kritiskās saslimšanas",
+  // Premium row (row 41 in template)
+  "Pamatpolises prēmija 1 darbiniekam, EUR": "Pamatpolises prēmija 1 darbiniekam, EUR",
+  // Plastic card surcharge (row 42)
+  "Piemaksa par plastikāta kartēm, EUR": "Piemaksa par plastikāta kartēm, EUR",
+  // Additional programs section (rows 45-57)
+  "Zobārstniecība ar 50% atalidi, limits 150 EUR": "Zobārstniecība ar 50% atalidi, limits 150 EUR",
+  "Zobārstniecība ar 50% atalidi, limits 200 EUR": "Zobārstniecība ar 50% atalidi, limits 200 EUR",
+  "Vakcinācija pret ērčiem un gripu": "Vakcinācija pret ērčiem un gripu",
+  "Vakcinācija jebkura": "Vakcinācija jebkura",
+  "Fizikālās terapijas procedūras, limits 10 reizes, 100% vai limits, EUR": "Fizikālās terapijas procedūras, limits 10 reizes, 100% vai limits, EUR",
+  "Maksas grūtnieču aprūpem limits EUR": "Maksas grūtnieču aprūpem limits EUR",
+  "Ambulatorā rehabilitācija, limtis EUR": "Ambulatorā rehabilitācija, limtis EUR",
+  "Medikamenti ar 50% atlaidi, limits EUR": "Medikamenti ar 50% atlaidi, limits EUR",
+  "Sports, limits X reizes mēnesī, limits EUR gadā": "Sports, limits X reizes mēnesī, limits EUR gadā",
+  "Kristiskās saslimšanas, limits EUR": "Kristiskās saslimšanas, limits EUR",
+  "Maksas operācijas, limits EUR": "Maksas operācijas, limits EUR",
   "Optika 50%, limits EUR": "Optika 50%, limits EUR",
+  // Legacy addon mappings (for backward compatibility)
+  "Zobārstniecība ar 50% atlaidi (pamatpolise)": "Zobārstniecība ar 50% atalidi, limits 150 EUR",
+  "Zobārstniecība ar 50% atlaidi (pp)": "Zobārstniecība ar 50% atalidi, limits 200 EUR",
+  "Vakcinācija pret ērcēm un gripu": "Vakcinācija pret ērčiem un gripu",
+  "Ambulatorā rehabilitācija (pp)": "Ambulatorā rehabilitācija, limtis EUR",
+  "Medikamenti ar 50% atlaidi": "Medikamenti ar 50% atlaidi, limits EUR",
+  "Sports": "Sports, limits X reizes mēnesī, limits EUR gadā",
+  "Kritiskās saslimšanas": "Kristiskās saslimšanas, limits EUR",
+  "Maksas Operācijas, limits EUR": "Maksas operācijas, limits EUR",
 };
 
 // Template sheet + rows where we write other meta:
@@ -103,7 +120,6 @@ const HEADER_COMPANY_CELL = "B3";               // “Uzņēmums: …”
 const HEADER_EMPLOYEES_CELL = "B4";             // “Nodarbināto skaits: …”
 const HEADER_INSURER_CELL = "B6";               // Column title with insurer (kept simple)
 const PROGRAM_CODE_CELL = "B7";                 // Programmas nosaukums
-const PREMIUM_ROW_LABEL = "Prēmija (EUR)";      // row with premium
 const PAYMENT_METHOD_LABEL = "Pakalpojuma apmaksas veids";
 
 function canonicalKey(raw: string): string {
@@ -179,8 +195,8 @@ function populateSheetWithInsurerOffer(
   const baseRow = findRowByLabel(sheet, "Apdrošinājuma summa pamatpolisei, EUR");
   if (baseRow) sheet.cell(baseRow, 2).value(formatValueForCell(column.base_sum_eur));
 
-  // "Prēmija (EUR)" row is in the template (single value)
-  const premiumRow = findRowByLabel(sheet, PREMIUM_ROW_LABEL);
+  // Premium row in template is "Pamatpolises prēmija 1 darbiniekam, EUR"
+  const premiumRow = findRowByLabel(sheet, "Pamatpolises prēmija 1 darbiniekam, EUR");
   if (premiumRow) sheet.cell(premiumRow, 2).value(formatValueForCell(column.premium_eur));
 
   // 4) Feature rows
@@ -307,8 +323,8 @@ export async function exportAllInsurerOffersXlsx(
     const baseRow = findRowByLabel(sheet, "Apdrošinājuma summa pamatpolisei, EUR");
     if (baseRow) sheet.cell(baseRow, excelCol).value(formatValueForCell(column.base_sum_eur));
 
-    // Premium
-    const premiumRow = findRowByLabel(sheet, PREMIUM_ROW_LABEL);
+    // Premium - use correct template label
+    const premiumRow = findRowByLabel(sheet, "Pamatpolises prēmija 1 darbiniekam, EUR");
     if (premiumRow) sheet.cell(premiumRow, excelCol).value(formatValueForCell(column.premium_eur));
 
     // Feature rows
