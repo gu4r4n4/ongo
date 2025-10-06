@@ -215,15 +215,18 @@ export default function ShareView() {
     (payload.customer?.employees_count ?? null) ??
     0;
 
-  // Initialize editable values when data loads
+  // Initialize editable values when data first loads (only once)
   useEffect(() => {
-    if (companyName && !editableCompanyName) {
+    if (companyName && editableCompanyName === "") {
       setEditableCompanyName(companyName);
     }
-    if (employeesCount && !editableEmployeesCount) {
+  }, [companyName]);
+
+  useEffect(() => {
+    if (employeesCount > 0 && editableEmployeesCount === 0) {
       setEditableEmployeesCount(employeesCount);
     }
-  }, [companyName, employeesCount]);
+  }, [employeesCount]);
 
   // Choose theme based on view type
   const selectedTheme = isInsurerView 
