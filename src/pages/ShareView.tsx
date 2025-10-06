@@ -5,7 +5,7 @@ import { ComparisonMatrix } from "@/components/dashboard/ComparisonMatrix";
 import MedicalServicesHeader from "@/components/MedicalServicesHeader";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useTranslation, Language } from "@/utils/translations";
-import { supabase } from "@/integrations/supabase/client";
+import { BACKEND_URL } from "@/config";
 import { BrandThemeProvider } from "@/theme/BrandThemeProvider";
 import { brokerTheme, insurerThemes, appTheme } from "@/theme/brandTheme";
 import { InsurerLogo } from "@/components/InsurerLogo";
@@ -110,13 +110,14 @@ export default function ShareView() {
     async function fetchShare() {
       setLoading(true);
       try {
-        const { data, error } = await supabase.functions.invoke(`share-handler/${encodeURIComponent(token)}`);
-        if (error || !data) {
+        const r = await fetch(`${BACKEND_URL}/shares/${encodeURIComponent(token)}`);
+        if (!r.ok) {
           setLoading(false);
           setOffers([]);
           setPayload(null);
           return;
         }
+        const data = await r.json();
         if (stopped) return;
 
         const pl: SharePayload = data.payload || { mode: "snapshot" };
@@ -580,18 +581,16 @@ export default function ShareView() {
                   <Button
                     onClick={async () => {
                       try {
-                        const { error } = await supabase.functions.invoke(`share-handler/${encodeURIComponent(token!)}`, {
+                        const res = await fetch(`${BACKEND_URL}/shares/${encodeURIComponent(token!)}`, {
                           method: "PATCH",
-                          body: {
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
                             company_name: editCompany,
                             employees_count: editEmployees === "" ? null : Number(editEmployees),
-                          },
+                          }),
                         });
-                        if (error) throw error;
-                        
-                        // Refetch data
-                        const { data: fresh, error: fetchError } = await supabase.functions.invoke(`share-handler/${encodeURIComponent(token!)}`);
-                        if (fetchError) throw fetchError;
+                        if (!res.ok) throw new Error(await res.text());
+                        const fresh = await fetch(`${BACKEND_URL}/shares/${encodeURIComponent(token!)}`, { cache: "no-store" }).then(r => r.json());
                         
                         // Update payload and offers
                         const pl: SharePayload = fresh.payload || { mode: "snapshot" };
@@ -636,7 +635,7 @@ export default function ShareView() {
           canEdit={true}
           showBuyButtons={true}
           isShareView={true}
-          backendUrl={`https://qgzfakbddogmjxxcdflf.supabase.co/functions/v1`}
+          backendUrl={BACKEND_URL}
           shareToken={token}
         />
         )}
