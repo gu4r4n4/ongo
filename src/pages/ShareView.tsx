@@ -11,6 +11,8 @@ import { brokerTheme, insurerThemes, appTheme } from "@/theme/brandTheme";
 import { InsurerLogo } from "@/components/InsurerLogo";
 import { Check, Minus, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { exportAllInsurerOffersXlsx } from "@/utils/exportXlsx";
 
 type Program = {
@@ -48,6 +50,8 @@ type SharePayload = {
     column_order?: string[];
     hidden_features?: string[];
   };
+  editable?: boolean;
+  allow_edit_fields?: string[];
 };
 
 export default function ShareView() {
@@ -58,6 +62,11 @@ export default function ShareView() {
   const [offers, setOffers] = useState<OfferGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const pollRef = useRef<number | null>(null);
+  
+  // Inline editing state
+  const [editingMeta, setEditingMeta] = useState(false);
+  const [editCompany, setEditCompany] = useState<string>("");
+  const [editEmployees, setEditEmployees] = useState<string>("");
 
   // turn API offers -> ComparisonMatrix props - match expected structure
   const { columns, allFeatureKeys, insurerName, isInsurerView } = useMemo(() => {
@@ -169,6 +178,13 @@ export default function ShareView() {
     (payload.employees_count ?? null) ??
     (payload.customer?.employees_count ?? null) ??
     0;
+
+  // Check if meta editing is allowed
+  const canEditMeta = !!payload?.editable && (
+    !payload?.allow_edit_fields?.length ||
+    payload.allow_edit_fields.includes("company_name") ||
+    payload.allow_edit_fields.includes("employees_count")
+  );
 
   // Choose theme based on view type
   const selectedTheme = isInsurerView 
@@ -503,20 +519,107 @@ export default function ShareView() {
           </div>
         </div>
 
-        {/* Title and Export Button */}
+        {/* Title and Action Buttons */}
         {columns.length > 0 && (
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">{t('healthInsurance')}</h3>
-            <Button
-              onClick={handleExportExcel}
-              variant="outline"
-              size="sm"
-              className="gap-2"
-            >
-              <Download className="h-4 w-4" />
-              {t('export')}
-            </Button>
-          </div>
+          <>
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold">{t('healthInsurance')}</h3>
+              <div className="flex items-center gap-2">
+                {canEditMeta && !editingMeta && (
+                  <Button
+                    onClick={() => {
+                      setEditCompany(companyName || "");
+                      setEditEmployees(String(employeesCount ?? ""));
+                      setEditingMeta(true);
+                    }}
+                    variant="outline"
+                    size="sm"
+                  >
+                    Edit header
+                  </Button>
+                )}
+                <Button
+                  onClick={handleExportExcel}
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                >
+                  <Download className="h-4 w-4" />
+                  {t('export')}
+                </Button>
+              </div>
+            </div>
+
+            {/* Inline Edit Form */}
+            {editingMeta && (
+              <div className="grid gap-3 sm:grid-cols-3 border rounded-lg p-4 bg-card">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-company" className="text-sm text-muted-foreground">
+                    Company name
+                  </Label>
+                  <Input
+                    id="edit-company"
+                    value={editCompany}
+                    onChange={(e) => setEditCompany(e.target.value)}
+                    placeholder="Company"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-employees" className="text-sm text-muted-foreground">
+                    Employees
+                  </Label>
+                  <Input
+                    id="edit-employees"
+                    type="number"
+                    min={0}
+                    value={editEmployees}
+                    onChange={(e) => setEditEmployees(e.target.value)}
+                    placeholder="0"
+                  />
+                </div>
+                <div className="flex items-end gap-2">
+                  <Button
+                    onClick={async () => {
+                      try {
+                        const res = await fetch(`${BACKEND_URL}/shares/${encodeURIComponent(token!)}`, {
+                          method: "PATCH",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            company_name: editCompany,
+                            employees_count: editEmployees === "" ? null : Number(editEmployees),
+                          }),
+                        });
+                        if (!res.ok) throw new Error(await res.text());
+                        const fresh = await fetch(`${BACKEND_URL}/shares/${encodeURIComponent(token!)}`, { cache: "no-store" }).then(r => r.json());
+                        
+                        // Update payload and offers
+                        const pl: SharePayload = fresh.payload || { mode: "snapshot" };
+                        if (fresh.customer && !pl.customer) {
+                          pl.customer = fresh.customer;
+                        }
+                        setPayload(pl);
+                        setOffers(fresh.offers || []);
+                        setEditingMeta(false);
+                      } catch (e: any) {
+                        alert(`Failed to save: ${e.message}`);
+                      }
+                    }}
+                    size="sm"
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    Save
+                  </Button>
+                  <Button 
+                    onClick={() => setEditingMeta(false)}
+                    variant="outline"
+                    size="sm"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
+          </>
         )}
 
         {/* Results Matrix */}
