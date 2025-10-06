@@ -64,6 +64,7 @@ export default function ShareView() {
   // Editable company info state
   const [editableCompanyName, setEditableCompanyName] = useState("");
   const [editableEmployeesCount, setEditableEmployeesCount] = useState<number>(0);
+  const [error, setError] = useState<string | null>(null);
 
   // turn API offers -> ComparisonMatrix props - match expected structure
   const { columns, allFeatureKeys, insurerName, isInsurerView } = useMemo(() => {
@@ -106,9 +107,20 @@ export default function ShareView() {
 
     async function fetchShare() {
       setLoading(true);
+      setError(null);
+      
+      console.log('🔍 Fetching share with token:', token);
+      console.log('🔍 Backend URL:', BACKEND_URL);
+      
       try {
         const r = await fetch(`${BACKEND_URL}/shares/${encodeURIComponent(token)}`);
+        
+        console.log('🔍 Response status:', r.status);
+        
         if (!r.ok) {
+          const errorText = await r.text().catch(() => 'Unknown error');
+          console.error('🔍 Fetch failed:', errorText);
+          setError(`Failed to load share: ${errorText}`);
           setLoading(false);
           setOffers([]);
           setPayload(null);
@@ -138,6 +150,7 @@ export default function ShareView() {
         setLoading(false);
       } catch (error) {
         console.error('Fetch share error:', error);
+        setError(`Error loading share: ${error instanceof Error ? error.message : 'Unknown error'}`);
         setLoading(false);
         setOffers([]);
         setPayload(null);
@@ -156,11 +169,37 @@ export default function ShareView() {
   }, [token]);
 
   if (loading) {
-    return <div className="p-6 text-sm text-muted-foreground">{t("loadingData") || "Loading…"}</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="text-sm text-muted-foreground">{t("loadingData") || "Loading…"}</div>
+          <div className="text-xs text-muted-foreground">Token: {token}</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4 p-6 max-w-md">
+          <div className="text-sm text-destructive">{error}</div>
+          <div className="text-xs text-muted-foreground">Token: {token}</div>
+          <div className="text-xs text-muted-foreground">Backend: {BACKEND_URL}</div>
+        </div>
+      </div>
+    );
   }
 
   if (!payload) {
-    return <div className="p-6 text-sm text-destructive">Share not found or expired.</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4 p-6">
+          <div className="text-sm text-destructive">Share not found or expired.</div>
+          <div className="text-xs text-muted-foreground">Token: {token}</div>
+        </div>
+      </div>
+    );
   }
 
   // Get company info from group level (correct), fallback to payload
