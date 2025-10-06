@@ -194,6 +194,9 @@ export const translations = {
     shareLinkCreated: 'Koplietošanas saite izveidota',
     company: 'Kompānija',
     employeeCount: 'Nodarbināto skaits',
+    recentScans: 'Pēdējie Skanējumi',
+    shareLink: 'Koplietošanas Saite',
+    open: 'Atvērt',
     
     // Share functionality
     share: 'Dalīties',
@@ -486,6 +489,9 @@ export const translations = {
     shareLinkCreated: 'Share link created',
     company: 'Company',
     employeeCount: 'Employee Count',
+    recentScans: 'Recent Scans',
+    shareLink: 'Share Link',
+    open: 'Open',
     
     // Share functionality
     share: 'Share',
@@ -778,6 +784,9 @@ export const translations = {
     shareLinkCreated: 'Ссылка создана',
     company: 'Компания',
     employeeCount: 'Количество сотрудников',
+    recentScans: 'Последние Сканирования',
+    shareLink: 'Ссылка для Публикации',
+    open: 'Открыть',
     
     // Share functionality
     share: 'Поделиться',
@@ -1056,6 +1065,9 @@ export const translations = {
     shareLinkCreated: 'Jagamislink loodud',
     company: 'Ettevõte',
     employeeCount: 'Töötajate arv',
+    recentScans: 'Viimased Skanneerimised',
+    shareLink: 'Jagamislink',
+    open: 'Ava',
     
     // Share functionality
     share: 'Jaga',
@@ -1330,6 +1342,9 @@ export const translations = {
     shareLinkCreated: 'Bendrinimo nuoroda sukurta',
     company: 'Kompanija',
     employeeCount: 'Darbuotojų skaičius',
+    recentScans: 'Paskutiniai Skanavimai',
+    shareLink: 'Bendrinimo Nuoroda',
+    open: 'Atidaryti',
     
     // Share functionality
     share: 'Dalintis',
@@ -1604,6 +1619,9 @@ export const translations = {
     shareLinkCreated: 'Delingslenke opprettet',
     company: 'Selskap',
     employeeCount: 'Antall ansatte',
+    recentScans: 'Siste Skanninger',
+    shareLink: 'Delingslenke',
+    open: 'Åpne',
     
     // Share page content
     includedInPolicy: 'inkludert i forsikringsdekning',
@@ -1878,6 +1896,9 @@ export const translations = {
     shareLinkCreated: 'Delningslänk skapad',
     company: 'Företag',
     employeeCount: 'Antal anställda',
+    recentScans: 'Senaste Skanningar',
+    shareLink: 'Delningslänk',
+    open: 'Öppna',
     
     // Share functionality
     share: 'Dela',  
@@ -2152,6 +2173,9 @@ export const translations = {
     shareLinkCreated: 'Delingslink oprettet',
     company: 'Virksomhed',
     employeeCount: 'Antal ansatte',
+    recentScans: 'Seneste Scanninger',
+    shareLink: 'Delingslink',
+    open: 'Åbn',
     
     // Share functionality
     share: 'Del',
@@ -2426,6 +2450,9 @@ export const translations = {
     shareLinkCreated: 'Lien de partage créé',
     company: 'Entreprise',
     employeeCount: 'Nombre d\'employés',
+    recentScans: 'Analyses Récentes',
+    shareLink: 'Lien de Partage',
+    open: 'Ouvrir',
     
     // Share page content
     includedInPolicy: 'inclus dans la couverture d\'assurance',
@@ -2700,6 +2727,9 @@ export const translations = {
     shareLinkCreated: 'Freigabe-Link erstellt',
     company: 'Unternehmen',
     employeeCount: 'Anzahl der Mitarbeiter',
+    recentScans: 'Letzte Scans',
+    shareLink: 'Freigabe-Link',
+    open: 'Öffnen',
     
     // Share functionality
     share: 'Teilen',
@@ -2974,6 +3004,9 @@ export const translations = {
     shareLinkCreated: 'Enlace compartido creado',
     company: 'Empresa',
     employeeCount: 'Número de empleados',
+    recentScans: 'Escaneos Recientes',
+    shareLink: 'Enlace para Compartir',
+    open: 'Abrir',
     
     // Share functionality
     share: 'Compartir',

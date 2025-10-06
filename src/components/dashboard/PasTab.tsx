@@ -438,15 +438,15 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
           {/* Recent Scans Table */}
           {recentScans.length > 0 && (
             <div className="space-y-2">
-              <Label className="text-base font-semibold">Recent Scans</Label>
+              <Label className="text-base font-semibold">{t('recentScans')}</Label>
               <div className="rounded-md border overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Company</TableHead>
-                      <TableHead>Employees</TableHead>
-                      <TableHead className="text-right">Share Link</TableHead>
+                      <TableHead>{t('date')}</TableHead>
+                      <TableHead>{t('company')}</TableHead>
+                      <TableHead>{t('employees')}</TableHead>
+                      <TableHead className="text-right">{t('shareLink')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -467,7 +467,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
                               onClick={() => window.open(shareUrl, '_blank', 'noopener,noreferrer')}
                               className="gap-1"
                             >
-                              Open <ExternalLink className="h-3 w-3" />
+                              {t('open')} <ExternalLink className="h-3 w-3" />
                             </Button>
                           </TableCell>
                         </TableRow>
