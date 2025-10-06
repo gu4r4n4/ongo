@@ -1441,49 +1441,64 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                   </Badge>
                 </div>
 
-                {orderedColumns.map((column) => (
-                  <div key={columnKey(column)} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 flex items-center justify-center">
-                    <Button
-                      size="sm"
-                      className={`w-full ${rounded} text-white bg-[var(--brand-primary)] hover:bg-[var(--brand-primary-hover)] focus:ring-2 focus:ring-[var(--brand-ring)]`}
-                      onClick={async () => {
-                        try {
-                          if (!backendUrl) {
-                            toast.error(t("missingBackendUrl") || "Missing backend URL");
+                {orderedColumns.map((column) => {
+                  const isEditing = editingColumn === column.id;
+                  
+                  return (
+                    <div key={columnKey(column)} className="w-[240px] flex-shrink-0 p-4 border-r last:border-r-0 flex items-center justify-center">
+                      <Button
+                        size="sm"
+                        className={`w-full ${rounded} text-white ${
+                          isEditing 
+                            ? 'bg-green-600 hover:bg-green-700' 
+                            : 'bg-[var(--brand-primary)] hover:bg-[var(--brand-primary-hover)] focus:ring-2 focus:ring-[var(--brand-ring)]'
+                        }`}
+                        onClick={async () => {
+                          // If in edit mode, save the column edits
+                          if (isEditing) {
+                            await saveEdit(column.id);
                             return;
                           }
 
-                          const baseUrl = await createInsurerShareLink({
-                            backendUrl,
-                            insurer: column.insurer || "",
-                            columns: orderedColumns,
-                            editable: false,
-                            role: "insurer",
-                            ttlHours: 168,
-                            companyName,
-                            employeesCount,
-                            viewPrefs, // persist current order + hidden rows
-                          });
+                          // Otherwise, create insurer share link
+                          try {
+                            if (!backendUrl) {
+                              toast.error(t("missingBackendUrl") || "Missing backend URL");
+                              return;
+                            }
 
-                          const shareUrl = appendHiddenFeaturesToUrl(baseUrl, hiddenFeatures);
+                            const baseUrl = await createInsurerShareLink({
+                              backendUrl,
+                              insurer: column.insurer || "",
+                              columns: orderedColumns,
+                              editable: false,
+                              role: "insurer",
+                              ttlHours: 168,
+                              companyName,
+                              employeesCount,
+                              viewPrefs, // persist current order + hidden rows
+                            });
 
-                          // Open the URL directly
-                          const newWindow = window.open(shareUrl, "_blank", "noopener,noreferrer");
-                          
-                          if (!newWindow || newWindow.closed) {
-                            throw new Error("Popup was blocked by browser");
+                            const shareUrl = appendHiddenFeaturesToUrl(baseUrl, hiddenFeatures);
+
+                            // Open the URL directly
+                            const newWindow = window.open(shareUrl, "_blank", "noopener,noreferrer");
+                            
+                            if (!newWindow || newWindow.closed) {
+                              throw new Error("Popup was blocked by browser");
+                            }
+                            
+                            toast.success(t("insurerLinkOpened") || "Insurer-only link opened in a new tab");
+                          } catch (e: any) {
+                            toast.error(`${t("failedToCreateShare") || "Failed to create share"}: ${e.message}`);
                           }
-                          
-                          toast.success(t("insurerLinkOpened") || "Insurer-only link opened in a new tab");
-                        } catch (e: any) {
-                          toast.error(`${t("failedToCreateShare") || "Failed to create share"}: ${e.message}`);
-                        }
-                      }}
-                    >
-                      {t("approve")}
-                    </Button>
-                  </div>
-                ))}
+                        }}
+                      >
+                        {isEditing ? t("save") : t("approve")}
+                      </Button>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
