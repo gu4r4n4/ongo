@@ -394,10 +394,10 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     console.log('🔵 Hidden features:', prefs?.hidden_features?.length || 0, 'items');
     
     try {
-      const payload = {
-        title: 'Piedāvājums',
-        company_name: companyName,
-        employees_count: employeesCount,
+      // Prepare payload with company metadata
+      const sharePayload = {
+        company_name: companyName || null,
+        employees_count: employeesCount ?? null,
         document_ids: docIds,
         editable: true,
         role: 'broker',
@@ -405,23 +405,28 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
           ? prefs 
           : { column_order: [], hidden_features: [] },
       };
-      console.log('🔵 Full share payload:', payload);
       
-      const res = await fetch(`${BACKEND_URL}/shares`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+      console.log('🔵 Full share payload:', sharePayload);
+      
+      // Use Supabase edge function for proper payload storage
+      const { data, error } = await supabase.functions.invoke('create-share', {
+        body: {
+          inquiry_id: inquiryId ? parseInt(inquiryId) : null,
+          title: 'Piedāvājums',
+          payload: sharePayload,
+          expires_in_hours: null
+        }
       });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data?.detail || `Failed (${res.status})`);
-      }
-      const data = await res.json();  // { ok, token, url, ... }
 
-      // Use the server's URL (respects SHARE_BASE_URL) or fallback to local
-      const feUrl = data.url || `${window.location.origin.replace(/\/$/, '')}/share/${data.token}`;
+      if (error) throw error;
+      if (!data?.token) throw new Error('No token returned');
+
+      const feUrl = `${window.location.origin}/share/${data.token}`;
       window.open(feUrl, '_blank', 'noopener,noreferrer');
       toast.success(t('shareLinkCreated'));
+      
+      // Refresh recent scans
+      setCurrentJobId(prev => prev ? prev + '_refresh' : 'refresh');
     } catch (err: any) {
       toast.error(`${t('failed') || 'Failed'}: ${err?.message || 'Share error'}`);
     }
