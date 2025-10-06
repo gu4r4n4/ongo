@@ -227,26 +227,42 @@ export default function ShareView() {
     propagateOffers = false,
     viewPrefs?: { column_order?: string[]; hidden_features?: string[] }
   ) => {
+    const body: any = {
+      company_name: editCompany,
+      employees_count: editEmployees === "" ? null : Number(editEmployees),
+    };
+    if (viewPrefs) body.view_prefs = viewPrefs;
+
+    const url = `${BACKEND_URL}/shares/${encodeURIComponent(token)}${
+      propagateOffers ? "?propagate_offers=1" : ""
+    }`;
+
     try {
-      const body: any = {
-        company_name: editCompany,
-        employees_count: editEmployees === "" ? null : Number(editEmployees),
-      };
-      if (viewPrefs) body.view_prefs = viewPrefs;
-      
-      const url = `https://qgzfakbddogmjxxcdflf.supabase.co/functions/v1/share-handler/${encodeURIComponent(token)}${propagateOffers ? '?propagate_offers=1' : ''}`;
-      
-      const res = await fetch(url, {
+      // Try PATCH to FastAPI backend (CORS already open there)
+      let res = await fetch(url, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-      
-      if (!res.ok) throw new Error(await res.text());
+
+      // Some proxies disallow PATCH; fall back to POST alias
+      if (res.status === 405) {
+        res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+      }
+
+      if (!res.ok) {
+        const text = await res.text().catch(() => "");
+        throw new Error(text || `HTTP ${res.status}`);
+      }
+
       await fetchShare();
       setEditingMeta(false);
     } catch (e: any) {
-      alert(`Failed to save: ${e.message}`);
+      alert(`Failed to save: ${e?.message || e}`);
     }
   };
 
