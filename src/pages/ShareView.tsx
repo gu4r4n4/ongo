@@ -576,7 +576,7 @@ export default function ShareView() {
                     variant="outline"
                     size="sm"
                   >
-                    Edit header
+                    {t('company')}
                   </Button>
                 )}
                 <Button
@@ -596,18 +596,18 @@ export default function ShareView() {
               <div className="grid gap-3 sm:grid-cols-3 border rounded-lg p-4 bg-card">
                 <div className="space-y-2">
                   <Label htmlFor="edit-company" className="text-sm text-muted-foreground">
-                    Company name
+                    {t('companyName')}
                   </Label>
                   <Input
                     id="edit-company"
                     value={editCompany}
                     onChange={(e) => setEditCompany(e.target.value)}
-                    placeholder="Company"
+                    placeholder={t('company')}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="edit-employees" className="text-sm text-muted-foreground">
-                    Employees
+                    {t('employees')}
                   </Label>
                   <Input
                     id="edit-employees"
@@ -620,25 +620,18 @@ export default function ShareView() {
                 </div>
                 <div className="flex items-end gap-2">
                   <Button
-                    onClick={() => handleSaveMeta(false)}
-                    size="sm"
-                    className="bg-green-600 hover:bg-green-700"
-                  >
-                    Save
-                  </Button>
-                  <Button
                     onClick={() => handleSaveMeta(true)}
                     size="sm"
                     variant="outline"
                   >
-                    Save & Update Offers
+                    {t('save')}
                   </Button>
                   <Button 
                     onClick={() => setEditingMeta(false)}
                     variant="outline"
                     size="sm"
                   >
-                    Cancel
+                    {t('cancel')}
                   </Button>
                 </div>
               </div>
