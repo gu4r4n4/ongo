@@ -1101,7 +1101,7 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
             <h3 className="text-xl font-bold">{t("pas")}</h3>
             <p className="text-sm text-muted-foreground">{t("pasSettings")}</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 self-end sm:self-auto">
             {onShare && !isShareView && (
               <Button
                 variant="outline"
