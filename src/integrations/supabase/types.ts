@@ -487,6 +487,7 @@ export type Database = {
           org_id: number | null
           payload: Json
           token: string
+          view_prefs: Json | null
         }
         Insert: {
           created_at?: string
@@ -497,6 +498,7 @@ export type Database = {
           org_id?: number | null
           payload?: Json
           token: string
+          view_prefs?: Json | null
         }
         Update: {
           created_at?: string
@@ -507,6 +509,7 @@ export type Database = {
           org_id?: number | null
           payload?: Json
           token?: string
+          view_prefs?: Json | null
         }
         Relationships: [
           {
