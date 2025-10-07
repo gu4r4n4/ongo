@@ -109,77 +109,41 @@ export default function ShareView() {
     };
   }, [offers]);
 
-  const fetchShare = async () => {
+  const fetchShareFastAPIOnly = async () => {
     setLoading(true);
-    console.log('🟢 Fetching share for token:', token);
+    try {
+      const r = await fetch(`${BACKEND_URL}/shares/${encodeURIComponent(token)}`);
+      if (!r.ok) {
+        setPayload(null);
+        setOffers([]);
+        setLoading(false);
+        return;
+      }
+      const data = await r.json();
 
-    // helper to set state from a response-like object
-    const applyShare = (resp: any) => {
-      const pl: SharePayload = (resp?.payload as SharePayload) || { mode: "snapshot" };
-      // Keep customer passthrough if present
-      if (resp?.customer && !pl.customer) pl.customer = resp.customer;
-
+      const pl: SharePayload = data.payload || { mode: "snapshot" };
+      if (data.customer && !pl.customer) pl.customer = data.customer;
       setPayload(pl);
 
-      // Prefer server-computed offers; else fall back to snapshot payload.results
-      const serverOffers: OfferGroup[] =
-        (Array.isArray(resp?.offers) && resp.offers.length > 0)
-          ? resp.offers
-          : (Array.isArray(pl.results) ? pl.results : []);
-
+      const serverOffers = (Array.isArray(data.offers) && data.offers.length > 0)
+        ? data.offers
+        : (Array.isArray(pl.results) ? pl.results : []);
       setOffers(serverOffers);
 
       console.log('📗 ShareView loaded with view_prefs:', pl.view_prefs);
       console.log('📗 Column order:', pl.view_prefs?.column_order?.length || 0, 'items');
       console.log('📗 Hidden features:', pl.view_prefs?.hidden_features?.length || 0, 'items');
-    };
 
-    try {
-      // 1) Try Supabase edge function first
-      const { supabase } = await import('@/integrations/supabase/client');
-      const { data, error } = await supabase.functions.invoke('share-handler', {
-        body: { token },
-      });
-
-      console.log('🟢 share-handler response:', { data, error });
-
-      if (!error && data) {
-        applyShare(data);
-
-        // If we got neither offers nor results, fall back to FastAPI (it has in-proc fallback)
-        const hasOffers = (Array.isArray(data?.offers) && data.offers.length > 0);
-        const hasSnapshot = (Array.isArray(data?.payload?.results) && data.payload.results.length > 0);
-        if (!hasOffers && !hasSnapshot) {
-          console.log('🟡 No offers in edge function; falling back to FastAPI /shares endpoint');
-          const r = await fetch(`${BACKEND_URL}/shares/${encodeURIComponent(token)}`);
-          if (r.ok) {
-            const fb = await r.json();
-            applyShare(fb);
-          }
-        }
-        setLoading(false);
-        return;
-      }
-
-      // 2) If edge failed, go directly to FastAPI
-      console.warn('🔴 Edge function failed or returned no data; using FastAPI /shares');
-      const r = await fetch(`${BACKEND_URL}/shares/${encodeURIComponent(token)}`);
-      if (!r.ok) {
-        setLoading(false);
-        setOffers([]);
-        setPayload(null);
-        return;
-      }
-      const fb = await r.json();
-      applyShare(fb);
       setLoading(false);
     } catch (err) {
-      console.error('Fetch share error:', err);
-      setLoading(false);
-      setOffers([]);
+      console.error("Fetch share error:", err);
       setPayload(null);
+      setOffers([]);
+      setLoading(false);
     }
   };
+
+  const fetchShare = fetchShareFastAPIOnly;
 
   useEffect(() => {
     let stopped = false;
@@ -266,86 +230,36 @@ export default function ShareView() {
     };
     if (viewPrefs) body.view_prefs = viewPrefs;
 
-    const fastapiUrl = `${BACKEND_URL}/shares/${encodeURIComponent(token)}${
+    const url = `${BACKEND_URL}/shares/${encodeURIComponent(token)}${
       propagateOffers ? "?propagate_offers=1" : ""
     }`;
 
     try {
-      // 1) Try Supabase edge function first (if it's wired up)
-      const { supabase } = await import('@/integrations/supabase/client');
-      const { error } = await supabase.functions.invoke('share-handler', {
-        body: {
-          token,
-          action: 'update',
-          propagate_offers: !!propagateOffers,
-          ...body,
-        },
+      let res = await fetch(url, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
       });
-      if (error) throw new Error(error.message || 'Edge update failed');
 
-      // 2) Force re-fetch from FastAPI to avoid any stale data from the edge path
-      const r = await fetch(fastapiUrl);
-      if (r.ok) {
-        const resp = await r.json();
-        // apply state directly so user sees changes immediately
-        const pl: SharePayload = (resp?.payload as SharePayload) || { mode: "snapshot" };
-        if (resp?.customer && !pl.customer) pl.customer = resp.customer;
-        setPayload(pl);
-        const updatedOffers =
-          (Array.isArray(resp?.offers) && resp.offers.length > 0)
-            ? resp.offers
-            : (Array.isArray(pl.results) ? pl.results : []);
-        setOffers(updatedOffers);
-        setEditingMeta(false);
-        return;
-      }
-
-      // If FastAPI read failed, fall back to the regular loader
-      await fetchShare();
-      setEditingMeta(false);
-    } catch (err) {
-      // 3) Fallback to FastAPI PATCH/POST (the path that used to work)
-      try {
-        let res = await fetch(fastapiUrl, {
-          method: "PATCH",
+      // Proxies sometimes block PATCH
+      if (res.status === 405) {
+        res = await fetch(url, {
+          method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
         });
-
-        // Some proxies disallow PATCH; fall back to POST alias
-        if (res.status === 405) {
-          res = await fetch(fastapiUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body),
-          });
-        }
-
-        if (!res.ok) {
-          const text = await res.text().catch(() => "");
-          throw new Error(text || `HTTP ${res.status}`);
-        }
-
-        // Force-read from FastAPI so we get the freshest payload/offers
-        const r = await fetch(fastapiUrl);
-        if (r.ok) {
-          const resp = await r.json();
-          const pl: SharePayload = (resp?.payload as SharePayload) || { mode: "snapshot" };
-          if (resp?.customer && !pl.customer) pl.customer = resp.customer;
-          setPayload(pl);
-          const updatedOffers =
-            (Array.isArray(resp?.offers) && resp.offers.length > 0)
-              ? resp.offers
-              : (Array.isArray(pl.results) ? pl.results : []);
-          setOffers(updatedOffers);
-        } else {
-          await fetchShare();
-        }
-
-        setEditingMeta(false);
-      } catch (e: any) {
-        alert(`Failed to save: ${e?.message || e}`);
       }
+
+      if (!res.ok) {
+        const text = await res.text().catch(() => "");
+        throw new Error(text || `HTTP ${res.status}`);
+      }
+
+      // Force-refresh from FastAPI to ensure we see latest payload + view_prefs
+      await fetchShareFastAPIOnly();
+      setEditingMeta(false);
+    } catch (e: any) {
+      alert(`Failed to save: ${e?.message || e}`);
     }
   };
 

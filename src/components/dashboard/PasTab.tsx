@@ -396,40 +396,31 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     console.log('🔵 Column order:', prefs?.column_order?.length || 0, 'items');
     console.log('🔵 Hidden features:', prefs?.hidden_features?.length || 0, 'items');
     
+    const body = {
+      title: 'Piedāvājums',
+      company_name: companyName || null,
+      employees_count: employeesCount ?? null,
+      document_ids: docIds,
+      editable: true,
+      role: 'broker',
+      view_prefs: prefs && (prefs.column_order.length || prefs.hidden_features.length)
+        ? prefs
+        : { column_order: [], hidden_features: [] },
+    };
+
     try {
-      // Build snapshot if we already have grouped offers
-      // (so ShareView can render even if the function doesn't compute "offers")
-      const snapshotResults = (offers && offers.length) ? offers : undefined;
-
-      const sharePayload: any = {
-        company_name: companyName || null,
-        employees_count: employeesCount ?? null,
-        document_ids: docIds,
-        editable: true,
-        role: 'broker',
-        view_prefs: (prefs && (prefs.column_order.length > 0 || prefs.hidden_features.length > 0))
-          ? prefs
-          : { column_order: [], hidden_features: [] },
-      };
-
-      if (snapshotResults) {
-        // If we pass results, the viewer can render without DB aggregation
-        sharePayload.results = snapshotResults;
+      const res = await fetch(`${BACKEND_URL}/shares`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      
+      if (!res.ok) {
+        const text = await res.text().catch(() => "");
+        throw new Error(text || `HTTP ${res.status}`);
       }
       
-      console.log('🔵 Full share payload:', sharePayload);
-      
-      // Use Supabase edge function for proper payload storage
-      const { data, error } = await supabase.functions.invoke('create-share', {
-        body: {
-          inquiry_id: inquiryId ? parseInt(inquiryId) : null,
-          title: 'Piedāvājums',
-          payload: sharePayload,
-          expires_in_hours: null
-        }
-      });
-
-      if (error) throw error;
+      const data = await res.json();
       if (!data?.token) throw new Error('No token returned');
 
       const feUrl = `${window.location.origin}/share/${data.token}`;
