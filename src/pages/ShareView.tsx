@@ -110,6 +110,7 @@ export default function ShareView() {
 
   const fetchShare = async () => {
     setLoading(true);
+    console.log('🟢 Fetching share for token:', token);
     try {
       // Use Supabase edge function to fetch share data
       const { supabase } = await import('@/integrations/supabase/client');
@@ -117,8 +118,10 @@ export default function ShareView() {
         body: { token }
       });
       
+      console.log('🟢 Share response:', { data, error });
+      
       if (error || !data) {
-        console.error('Error fetching share:', error);
+        console.error('🔴 Error fetching share:', error);
         setLoading(false);
         setOffers([]);
         setPayload(null);

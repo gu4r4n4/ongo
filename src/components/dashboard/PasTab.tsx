@@ -384,7 +384,10 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
 
   // Share functionality
   const shareResults = async (prefs?: ViewPrefs) => {
-    if (!docIds.length) {
+    console.log('🔴 Share button clicked, docIds:', docIds);
+    console.log('🔴 Columns:', columns.length);
+    
+    if (!docIds.length && columns.length === 0) {
       toast.error(t('noResultsToShare'));
       return;
     }
