@@ -1096,7 +1096,7 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
       )}
 
       {canEdit && (
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <h3 className="text-xl font-bold">{t("pas")}</h3>
             <p className="text-sm text-muted-foreground">{t("pasSettings")}</p>
