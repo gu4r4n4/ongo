@@ -5,7 +5,6 @@ import { ComparisonMatrix } from "@/components/dashboard/ComparisonMatrix";
 import MedicalServicesHeader from "@/components/MedicalServicesHeader";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useTranslation, Language } from "@/utils/translations";
-import { BACKEND_URL } from "@/config";
 import { BrandThemeProvider } from "@/theme/BrandThemeProvider";
 import { brokerTheme, insurerThemes, appTheme } from "@/theme/brandTheme";
 import { InsurerLogo } from "@/components/InsurerLogo";
@@ -112,14 +111,19 @@ export default function ShareView() {
   const fetchShare = async () => {
     setLoading(true);
     try {
-      const r = await fetch(`${BACKEND_URL}/shares/${encodeURIComponent(token)}`);
-      if (!r.ok) {
+      // Use Supabase edge function to fetch share data
+      const { supabase } = await import('@/integrations/supabase/client');
+      const { data, error } = await supabase.functions.invoke('share-handler', {
+        body: { token }
+      });
+      
+      if (error || !data) {
+        console.error('Error fetching share:', error);
         setLoading(false);
         setOffers([]);
         setPayload(null);
         return;
       }
-      const data = await r.json();
 
       const pl: SharePayload = data.payload || { mode: "snapshot" };
       
@@ -233,30 +237,20 @@ export default function ShareView() {
     };
     if (viewPrefs) body.view_prefs = viewPrefs;
 
-    const url = `${BACKEND_URL}/shares/${encodeURIComponent(token)}${
-      propagateOffers ? "?propagate_offers=1" : ""
-    }`;
-
     try {
-      // Try PATCH to FastAPI backend (CORS already open there)
-      let res = await fetch(url, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+      // Use Supabase edge function to update share data
+      const { supabase } = await import('@/integrations/supabase/client');
+      const { error } = await supabase.functions.invoke('share-handler', {
+        body: {
+          token,
+          action: 'update',
+          propagate_offers: propagateOffers,
+          ...body
+        }
       });
 
-      // Some proxies disallow PATCH; fall back to POST alias
-      if (res.status === 405) {
-        res = await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        });
-      }
-
-      if (!res.ok) {
-        const text = await res.text().catch(() => "");
-        throw new Error(text || `HTTP ${res.status}`);
+      if (error) {
+        throw new Error(error.message || 'Failed to update');
       }
 
       await fetchShare();
@@ -661,7 +655,6 @@ export default function ShareView() {
           canEdit={!!payload?.editable}
           showBuyButtons={payload?.role === "broker"}
           isShareView={true}
-          backendUrl={BACKEND_URL}
           shareToken={token}
         />
         )}

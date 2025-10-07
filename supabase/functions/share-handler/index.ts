@@ -14,7 +14,17 @@ serve(async (req) => {
 
   try {
     const url = new URL(req.url)
-    const token = url.pathname.split('/').pop()
+    
+    // Get token from path for GET requests or from body for POST requests
+    let token: string | null = null
+    let requestBody: any = null
+    
+    if (req.method === 'GET') {
+      token = url.pathname.split('/').pop() || null
+    } else if (req.method === 'POST') {
+      requestBody = await req.json()
+      token = requestBody.token || null
+    }
 
     if (!token) {
       return new Response(
@@ -32,11 +42,9 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // Handle PATCH request to update share metadata
-    if (req.method === 'PATCH') {
-      const body = await req.json()
-      const { company_name, employees_count, view_prefs } = body
-      const propagateOffers = url.searchParams.get('propagate_offers') === '1'
+    // Handle update request (POST with action: 'update')
+    if (req.method === 'POST' && requestBody?.action === 'update') {
+      const { company_name, employees_count, view_prefs, propagate_offers } = requestBody
 
       // Build the update object for share_links.payload
       const { data: currentShare, error: fetchError } = await supabase
@@ -80,7 +88,7 @@ serve(async (req) => {
       }
 
       // Optionally propagate to underlying offers
-      if (propagateOffers && currentShare.inquiry_id) {
+      if (propagate_offers && currentShare.inquiry_id) {
         const offerUpdates: any = {}
         if (company_name !== undefined) offerUpdates.company_name = company_name
         if (employees_count !== undefined) offerUpdates.employee_count = employees_count
@@ -106,7 +114,7 @@ serve(async (req) => {
       )
     }
 
-    // Handle GET request (existing logic)
+    // Handle GET/POST request to fetch share data
     // Get share data using secure function
     const { data: shareData, error: shareError } = await supabase.rpc(
       'get_share_by_token', 
