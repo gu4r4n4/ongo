@@ -26,16 +26,6 @@ serve(async (req) => {
 
     const { inquiry_id, title, payload, expires_in_hours } = await req.json()
 
-    if (!inquiry_id) {
-      return new Response(
-        JSON.stringify({ error: 'inquiry_id is required' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      )
-    }
-
     // Create Supabase client with service role key for secure operations
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
