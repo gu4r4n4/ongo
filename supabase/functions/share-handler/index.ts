@@ -7,6 +7,8 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  console.log('🔵 Share handler called:', req.method, req.url);
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -20,13 +22,19 @@ serve(async (req) => {
     let requestBody: any = null
     
     if (req.method === 'GET') {
+      console.log('🔵 GET request, extracting token from path');
       token = url.pathname.split('/').pop() || null
     } else if (req.method === 'POST') {
+      console.log('🔵 POST request, parsing body');
       requestBody = await req.json()
+      console.log('🔵 Request body:', JSON.stringify(requestBody));
       token = requestBody.token || null
     }
+    
+    console.log('🔵 Extracted token:', token);
 
     if (!token) {
+      console.log('🔴 No token provided');
       return new Response(
         JSON.stringify({ error: 'Token is required' }),
         { 
@@ -35,6 +43,8 @@ serve(async (req) => {
         }
       )
     }
+    
+    console.log('🔵 Token validated:', token);
 
     // Create Supabase client with service role key for secure access
     const supabase = createClient(
@@ -115,13 +125,18 @@ serve(async (req) => {
     }
 
     // Handle GET/POST request to fetch share data
+    console.log('🔵 Fetching share data for token:', token);
+    
     // Get share data using secure function
     const { data: shareData, error: shareError } = await supabase.rpc(
       'get_share_by_token', 
       { share_token: token }
     )
 
+    console.log('🔵 Share data response:', { shareData, shareError });
+
     if (shareError || !shareData || shareData.length === 0) {
+      console.log('🔴 Share not found or expired');
       return new Response(
         JSON.stringify({ error: 'Share not found or expired' }),
         { 
@@ -132,6 +147,7 @@ serve(async (req) => {
     }
 
     const share = shareData[0]
+    console.log('🔵 Share found:', { inquiry_id: share.inquiry_id, has_payload: !!share.payload });
 
     // Get offers data using secure function
     const { data: offersData, error: offersError } = await supabase.rpc(
@@ -139,8 +155,10 @@ serve(async (req) => {
       { share_token: token }
     )
 
+    console.log('🔵 Offers data response:', { count: offersData?.length, error: offersError });
+
     if (offersError) {
-      console.error('Error fetching offers:', offersError)
+      console.error('🔴 Error fetching offers:', offersError)
       return new Response(
         JSON.stringify({ error: 'Failed to fetch offers' }),
         { 
@@ -173,6 +191,8 @@ serve(async (req) => {
       payload: share.payload,
       offers: offers
     }
+
+    console.log('🟢 Returning response:', { ok: true, offers_count: offers.length });
 
     return new Response(
       JSON.stringify(response),
