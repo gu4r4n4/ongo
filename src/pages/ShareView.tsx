@@ -659,6 +659,7 @@ export default function ShareView() {
           showBuyButtons={payload?.role === "broker"}
           isShareView={true}
           shareToken={token}
+          backendUrl={BACKEND_URL}
         />
         )}
 
