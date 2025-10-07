@@ -149,40 +149,48 @@ serve(async (req) => {
     const share = shareData[0]
     console.log('🔵 Share found:', { inquiry_id: share.inquiry_id, has_payload: !!share.payload });
 
-    // Get offers data using secure function
-    const { data: offersData, error: offersError } = await supabase.rpc(
-      'get_offers_for_shared_inquiry',
-      { share_token: token }
-    )
-
-    console.log('🔵 Offers data response:', { count: offersData?.length, error: offersError });
-
-    if (offersError) {
-      console.error('🔴 Error fetching offers:', offersError)
-      return new Response(
-        JSON.stringify({ error: 'Failed to fetch offers' }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
+    // Only fetch offers from database if inquiry_id exists
+    // If document_ids exist in payload, frontend will fetch from external API
+    let offers = []
+    
+    if (share.inquiry_id) {
+      console.log('🔵 Fetching offers for inquiry_id:', share.inquiry_id);
+      const { data: offersData, error: offersError } = await supabase.rpc(
+        'get_offers_for_shared_inquiry',
+        { share_token: token }
       )
-    }
 
-    // Transform offers data to expected format
-    const offers = offersData && offersData.length > 0 ? [{
-      source_file: 'shared',
-      inquiry_id: share.inquiry_id,
-      programs: offersData.map((offer: any) => ({
-        insurer: offer.insurer,
-        program_code: offer.program_code,
-        base_sum_eur: offer.base_sum_eur,
-        premium_eur: offer.premium_eur,
-        payment_method: offer.payment_method,
-        company_name: offer.company_name,
-        employee_count: offer.employee_count,
-        features: offer.features || {}
-      }))
-    }] : []
+      console.log('🔵 Offers data response:', { count: offersData?.length, error: offersError });
+
+      if (offersError) {
+        console.error('🔴 Error fetching offers:', offersError)
+        return new Response(
+          JSON.stringify({ error: 'Failed to fetch offers' }),
+          { 
+            status: 500, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          }
+        )
+      }
+
+      // Transform offers data to expected format
+      offers = offersData && offersData.length > 0 ? [{
+        source_file: 'shared',
+        inquiry_id: share.inquiry_id,
+        programs: offersData.map((offer: any) => ({
+          insurer: offer.insurer,
+          program_code: offer.program_code,
+          base_sum_eur: offer.base_sum_eur,
+          premium_eur: offer.premium_eur,
+          payment_method: offer.payment_method,
+          company_name: offer.company_name,
+          employee_count: offer.employee_count,
+          features: offer.features || {}
+        }))
+      }] : []
+    } else {
+      console.log('🔵 No inquiry_id - document-based share, frontend will fetch offers');
+    }
 
     const response = {
       ok: true,
