@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { exportAllInsurerOffersXlsx } from "@/utils/exportXlsx";
+import { BACKEND_URL } from "@/config";
 
 type Program = {
   row_id?: number;
@@ -150,7 +151,6 @@ export default function ShareView() {
         const hasSnapshot = (Array.isArray(data?.payload?.results) && data.payload.results.length > 0);
         if (!hasOffers && !hasSnapshot) {
           console.log('🟡 No offers in edge function; falling back to FastAPI /shares endpoint');
-          const BACKEND_URL = 'https://pas-api-y8yv.onrender.com';
           const r = await fetch(`${BACKEND_URL}/shares/${encodeURIComponent(token)}`);
           if (r.ok) {
             const fb = await r.json();
@@ -163,7 +163,6 @@ export default function ShareView() {
 
       // 2) If edge failed, go directly to FastAPI
       console.warn('🔴 Edge function failed or returned no data; using FastAPI /shares');
-      const BACKEND_URL = 'https://pas-api-y8yv.onrender.com';
       const r = await fetch(`${BACKEND_URL}/shares/${encodeURIComponent(token)}`);
       if (!r.ok) {
         setLoading(false);
@@ -267,26 +266,86 @@ export default function ShareView() {
     };
     if (viewPrefs) body.view_prefs = viewPrefs;
 
+    const fastapiUrl = `${BACKEND_URL}/shares/${encodeURIComponent(token)}${
+      propagateOffers ? "?propagate_offers=1" : ""
+    }`;
+
     try {
-      // Use Supabase edge function to update share data
+      // 1) Try Supabase edge function first (if it's wired up)
       const { supabase } = await import('@/integrations/supabase/client');
       const { error } = await supabase.functions.invoke('share-handler', {
         body: {
           token,
           action: 'update',
-          propagate_offers: propagateOffers,
-          ...body
-        }
+          propagate_offers: !!propagateOffers,
+          ...body,
+        },
       });
+      if (error) throw new Error(error.message || 'Edge update failed');
 
-      if (error) {
-        throw new Error(error.message || 'Failed to update');
+      // 2) Force re-fetch from FastAPI to avoid any stale data from the edge path
+      const r = await fetch(fastapiUrl);
+      if (r.ok) {
+        const resp = await r.json();
+        // apply state directly so user sees changes immediately
+        const pl: SharePayload = (resp?.payload as SharePayload) || { mode: "snapshot" };
+        if (resp?.customer && !pl.customer) pl.customer = resp.customer;
+        setPayload(pl);
+        const updatedOffers =
+          (Array.isArray(resp?.offers) && resp.offers.length > 0)
+            ? resp.offers
+            : (Array.isArray(pl.results) ? pl.results : []);
+        setOffers(updatedOffers);
+        setEditingMeta(false);
+        return;
       }
 
+      // If FastAPI read failed, fall back to the regular loader
       await fetchShare();
       setEditingMeta(false);
-    } catch (e: any) {
-      alert(`Failed to save: ${e?.message || e}`);
+    } catch (err) {
+      // 3) Fallback to FastAPI PATCH/POST (the path that used to work)
+      try {
+        let res = await fetch(fastapiUrl, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+
+        // Some proxies disallow PATCH; fall back to POST alias
+        if (res.status === 405) {
+          res = await fetch(fastapiUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+          });
+        }
+
+        if (!res.ok) {
+          const text = await res.text().catch(() => "");
+          throw new Error(text || `HTTP ${res.status}`);
+        }
+
+        // Force-read from FastAPI so we get the freshest payload/offers
+        const r = await fetch(fastapiUrl);
+        if (r.ok) {
+          const resp = await r.json();
+          const pl: SharePayload = (resp?.payload as SharePayload) || { mode: "snapshot" };
+          if (resp?.customer && !pl.customer) pl.customer = resp.customer;
+          setPayload(pl);
+          const updatedOffers =
+            (Array.isArray(resp?.offers) && resp.offers.length > 0)
+              ? resp.offers
+              : (Array.isArray(pl.results) ? pl.results : []);
+          setOffers(updatedOffers);
+        } else {
+          await fetchShare();
+        }
+
+        setEditingMeta(false);
+      } catch (e: any) {
+        alert(`Failed to save: ${e?.message || e}`);
+      }
     }
   };
 
