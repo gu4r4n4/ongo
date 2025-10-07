@@ -605,7 +605,7 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
           {/* Processing Status */}
           {job && (
             <div className="text-sm text-muted-foreground text-center">
-              {t('processingProgress')?.replace('{done}', String(job.done)).replace('{total}', String(job.total)) || `Processed ${job.done}/${job.total} files...`}
+              {t('processingProgress')?.replace('{done}', String(job.done ?? 0)).replace('{total}', String(job.total ?? 0)) || `Processed ${job.done ?? 0}/${job.total ?? 0} files...`}
               {job.errors?.length > 0 && (
                 <div className="text-destructive text-xs mt-1">
                   {job.errors.length} file(s) failed to process
