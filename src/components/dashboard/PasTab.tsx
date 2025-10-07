@@ -397,17 +397,25 @@ const PasTab = ({ currentLanguage }: PasTabProps) => {
     console.log('🔵 Hidden features:', prefs?.hidden_features?.length || 0, 'items');
     
     try {
-      // Prepare payload with company metadata
-      const sharePayload = {
+      // Build snapshot if we already have grouped offers
+      // (so ShareView can render even if the function doesn't compute "offers")
+      const snapshotResults = (offers && offers.length) ? offers : undefined;
+
+      const sharePayload: any = {
         company_name: companyName || null,
         employees_count: employeesCount ?? null,
         document_ids: docIds,
         editable: true,
         role: 'broker',
-        view_prefs: prefs && (prefs.column_order.length > 0 || prefs.hidden_features.length > 0) 
-          ? prefs 
+        view_prefs: (prefs && (prefs.column_order.length > 0 || prefs.hidden_features.length > 0))
+          ? prefs
           : { column_order: [], hidden_features: [] },
       };
+
+      if (snapshotResults) {
+        // If we pass results, the viewer can render without DB aggregation
+        sharePayload.results = snapshotResults;
+      }
       
       console.log('🔵 Full share payload:', sharePayload);
       

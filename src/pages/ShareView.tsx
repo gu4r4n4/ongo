@@ -111,44 +111,71 @@ export default function ShareView() {
   const fetchShare = async () => {
     setLoading(true);
     console.log('🟢 Fetching share for token:', token);
+
+    // helper to set state from a response-like object
+    const applyShare = (resp: any) => {
+      const pl: SharePayload = (resp?.payload as SharePayload) || { mode: "snapshot" };
+      // Keep customer passthrough if present
+      if (resp?.customer && !pl.customer) pl.customer = resp.customer;
+
+      setPayload(pl);
+
+      // Prefer server-computed offers; else fall back to snapshot payload.results
+      const serverOffers: OfferGroup[] =
+        (Array.isArray(resp?.offers) && resp.offers.length > 0)
+          ? resp.offers
+          : (Array.isArray(pl.results) ? pl.results : []);
+
+      setOffers(serverOffers);
+
+      console.log('📗 ShareView loaded with view_prefs:', pl.view_prefs);
+      console.log('📗 Column order:', pl.view_prefs?.column_order?.length || 0, 'items');
+      console.log('📗 Hidden features:', pl.view_prefs?.hidden_features?.length || 0, 'items');
+    };
+
     try {
-      // Use Supabase edge function to fetch share data
+      // 1) Try Supabase edge function first
       const { supabase } = await import('@/integrations/supabase/client');
       const { data, error } = await supabase.functions.invoke('share-handler', {
-        body: { token }
+        body: { token },
       });
-      
-      console.log('🟢 Share response:', { data, error });
-      
-      if (error || !data) {
-        console.error('🔴 Error fetching share:', error);
+
+      console.log('🟢 share-handler response:', { data, error });
+
+      if (!error && data) {
+        applyShare(data);
+
+        // If we got neither offers nor results, fall back to FastAPI (it has in-proc fallback)
+        const hasOffers = (Array.isArray(data?.offers) && data.offers.length > 0);
+        const hasSnapshot = (Array.isArray(data?.payload?.results) && data.payload.results.length > 0);
+        if (!hasOffers && !hasSnapshot) {
+          console.log('🟡 No offers in edge function; falling back to FastAPI /shares endpoint');
+          const BACKEND_URL = 'https://pas-api-y8yv.onrender.com';
+          const r = await fetch(`${BACKEND_URL}/shares/${encodeURIComponent(token)}`);
+          if (r.ok) {
+            const fb = await r.json();
+            applyShare(fb);
+          }
+        }
+        setLoading(false);
+        return;
+      }
+
+      // 2) If edge failed, go directly to FastAPI
+      console.warn('🔴 Edge function failed or returned no data; using FastAPI /shares');
+      const BACKEND_URL = 'https://pas-api-y8yv.onrender.com';
+      const r = await fetch(`${BACKEND_URL}/shares/${encodeURIComponent(token)}`);
+      if (!r.ok) {
         setLoading(false);
         setOffers([]);
         setPayload(null);
         return;
       }
-
-      const pl: SharePayload = data.payload || { mode: "snapshot" };
-      
-      // Handle customer data from backend - can be in payload directly or in customer object
-      if (data.customer && !pl.customer) {
-        pl.customer = data.customer;
-      }
-      
-      setPayload(pl);
-
-      // Use the server-filtered offers directly from the share response
-      // This preserves any filtering like insurer_only that was applied server-side
-      const serverOffers = data.offers || [];
-      setOffers(serverOffers);
-      
-      console.log('📗 ShareView loaded with view_prefs:', pl.view_prefs);
-      console.log('📗 Column order:', pl.view_prefs?.column_order?.length || 0, 'items');
-      console.log('📗 Hidden features:', pl.view_prefs?.hidden_features?.length || 0, 'items');
-      
+      const fb = await r.json();
+      applyShare(fb);
       setLoading(false);
-    } catch (error) {
-      console.error('Fetch share error:', error);
+    } catch (err) {
+      console.error('Fetch share error:', err);
       setLoading(false);
       setOffers([]);
       setPayload(null);
