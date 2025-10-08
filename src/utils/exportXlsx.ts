@@ -281,7 +281,7 @@ export async function exportAllInsurerOffersXlsx(
       }
       
       // Copy cell styles row by row
-      for (let r = 1; r <= 60; r++) {
+      for (let r = 1; r <= 65; r++) {
         try {
           const sourceCell = sheet.cell(r, 2);
           const targetCell = sheet.cell(r, excelCol);
@@ -307,6 +307,14 @@ export async function exportAllInsurerOffersXlsx(
           
           const border = sourceCell.style("border");
           if (border) targetCell.style("border", border);
+          
+          // Copy values for rows 60-65 (payment method section)
+          if (r >= 60 && r <= 65) {
+            const sourceValue = sourceCell.value();
+            if (sourceValue !== null && sourceValue !== undefined) {
+              targetCell.value(sourceValue);
+            }
+          }
         } catch (e) {
           // Skip cells that can't be styled
           console.warn(`Could not copy style for row ${r}:`, e.message);
