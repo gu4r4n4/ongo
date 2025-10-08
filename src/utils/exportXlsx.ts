@@ -280,7 +280,7 @@ export async function exportAllInsurerOffersXlsx(
         console.warn("Could not copy column width:", e);
       }
       
-      // Copy cell styles row by row
+      // Copy cell styles row by row (excluding values for now)
       for (let r = 1; r <= 65; r++) {
         try {
           const sourceCell = sheet.cell(r, 2);
@@ -307,14 +307,6 @@ export async function exportAllInsurerOffersXlsx(
           
           const border = sourceCell.style("border");
           if (border) targetCell.style("border", border);
-          
-          // Copy values for rows 60-65 (payment method section)
-          if (r >= 60 && r <= 65) {
-            const sourceValue = sourceCell.value();
-            if (sourceValue !== null && sourceValue !== undefined) {
-              targetCell.value(sourceValue);
-            }
-          }
         } catch (e) {
           // Skip cells that can't be styled
           console.warn(`Could not copy style for row ${r}:`, e.message);
@@ -366,6 +358,24 @@ export async function exportAllInsurerOffersXlsx(
     }
   }
   console.log("All columns populated");
+
+  // 3.5) Copy values from column B (rows 60-65) to all other columns
+  console.log("Copying payment method rows (60-65) to all columns...");
+  for (let colIndex = 1; colIndex < columns.length; colIndex++) {
+    const excelCol = colIndex + 2; // Column C, D, E, etc.
+    for (let r = 60; r <= 65; r++) {
+      try {
+        const sourceCell = sheet.cell(r, 2); // Column B
+        const targetCell = sheet.cell(r, excelCol);
+        const sourceValue = sourceCell.value();
+        if (sourceValue !== null && sourceValue !== undefined && sourceValue !== "") {
+          targetCell.value(sourceValue);
+        }
+      } catch (e) {
+        console.warn(`Could not copy value for row ${r}, col ${excelCol}:`, e.message);
+      }
+    }
+  }
 
   // 4) Produce XLSX and trigger download
   console.log("Generating XLSX output...");
