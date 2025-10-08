@@ -263,22 +263,17 @@ export async function exportAllInsurerOffersXlsx(
       .value(`Nodarbināto skaits: ${opts.employeesCount}`);
   }
 
-  // 2.5) Save template values for payment method rows (55-60) BEFORE populating
-  // Row 55: "līgumiestādēs nopirkts pakalpojums" -> %
-  // Row 56: "čeku apmaksa, skat.Piem." -> v
-  // Row 57-60: "Ģimenes ārsta apmeklējums" etc. -> 100%
-  console.log("Saving template values from rows 55-60...");
-  const savedTemplateValues: { row: number; value: any }[] = [];
-  
-  for (let r = 55; r <= 60; r++) {
-    try {
-      const cellValue = sheet.cell(r, 2).value();
-      savedTemplateValues.push({ row: r, value: cellValue });
-      console.log(`Row ${r} value:`, cellValue, `(type: ${typeof cellValue})`);
-    } catch (e) {
-      console.warn(`Could not read value for row ${r}:`, e);
-    }
-  }
+  // 2.5) Define template values for payment method rows (55-60)
+  // These values should always be the same across all columns
+  console.log("Setting up payment method section values...");
+  const savedTemplateValues: { row: number; value: any }[] = [
+    { row: 55, value: "%" },
+    { row: 56, value: "v" },
+    { row: 57, value: "100%" },
+    { row: 58, value: "100%" },
+    { row: 59, value: "100%" },
+    { row: 60, value: "100%" }
+  ];
 
   // 3) For each column, populate data in columns B, C, D, etc.
   console.log("Populating", columns.length, "columns...");
