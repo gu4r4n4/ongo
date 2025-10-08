@@ -46,7 +46,7 @@ const KEY_ALIASES: Record<string, string> = {
   "Medikamenti ar 50% atlaidi": "Medikamenti ar 50% atlaidi",
   "Kritiskās saslimšanas": "Kritiskās saslimšanas",
   "Maksas stacionārie pakalpojumi, limits EUR (pp)":
-    "Maksas stacionārie pakalpojumi, limits EUR",
+    "Maksas stacionārie pakalpojumi, limits EUR (pp)",
   "Optika 50%, limits EUR": "Optika 50%, limits EUR",
 };
 
@@ -83,6 +83,7 @@ const TEMPLATE_LABELS: Record<string, string> = {
   "Neatliekamā palīdzība valsts un privātā (limits privātai, EUR)":
     "Neatliekamā palīdzība valsts un privātā (limits privātai, EUR)",
   "Maksas stacionārie pakalpojumi, limits EUR": "Maksas stacionārie pakalpojumi, limits EUR",
+  "Maksas stacionārie pakalpojumi, limits EUR (pp)": "Maksas stacionārie pakalpojumi, limits EUR (pp)",
   "Maksas stacionārā rehabilitācija, limits EUR":
     "Maksas stacionārā rehabilitācija, limits EUR",
   "Ambulatorā rehabilitācija": "Ambulatorā rehabilitācija",
