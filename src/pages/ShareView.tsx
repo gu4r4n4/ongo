@@ -551,7 +551,7 @@ export default function ShareView() {
               <img 
                 src="/logos/broker-logo.png" 
                 alt="Broker Logo" 
-                className="h-12 w-auto"
+                className="h-12 w-auto hidden"
               />
             )}
           </div>
