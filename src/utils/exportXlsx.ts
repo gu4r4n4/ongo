@@ -263,20 +263,20 @@ export async function exportAllInsurerOffersXlsx(
       .value(`Nodarbināto skaits: ${opts.employeesCount}`);
   }
 
-  // 2.5) Save template values from rows 60-65 in column B BEFORE populating
-  console.log("Saving template values from rows 60-65...");
+  // 2.5) Save template values from rows 60-64 in column B BEFORE populating
+  // (Row 65 gets its values from features data, so we skip it)
+  console.log("Saving template values from rows 60-64...");
   const savedTemplateValues: { [row: number]: any } = {};
-  for (let r = 60; r <= 65; r++) {
+  for (let r = 60; r <= 64; r++) {
     try {
       const cellValue = sheet.cell(r, 2).value();
-      if (cellValue !== null && cellValue !== undefined && cellValue !== "") {
-        savedTemplateValues[r] = cellValue;
-        console.log(`Saved row ${r}: ${cellValue}`);
-      }
+      savedTemplateValues[r] = cellValue;
+      console.log(`Row ${r} column B value:`, cellValue, `(type: ${typeof cellValue})`);
     } catch (e) {
       console.warn(`Could not read template value for row ${r}:`, e);
     }
   }
+  console.log("Saved template values:", savedTemplateValues);
 
   // 3) For each column, populate data in columns B, C, D, etc.
   console.log("Populating", columns.length, "columns...");
@@ -374,13 +374,15 @@ export async function exportAllInsurerOffersXlsx(
   }
   console.log("All columns populated");
 
-  // 3.5) Restore saved template values (rows 60-65) to ALL columns
-  console.log("Restoring payment method rows (60-65) to all columns...");
+  // 3.5) Restore saved template values (rows 60-64) to ALL columns
+  // (Row 65 has feature data, so we only restore 60-64)
+  console.log("Restoring payment method rows (60-64) to all columns...");
   for (let colIndex = 0; colIndex < columns.length; colIndex++) {
     const excelCol = colIndex + 2; // Column B, C, D, E, etc.
-    for (let r = 60; r <= 65; r++) {
-      if (savedTemplateValues[r] !== undefined) {
+    for (let r = 60; r <= 64; r++) {
+      if (savedTemplateValues[r] !== undefined && savedTemplateValues[r] !== null && savedTemplateValues[r] !== "") {
         try {
+          console.log(`Setting row ${r}, col ${excelCol} to:`, savedTemplateValues[r]);
           sheet.cell(r, excelCol).value(savedTemplateValues[r]);
         } catch (e) {
           console.warn(`Could not restore value for row ${r}, col ${excelCol}:`, e.message);
