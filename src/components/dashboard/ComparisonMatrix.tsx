@@ -1248,9 +1248,9 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({
                       {/* Program code badge */}
                       <Badge
                         variant="outline"
-                        className="text-xs max-w-full bg-[#004287] text-white border-[#004287] whitespace-normal leading-tight py-1 min-h-[1.5rem] flex items-center justify-center"
+                        className="text-[10px] w-full bg-[#004287] text-white border-[#004287] whitespace-normal leading-snug py-1.5 px-2 min-h-[1.5rem] flex items-center justify-center"
                       >
-                        <span className="break-words text-center">{column.program_code}</span>
+                        <span className="break-words text-center hyphens-auto" style={{ wordBreak: 'break-word' }}>{column.program_code}</span>
                       </Badge>
 
                       {isEditing ? (
