@@ -367,6 +367,10 @@ export async function exportAllInsurerOffersXlsx(
     for (const [canonical, labelInTemplate] of Object.entries(TEMPLATE_LABELS)) {
       const row = findRowByLabel(sheet, labelInTemplate);
       if (!row) continue;
+      
+      // Skip rows 57-60 - these should keep template values (100%)
+      if (row >= 57 && row <= 60) continue;
+      
       const val = getFeature(canonical);
       if (val === undefined) continue;
       const cell = sheet.cell(row, excelCol);
