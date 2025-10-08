@@ -264,6 +264,9 @@ export async function exportAllInsurerOffersXlsx(
   }
 
   // 2.5) Save template values for payment method rows (55-60) BEFORE populating
+  // Row 55: "līgumiestādēs nopirkts pakalpojums" -> %
+  // Row 56: "čeku apmaksa, skat.Piem." -> v
+  // Row 57-60: "Ģimenes ārsta apmeklējums" etc. -> 100%
   console.log("Saving template values from rows 55-60...");
   const savedTemplateValues: { row: number; value: any }[] = [];
   
@@ -373,7 +376,7 @@ export async function exportAllInsurerOffersXlsx(
   }
   console.log("All columns populated");
 
-  // 3.5) Restore saved template values to ALL columns
+  // 3.5) Restore saved template values (rows 55-60) to ALL columns
   console.log("Restoring payment method section values to all columns...");
   for (let colIndex = 0; colIndex < columns.length; colIndex++) {
     const excelCol = colIndex + 2; // Column B, C, D, E, etc.
