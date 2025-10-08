@@ -263,32 +263,17 @@ export async function exportAllInsurerOffersXlsx(
       .value(`Nodarbināto skaits: ${opts.employeesCount}`);
   }
 
-  // 2.5) Save template values for payment method rows BEFORE populating
-  // We need to find these rows by their labels and save their values
-  console.log("Finding and saving payment method section values...");
+  // 2.5) Save template values for payment method rows (55-60) BEFORE populating
+  console.log("Saving template values from rows 55-60...");
   const savedTemplateValues: { row: number; value: any }[] = [];
   
-  const paymentSectionLabels = [
-    "līgumiestādēs nopirkts pakalpojums",
-    "čeku apmaksa, skat.Piem.",
-    "Ģimenes ārsta apmeklējums",
-    "Ārsta-speciālista apmeklējums",
-    "Ārstēšanās slimnīcā (sākot ar otro dienu)",
-    "Ārstēšanās dienas stacionārā (par katru dienu)"
-  ];
-  
-  for (const label of paymentSectionLabels) {
-    const row = findRowByLabel(sheet, label);
-    if (row) {
-      try {
-        const cellValue = sheet.cell(row, 2).value();
-        savedTemplateValues.push({ row, value: cellValue });
-        console.log(`Found "${label}" at row ${row}, value:`, cellValue);
-      } catch (e) {
-        console.warn(`Could not read value for "${label}" at row ${row}:`, e);
-      }
-    } else {
-      console.warn(`Could not find row for label: "${label}"`);
+  for (let r = 55; r <= 60; r++) {
+    try {
+      const cellValue = sheet.cell(r, 2).value();
+      savedTemplateValues.push({ row: r, value: cellValue });
+      console.log(`Row ${r} value:`, cellValue, `(type: ${typeof cellValue})`);
+    } catch (e) {
+      console.warn(`Could not read value for row ${r}:`, e);
     }
   }
 
@@ -310,7 +295,7 @@ export async function exportAllInsurerOffersXlsx(
       }
       
       // Copy cell styles row by row (excluding values for now)
-      for (let r = 1; r <= 65; r++) {
+      for (let r = 1; r <= 60; r++) {
         try {
           const sourceCell = sheet.cell(r, 2);
           const targetCell = sheet.cell(r, excelCol);
